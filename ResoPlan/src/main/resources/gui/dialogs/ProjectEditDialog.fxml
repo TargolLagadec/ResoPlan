@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.Slider?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.layout.ColumnConstraints?>
+<?import javafx.scene.layout.GridPane?>
+<?import javafx.scene.layout.RowConstraints?>
+
+<GridPane hgap="10" vgap="10" xmlns="http://javafx.com/javafx/26" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.targol.resoplan.ui.dialogs.ProjectEditDialogControler">
+	<children>
+		<Label text="%Dialog.project.name" GridPane.columnIndex="0" GridPane.rowIndex="0" />
+		<TextField fx:id="nameTextField" GridPane.columnIndex="1" GridPane.rowIndex="0" />
+
+		<Label text="%Dialog.project.nbFloors" GridPane.columnIndex="0" GridPane.rowIndex="1" />
+		<Slider fx:id="nbFloorsSlider" blockIncrement="1" majorTickUnit="1" max="3" min="1" minorTickCount="0" showTickLabels="true" showTickMarks="true" value="1" GridPane.columnIndex="1" GridPane.rowIndex="1" />
+	</children>
+   <columnConstraints>
+      <ColumnConstraints />
+      <ColumnConstraints />
+   </columnConstraints>
+   <rowConstraints>
+      <RowConstraints />
+      <RowConstraints />
+   </rowConstraints>
+</GridPane>

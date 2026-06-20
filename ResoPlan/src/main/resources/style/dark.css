@@ -1,0 +1,13 @@
+@import "common.css";
+
+.root { 
+    -fx-accent: #404040;
+    -fx-focus-color: -fx-accent;
+    -fx-base: #181818;
+    -fx-control-inner-background: derive(-fx-base, 15%);
+    -fx-control-inner-background-alt: -fx-control-inner-background ;
+}
+
+.label{
+    -fx-text-fill: #979797;
+}
