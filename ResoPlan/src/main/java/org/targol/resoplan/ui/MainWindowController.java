@@ -6,11 +6,12 @@ import java.util.Locale;
 import java.util.Optional;
 import java.util.ResourceBundle;
 
-import org.springframework.stereotype.Controller;
+import org.springframework.stereotype.Component;
 import org.targol.resoplan.i18n.Messages;
 import org.targol.resoplan.model.Project;
 import org.targol.resoplan.services.ProjectsService;
 import org.targol.resoplan.ui.dialogs.PreferencesDialogControler;
+import org.targol.resoplan.ui.panels.FloorsAdjustmentPanel;
 import org.targol.resoplan.ui.panels.WelcomePanelController;
 import org.targol.resoplan.ui.utils.DialogsManager;
 import org.targol.resoplan.ui.utils.PanelBuilder;
@@ -24,7 +25,7 @@ import javafx.scene.control.MenuItem;
 import javafx.scene.layout.StackPane;
 import javafx.stage.Stage;
 
-@Controller
+@Component
 public class MainWindowController {
 
 	private final ProjectsService service;
@@ -33,7 +34,12 @@ public class MainWindowController {
 	private Menu mnuRecentProjects;
 	@FXML
 	private MenuItem mnuClose;
-
+	@FXML
+	private MenuItem mnuAjust;
+	@FXML
+	private MenuItem mnuNetwork;
+	@FXML
+	private MenuItem mnuDebit;
 	@FXML
 	private StackPane contentPane;
 
@@ -56,7 +62,7 @@ public class MainWindowController {
 		resu.ifPresent(param -> {
 			final Project proj = this.service.createProject(param.name(), param.nbFloors());
 			refreshRecentProjectsMenu();
-			openProject(proj);
+			openProject(proj, true);
 		});
 	}
 
@@ -68,8 +74,28 @@ public class MainWindowController {
 	}
 
 	@FXML
+	private void displayAdjustPanel() {
+		this.contentPane.getChildren().setAll(new FloorsAdjustmentPanel(this.service.getOpenedProject()));
+	}
+
+	@FXML
+	private void displayNetworksPanel() {
+		this.contentPane.getChildren().setAll(PanelBuilder.buildProjectTabPane(this.service.getOpenedProject()));
+	}
+
+	@FXML
+	private void displayDebitPanel() {
+
+	}
+
+	@FXML
 	private void closeProject() {
 		this.service.setOpenedProject(null);
+		this.mnuClose.setDisable(true);
+		this.mnuAjust.setDisable(true);
+		this.mnuNetwork.setDisable(true);
+		this.mnuDebit.setDisable(true);
+
 		loadWelcomeView();
 		final Stage stage = (Stage) this.contentPane.getScene().getWindow();
 		stage.setTitle(Messages.getString("MainWindow.title")); //$NON-NLS-1$
@@ -91,9 +117,20 @@ public class MainWindowController {
 	}
 
 	private void openProject(final Project project) {
+		openProject(project, false);
+	}
+
+	private void openProject(final Project project, final boolean newProj) {
 		this.service.setOpenedProject(project);
-		this.contentPane.getChildren().setAll(PanelBuilder.buildProjectTabPane(project));
+		if (newProj) {
+			displayAdjustPanel();
+		} else {
+			displayNetworksPanel();
+		}
 		this.mnuClose.setDisable(false);
+		this.mnuAjust.setDisable(false);
+		this.mnuNetwork.setDisable(false);
+		this.mnuDebit.setDisable(false);
 		final Stage stage = (Stage) this.contentPane.getScene().getWindow();
 		stage.setTitle(Messages.getString("MainWindow.title.withProj", project.getName())); //$NON-NLS-1$
 	}

@@ -29,13 +29,13 @@ public class Floor {
 	private String imgPath;
 
 	@Column(name = "shiftX")
-	private int shiftX;
+	private double shiftX;
 
 	@Column(name = "shiftY")
-	private int shiftY;
+	private double shiftY;
 
 	@Column(name = "zoomFactor")
-	private float zoomFactor;
+	private double zoomFactor;
 
 	@OneToMany(fetch = FetchType.EAGER, cascade = CascadeType.ALL, orphanRemoval = true)
 	@JoinColumn(name = "ProjectId", referencedColumnName = "id")
@@ -73,27 +73,27 @@ public class Floor {
 		this.imgPath = imgPath;
 	}
 
-	public int getShiftX() {
+	public double getShiftX() {
 		return this.shiftX;
 	}
 
-	public void setShiftX(final int shiftX) {
+	public void setShiftX(final double shiftX) {
 		this.shiftX = shiftX;
 	}
 
-	public int getShiftY() {
+	public double getShiftY() {
 		return this.shiftY;
 	}
 
-	public void setShiftY(final int shiftY) {
+	public void setShiftY(final double shiftY) {
 		this.shiftY = shiftY;
 	}
 
-	public float getZoomFactor() {
+	public double getZoomFactor() {
 		return this.zoomFactor;
 	}
 
-	public void setZoomFactor(final float zoomFactor) {
+	public void setZoomFactor(final double zoomFactor) {
 		this.zoomFactor = zoomFactor;
 	}
 

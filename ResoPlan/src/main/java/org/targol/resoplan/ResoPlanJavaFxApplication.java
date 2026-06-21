@@ -31,8 +31,8 @@ public class ResoPlanJavaFxApplication extends Application {
 	public void start(final Stage stage) throws Exception {
 		this.mainWindow = stage;
 		final Locale locale = Locale.getDefault();
-		final ResourceBundle bundle = ResourceBundle.getBundle("i18n.messages", locale);
-		final FXMLLoader loader = new FXMLLoader(getClass().getResource("/gui/MainWindow.fxml"), bundle);
+		final ResourceBundle bundle = ResourceBundle.getBundle("i18n.messages", locale); //$NON-NLS-1$
+		final FXMLLoader loader = new FXMLLoader(getClass().getResource("/gui/MainWindow.fxml"), bundle); //$NON-NLS-1$
 		loader.setControllerFactory(this.context::getBean);
 		final Parent root = loader.load();
 		stage.setTitle("UML2Java");

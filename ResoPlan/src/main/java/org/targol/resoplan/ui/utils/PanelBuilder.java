@@ -13,7 +13,7 @@ public class PanelBuilder {
 	public static TabPane buildProjectTabPane(final Project proj) {
 		final TabPane ret = new TabPane();
 		for (final Floor floor : proj.getFloors()) {
-			final LayeredTab tab = new LayeredTab(Messages.getString("ProjectPane.floorname", floor.getNumber()));
+			final LayeredTab tab = new LayeredTab(Messages.getString("ProjectPane.floorname", floor.getNumber())); //$NON-NLS-1$
 			ret.getTabs().add(tab);
 		}
 		ret.setTabClosingPolicy(TabClosingPolicy.UNAVAILABLE);

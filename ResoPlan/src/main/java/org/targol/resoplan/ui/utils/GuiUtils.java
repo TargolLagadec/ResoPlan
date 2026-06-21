@@ -8,9 +8,19 @@ import javafx.scene.control.Alert;
 import javafx.scene.control.TextField;
 import javafx.scene.control.TextFormatter;
 import javafx.scene.control.TextInputDialog;
+import javafx.scene.effect.ColorAdjust;
 import javafx.scene.image.Image;
+import javafx.scene.paint.Color;
 
 public class GuiUtils {
+
+	public static ColorAdjust buildColorFilter(final Color color) {
+		final ColorAdjust monochrome = new ColorAdjust();
+		monochrome.setHue(color.getHue());
+		monochrome.setSaturation(color.getSaturation());
+		monochrome.setContrast(0.5);
+		return monochrome;
+	}
 
 	public static Image createImageViewFromInternalPng(final String imageInternalPath) {
 		return new Image(GuiUtils.class.getResourceAsStream(imageInternalPath));
@@ -28,19 +38,6 @@ public class GuiUtils {
 		infoAlert(msg);
 	}
 
-	/**
-	 * Displays a TextInput dialog
-	 *
-	 * @param title        dialog title
-	 * @param msg          dialog content text
-	 * @param initialValue initial content of input. can be <code>null</code>
-	 * @param regExp       if no <code>null</code>, limits allowed chars in input
-	 *                     TextField.<br>
-	 *                     for example, if set to "<code>[A-Z0-9_]*</code>", it will
-	 *                     limit input to Upper case letters, numeral digits ans
-	 *                     underscore char ("_").
-	 * @return an optional that content entered text if any.
-	 */
 	public static Optional<String> getTextFromInputDialog(final String title, final String msg,
 			final String initialValue, final String regExp) {
 		final String ret = null;
@@ -69,7 +66,7 @@ public class GuiUtils {
 		final Alert alert = new Alert(type);
 		alert.setTitle(title);
 		alert.setContentText(contentText);
-//		ThemesManager.getInstance().setTheme(alert.getDialogPane());
 		alert.showAndWait();
 	}
+
 }
