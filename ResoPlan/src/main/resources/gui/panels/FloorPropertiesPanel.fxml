@@ -28,19 +28,19 @@
 			GridPane.columnIndex="2" GridPane.rowIndex="3" />
 
 		<Label text="%FloorPropertiesPanel.zoomFactor" GridPane.rowIndex="4" />
-		<Spinner fx:id="zoomSpinner" min="0" max="200" initialValue="100" GridPane.columnIndex="1"
+		<Spinner fx:id="zoomSpinner" min="0.0" max="200.0" initialValue="100.0"  GridPane.columnIndex="1"
 			GridPane.columnSpan="2" GridPane.rowIndex="4">
 			<editable>true</editable>
 		</Spinner>
 
 		<Label text="%FloorPropertiesPanel.shiftX" GridPane.rowIndex="5" />
-		<Spinner fx:id="shiftXSpinner" min="-500" max="500" initialValue="0" GridPane.columnIndex="1" GridPane.columnSpan="2"
+		<Spinner fx:id="shiftXSpinner" min="-1500.0" max="1500.0" initialValue="0.0" GridPane.columnIndex="1" GridPane.columnSpan="2"
 			GridPane.rowIndex="5" >
 			<editable>true</editable>
 		</Spinner>
 		
 		<Label text="%FloorPropertiesPanel.shiftY" GridPane.rowIndex="6" />
-		<Spinner fx:id="shiftYSpinner" min="-500" max="500" initialValue="0" GridPane.columnIndex="1" GridPane.columnSpan="2"
+		<Spinner fx:id="shiftYSpinner" min="-1500.0" max="1500.0" initialValue="0.0" GridPane.columnIndex="1" GridPane.columnSpan="2"
 			GridPane.rowIndex="6" >
 			<editable>true</editable>
 		</Spinner>

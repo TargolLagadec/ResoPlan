@@ -65,7 +65,6 @@ public class FloorsAdjustmentPanel extends BorderPane {
 			layerImageView.setPreserveRatio(true);
 			layerImageView.setVisible(propPanel.getVisibleCheck().isSelected());
 			layerImageView.imageProperty().bind(propPanel.imageProperty());
-			layerImageView.effectProperty().bind(propPanel.effectProperty());
 			layerImageView.visibleProperty().bind(propPanel.getVisibleCheck().selectedProperty());
 			layerImageView.opacityProperty().bind(propPanel.getTransparencySlider().valueProperty());
 			layerImageView.scaleXProperty().bind(propPanel.zoomProperty());

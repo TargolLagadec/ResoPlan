@@ -25,7 +25,6 @@ import javafx.scene.control.CheckBox;
 import javafx.scene.control.Slider;
 import javafx.scene.control.Spinner;
 import javafx.scene.control.TextField;
-import javafx.scene.effect.ColorAdjust;
 import javafx.scene.image.Image;
 import javafx.scene.layout.GridPane;
 import javafx.scene.paint.Color;
@@ -42,7 +41,7 @@ public class FloorPropertiesPanel extends GridPane {
 		colors.put(1, Color.RED);
 		colors.put(2, Color.BLUE);
 		colors.put(3, Color.GREEN);
-		colors.put(4, Color.AQUA);
+		colors.put(4, Color.DARKORANGE);
 		colors.put(5, Color.BLUEVIOLET);
 	}
 
@@ -60,18 +59,18 @@ public class FloorPropertiesPanel extends GridPane {
 	@FXML
 	private Rectangle teintSample;
 	@FXML
-	private Spinner<Integer> zoomSpinner;
+	private Spinner<Double> zoomSpinner;
 	@FXML
-	private Spinner<Integer> shiftXSpinner;
+	private Spinner<Double> shiftXSpinner;
 	@FXML
-	private Spinner<Integer> shiftYSpinner;
+	private Spinner<Double> shiftYSpinner;
 
 	private final Floor floor;
 	private final ResourceBundle bundle = ResourceBundle.getBundle("i18n.messages", Locale.getDefault()); //$NON-NLS-1$
+	private Image originalImage;
 
 	private final ObjectProperty<Image> imageProperty = new SimpleObjectProperty<>();
 	private final ObjectProperty<Color> colorProperty = new SimpleObjectProperty<>(Color.BLACK);
-	private final ObjectProperty<ColorAdjust> effectProperty = new SimpleObjectProperty<>(new ColorAdjust());
 	private final ObjectProperty<Double> zoomProperty = new SimpleObjectProperty<>(1.0d);
 	private final ObjectProperty<Double> shiftXProperty = new SimpleObjectProperty<>(0.0d);
 	private final ObjectProperty<Double> shiftYProperty = new SimpleObjectProperty<>(0.0d);
@@ -100,9 +99,17 @@ public class FloorPropertiesPanel extends GridPane {
 			this.visibleCheck.setDisable(true);
 			this.transparencySlider.setDisable(true);
 		}
-		// TODO Mettre à jour les valeurs si existantes dans le Floor
+		this.zoomProperty.set(this.floor.getZoomFactor());
+		this.zoomSpinner.getValueFactory().setValue(this.floor.getZoomFactor() * 100);
+		this.shiftXProperty.set(this.floor.getShiftX());
+		this.shiftXSpinner.getValueFactory().setValue(this.floor.getShiftX());
+		this.shiftYProperty.set(this.floor.getShiftY());
+		this.shiftYSpinner.getValueFactory().setValue(this.floor.getShiftY());
 
 		initializeSaveTimer();
+		this.teintSlider.valueProperty().addListener((observable, oldValue, newValue) -> {
+			changeColor(newValue.intValue());
+		});
 
 		this.teintSample.setFill(this.colorProperty.get());
 		if (this.floor.getImgPath() != null) {
@@ -111,6 +118,7 @@ public class FloorPropertiesPanel extends GridPane {
 			if (imageFile.exists()) {
 				this.fileNameTextField.setText(imageFile.getAbsolutePath());
 				final Image img = new Image(imageFile.toURI().toString());
+				this.originalImage = img;
 				this.imageProperty.set(img);
 			}
 		}
@@ -119,13 +127,12 @@ public class FloorPropertiesPanel extends GridPane {
 	private void initializeSaveTimer() {
 		this.autoSaveTimer.setOnFinished(event -> {
 			// On récupère les valeurs actuelles des contrôles graphiques
-			this.floor.setZoomFactor(this.zoomSpinner.getValueFactory().getValue());
-			this.zoomProperty.set((double) this.zoomSpinner.getValueFactory().getValue() / 100);
+			this.floor.setZoomFactor(this.zoomSpinner.getValueFactory().getValue() / 100);
+			this.zoomProperty.set(this.zoomSpinner.getValueFactory().getValue() / 100);
 			this.floor.setShiftX(this.shiftXSpinner.getValueFactory().getValue());
 			this.shiftXProperty.set((double) this.shiftXSpinner.getValueFactory().getValue());
 			this.floor.setShiftY(this.shiftYSpinner.getValueFactory().getValue());
 			this.shiftYProperty.set((double) this.shiftYSpinner.getValueFactory().getValue());
-			changeColor((int) this.teintSlider.valueProperty().get());
 			this.floorsService.updateFloor(this.floor);
 			System.out.println("Sauvegarde automatique de l'étage effectuée en BDD.");
 		});
@@ -136,15 +143,13 @@ public class FloorPropertiesPanel extends GridPane {
 		this.shiftYSpinner.getValueFactory().valueProperty()
 				.addListener((obs, old, newVal) -> this.autoSaveTimer.playFromStart());
 		this.transparencySlider.valueProperty().addListener((obs, old, newVal) -> this.autoSaveTimer.playFromStart());
-		this.teintSlider.valueProperty()
-				.addListener((observable, oldValue, newValue) -> this.autoSaveTimer.playFromStart());
-
 	}
 
 	private void changeColor(final int newValue) {
-		this.colorProperty.set(colors.get(newValue));
-		this.effectProperty.set(GuiUtils.buildColorFilter(this.colorProperty.get()));
-		this.teintSample.setFill(this.colorProperty.get());
+		final Color targetColor = colors.get(newValue);
+		this.colorProperty.set(targetColor);
+		this.teintSample.setFill(targetColor);
+		this.imageProperty.set(GuiUtils.colorizeImage(this.originalImage, targetColor));
 	}
 
 	@FXML
@@ -161,6 +166,7 @@ public class FloorPropertiesPanel extends GridPane {
 		this.floor.setImgPath(result.getAbsolutePath());
 		this.floorsService.updateFloor(this.floor);
 		final Image newImage = new Image(result.toURI().toString());
+		this.originalImage = newImage;
 		this.imageProperty.set(newImage);
 	}
 
