@@ -9,38 +9,34 @@ import javafx.beans.property.DoubleProperty;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SimpleDoubleProperty;
 import javafx.beans.property.SimpleObjectProperty;
-import javafx.scene.control.CheckBox;
+import javafx.scene.control.RadioButton;
 import javafx.scene.control.Tooltip;
 import javafx.scene.image.ImageView;
 
-public class CustomLayerCheckBox extends CheckBox implements IThemeChangeListener {
+public class CustomLayerRadio extends RadioButton implements IThemeChangeListener {
 
-	private final ObjectProperty<String> type = new SimpleObjectProperty<>(null);
+	private final ObjectProperty<LayerRadioType> type = new SimpleObjectProperty<>(null);
 	private final DoubleProperty imgWidth = new SimpleDoubleProperty(16.0d);
 
-	public CustomLayerCheckBox(final LayerCheckType type) {
-		this();
-		setType(type.getKey());
-	}
-
-	public CustomLayerCheckBox() {
+	public CustomLayerRadio(final LayerRadioType type) {
 		this.type.addListener((obs, oldValue, newValue) -> {
 			updateAppearance();
 		});
 		this.imgWidth.addListener((obs, oldValue, newValue) -> {
 			updateAppearance();
 		});
+		setType(type);
 	}
 
-	public String getType() {
+	public LayerRadioType getType() {
 		return this.type.get();
 	}
 
-	public void setType(final String type) {
+	public void setType(final LayerRadioType type) {
 		this.type.set(type);
 	}
 
-	public ObjectProperty<String> typeProperty() {
+	public ObjectProperty<LayerRadioType> typeProperty() {
 		return this.type;
 	}
 
@@ -57,15 +53,15 @@ public class CustomLayerCheckBox extends CheckBox implements IThemeChangeListene
 	}
 
 	private void updateAppearance() {
-		final String buttonType = getType();
+		final LayerRadioType buttonType = getType();
 		if (buttonType == null) {
 			return;
 		}
-		final ImageView view = new ImageView(ThemesManager.getInstance().getIcon(this.type.get()));
+		final ImageView view = new ImageView(ThemesManager.getInstance().getIcon(buttonType.getKey()));
 		view.setPreserveRatio(true);
 		view.fitWidthProperty().set(this.imgWidth.get());
 		setGraphic(view);
-		setTooltip(new Tooltip(Messages.getString("LayerCheck.".concat(buttonType)))); //$NON-NLS-1$
+		setTooltip(new Tooltip(Messages.getString("LayerCheck.".concat(buttonType.getKey())))); //$NON-NLS-1$
 	}
 
 	@Override

@@ -2,6 +2,8 @@ package org.targol.resoplan.ui.components;
 
 import org.targol.resoplan.i18n.Messages;
 import org.targol.resoplan.ui.utils.ThemesManager;
+import org.targol.resoplan.ui.utils.ThemesManager.Theme;
+import org.targol.resoplan.utils.IThemeChangeListener;
 
 import javafx.beans.property.DoubleProperty;
 import javafx.beans.property.ObjectProperty;
@@ -11,18 +13,29 @@ import javafx.scene.control.Button;
 import javafx.scene.control.Tooltip;
 import javafx.scene.image.ImageView;
 
-public class CustomButton extends Button {
+public class CustomButton extends Button implements IThemeChangeListener {
 
 	private final ObjectProperty<String> type = new SimpleObjectProperty<>(null);
 	private final DoubleProperty imgWidth = new SimpleDoubleProperty(16.0d);
 
 	public CustomButton() {
+		this.setPrefHeight(20);
+		this.setPrefWidth(20);
+		this.setMinHeight(20);
+		this.setMinWidth(20);
+		this.setMaxHeight(20);
+		this.setMaxWidth(20);
 		this.type.addListener((obs, oldValue, newValue) -> {
 			updateAppearance();
 		});
 		this.imgWidth.addListener((obs, oldValue, newValue) -> {
 			updateAppearance();
 		});
+	}
+
+	@Override
+	public void themeChanged(final Theme newTheme) {
+		updateAppearance();
 	}
 
 	public String getType() {

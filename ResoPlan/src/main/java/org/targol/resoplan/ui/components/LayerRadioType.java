@@ -1,6 +1,6 @@
 package org.targol.resoplan.ui.components;
 
-public enum LayerCheckType {
+public enum LayerRadioType {
 	ELEC("elec"), //$NON-NLS-1$
 	EAU_ALIM("arrivee"), //$NON-NLS-1$
 	EAU_EVAC("evac"), //$NON-NLS-1$
@@ -8,7 +8,7 @@ public enum LayerCheckType {
 
 	private final String key;
 
-	LayerCheckType(final String key) {
+	LayerRadioType(final String key) {
 		this.key = key;
 	}
 

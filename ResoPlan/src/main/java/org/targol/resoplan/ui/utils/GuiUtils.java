@@ -52,6 +52,41 @@ public class GuiUtils {
 		return tintedImage;
 	}
 
+	public static Image changeColorInImage(final Image originalImage, final Color initialColor,
+			final Color targetColor) {
+		if (originalImage == null) {
+			return originalImage;
+		}
+		final int width = (int) originalImage.getWidth();
+		final int height = (int) originalImage.getHeight();
+		// if image not yet fully loaded, exit
+		if (width <= 0 || height <= 0) {
+			return originalImage;
+		}
+		final WritableImage resultImage = new WritableImage(width, height);
+		final PixelReader reader = originalImage.getPixelReader();
+		final PixelWriter writer = resultImage.getPixelWriter();
+
+		// Changing black or dark grey pixels with pixels of chosen color
+		for (int y = 0; y < height; y++) {
+			for (int x = 0; x < width; x++) {
+				final Color pixelColor = reader.getColor(x, y);
+				if (areEqualsColorsExceptTransparency(initialColor, pixelColor)) {
+					final Color newColor = new Color(targetColor.getRed(), targetColor.getGreen(), targetColor.getBlue(),
+							pixelColor.getOpacity());
+					writer.setColor(x, y, newColor);
+				} else {
+					writer.setColor(x, y, pixelColor);
+				}
+			}
+		}
+		return resultImage;
+	}
+
+	private static boolean areEqualsColorsExceptTransparency(final Color col1, final Color col2) {
+		return col1.getRed() == col2.getRed() && col1.getGreen() == col2.getGreen() && col1.getBlue() == col2.getBlue();
+	}
+
 	public static Effect buildColorFilter(final Color color) {
 		// Black color means no effect
 		if (Color.BLACK.equals(color)) {

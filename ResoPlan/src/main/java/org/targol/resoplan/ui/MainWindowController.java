@@ -8,15 +8,25 @@ import java.util.ResourceBundle;
 
 import org.springframework.stereotype.Component;
 import org.targol.resoplan.i18n.Messages;
+import org.targol.resoplan.model.Floor;
 import org.targol.resoplan.model.Project;
 import org.targol.resoplan.services.ProjectsService;
+import org.targol.resoplan.ui.components.CustomButton;
+import org.targol.resoplan.ui.components.LayerRadioType;
 import org.targol.resoplan.ui.dialogs.PreferencesDialogControler;
 import org.targol.resoplan.ui.panels.FloorsAdjustmentPanel;
 import org.targol.resoplan.ui.panels.WelcomePanelController;
-import org.targol.resoplan.ui.utils.DialogsManager;
-import org.targol.resoplan.ui.utils.PanelBuilder;
+import org.targol.resoplan.ui.panels.floornetwork.FloorsNetworksTab;
+import org.targol.resoplan.ui.utils.AppState;
+import org.targol.resoplan.ui.utils.AppStateManager;
+import org.targol.resoplan.ui.utils.DialogsHelper;
+import org.targol.resoplan.ui.utils.GuiUtils;
+import org.targol.resoplan.utils.PreferencesManager;
 import org.targol.resoplan.utils.ProjectParams;
 
+import javafx.beans.binding.Bindings;
+import javafx.beans.binding.BooleanBinding;
+import javafx.beans.property.ObjectProperty;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
@@ -35,11 +45,36 @@ public class MainWindowController {
 	@FXML
 	private MenuItem mnuClose;
 	@FXML
-	private MenuItem mnuAjust;
+	private MenuItem mnuAlign;
 	@FXML
 	private MenuItem mnuNetwork;
 	@FXML
 	private MenuItem mnuDebit;
+	@FXML
+	private CustomButton toolAlign;
+	@FXML
+	private CustomButton toolNetworks;
+	@FXML
+	private CustomButton toolEvacSortie;
+	@FXML
+	private CustomButton toolEvacDown3;
+	@FXML
+	private CustomButton toolEvacDown4;
+	@FXML
+	private CustomButton toolEvacDown10;
+	@FXML
+	private CustomButton toolEvacUp3;
+	@FXML
+	private CustomButton toolEvacUp4;
+	@FXML
+	private CustomButton toolEvacUp10;
+	@FXML
+	private CustomButton toolEvacTube3;
+	@FXML
+	private CustomButton toolEvacTube4;
+	@FXML
+	private CustomButton toolEvacTube10;
+
 	@FXML
 	private StackPane contentPane;
 
@@ -53,11 +88,72 @@ public class MainWindowController {
 	private void initialize() {
 		refreshRecentProjectsMenu();
 		loadWelcomeView();
+		manageAccesses();
+	}
+
+	private void manageAccesses() {
+		final AppStateManager stateMgr = AppStateManager.getInstance();
+		final ObjectProperty<AppState> state = stateMgr.currentAppStateProperty();
+		this.mnuClose.disableProperty().bind(state.isEqualTo(AppState.NO_PROJECT));
+		this.mnuAlign.disableProperty().bind(state.isEqualTo(AppState.NO_PROJECT));
+		this.toolAlign.disableProperty().bind(state.isEqualTo(AppState.NO_PROJECT));
+		PreferencesManager.getInstance().addThemeChangeListener(this.toolAlign);
+		this.mnuNetwork.disableProperty()
+				.bind(state.isEqualTo(AppState.NO_PROJECT).or(state.isEqualTo(AppState.PROJECT_WITHOUT_IMAGES)));
+		this.toolNetworks.disableProperty()
+				.bind(state.isEqualTo(AppState.NO_PROJECT).or(state.isEqualTo(AppState.PROJECT_WITHOUT_IMAGES)));
+		PreferencesManager.getInstance().addThemeChangeListener(this.toolNetworks);
+		this.mnuDebit.disableProperty()
+				.bind(state.isEqualTo(AppState.NO_PROJECT).or(state.isEqualTo(AppState.PROJECT_WITHOUT_IMAGES)));
+
+		final BooleanBinding baseEvacDisable = stateMgr.currentAppStateProperty().isNotEqualTo(AppState.PROJECT_READY)
+				.or(stateMgr.activeFloorProperty().isNull())
+				.or(stateMgr.activeNetworkLayerProperty().isNotEqualTo(LayerRadioType.EAU_EVAC));
+		final BooleanBinding sortieDisable = baseEvacDisable
+				.or(Bindings.createBooleanBinding(
+						() -> stateMgr.activeFloorProperty().get() == null
+								|| stateMgr.activeFloorProperty().get().getNumber() != 0,
+						stateMgr.activeFloorProperty()));
+		final BooleanBinding downDisable = baseEvacDisable
+				.or(Bindings.createBooleanBinding(
+						() -> stateMgr.activeFloorProperty().get() != null
+								&& stateMgr.activeFloorProperty().get().getNumber() == 0,
+						stateMgr.activeFloorProperty()));
+		final BooleanBinding upDisable = baseEvacDisable.or(Bindings.createBooleanBinding(() -> {
+			final Floor activeFloor = stateMgr.activeFloorProperty().get();
+			final Project activeProj = stateMgr.currentProjectProperty().get();
+			if (activeFloor == null) {
+				return true;
+			}
+			final int lastFloorNumber = activeProj.getFloors().size() - 1;
+			return activeFloor.getNumber() == lastFloorNumber;
+		}, stateMgr.activeFloorProperty()));
+
+		final List<CustomButton> tubeTools = List.of(this.toolEvacTube3, this.toolEvacTube4, this.toolEvacTube10);
+		tubeTools.forEach(btn -> {
+			PreferencesManager.getInstance().addThemeChangeListener(btn);
+			btn.disableProperty().bind(baseEvacDisable);
+		});
+
+		PreferencesManager.getInstance().addThemeChangeListener(this.toolEvacSortie);
+		this.toolEvacSortie.disableProperty().bind(sortieDisable);
+
+		final List<CustomButton> downTools = List.of(this.toolEvacDown3, this.toolEvacDown4, this.toolEvacDown10);
+		downTools.forEach(btn -> {
+			PreferencesManager.getInstance().addThemeChangeListener(btn);
+			btn.disableProperty().bind(downDisable);
+		});
+
+		final List<CustomButton> upTools = List.of(this.toolEvacUp3, this.toolEvacUp4, this.toolEvacUp10);
+		upTools.forEach(btn -> {
+			PreferencesManager.getInstance().addThemeChangeListener(btn);
+			btn.disableProperty().bind(upDisable);
+		});
 	}
 
 	@FXML
 	private void newProject() {
-		final Optional<ProjectParams> resu = DialogsManager
+		final Optional<ProjectParams> resu = DialogsHelper
 				.showProjectEditorDialog(this.contentPane.getScene().getWindow(), null);
 		resu.ifPresent(param -> {
 			final Project proj = this.service.createProject(param.name(), param.nbFloors());
@@ -80,7 +176,14 @@ public class MainWindowController {
 
 	@FXML
 	private void displayNetworksPanel() {
-		this.contentPane.getChildren().setAll(PanelBuilder.buildProjectTabPane(this.service.getOpenedProject()));
+		final boolean hasMissingImage = this.service.getOpenedProject().getFloors().stream()
+				.anyMatch(floor -> floor.getImgPath() == null || floor.getImgPath().isEmpty());
+		if (hasMissingImage) {
+			GuiUtils.errorAlert(Messages.getString("LayeredTab.floorWithNoImage")); //$NON-NLS-1$
+			displayAdjustPanel();
+			return;
+		}
+		this.contentPane.getChildren().setAll(new FloorsNetworksTab(this.service.getOpenedProject()));
 	}
 
 	@FXML
@@ -91,11 +194,7 @@ public class MainWindowController {
 	@FXML
 	private void closeProject() {
 		this.service.setOpenedProject(null);
-		this.mnuClose.setDisable(true);
-		this.mnuAjust.setDisable(true);
-		this.mnuNetwork.setDisable(true);
-		this.mnuDebit.setDisable(true);
-
+		AppStateManager.getInstance().setOpenedProject(null);
 		loadWelcomeView();
 		final Stage stage = (Stage) this.contentPane.getScene().getWindow();
 		stage.setTitle(Messages.getString("MainWindow.title")); //$NON-NLS-1$
@@ -122,15 +221,12 @@ public class MainWindowController {
 
 	private void openProject(final Project project, final boolean newProj) {
 		this.service.setOpenedProject(project);
+		AppStateManager.getInstance().setOpenedProject(project);
 		if (newProj) {
 			displayAdjustPanel();
 		} else {
 			displayNetworksPanel();
 		}
-		this.mnuClose.setDisable(false);
-		this.mnuAjust.setDisable(false);
-		this.mnuNetwork.setDisable(false);
-		this.mnuDebit.setDisable(false);
 		final Stage stage = (Stage) this.contentPane.getScene().getWindow();
 		stage.setTitle(Messages.getString("MainWindow.title.withProj", project.getName())); //$NON-NLS-1$
 	}

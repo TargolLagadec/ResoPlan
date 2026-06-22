@@ -5,6 +5,7 @@ import java.util.Objects;
 import org.targol.resoplan.utils.PreferencesManager;
 
 import javafx.scene.image.Image;
+import javafx.scene.paint.Color;
 
 public class ThemesManager {
 
@@ -22,25 +23,29 @@ public class ThemesManager {
 	}
 
 	public Image getIcon(final String name) {
-		final String path = PreferencesManager.getInstance().getCurrentTheme().getImagesRelativePath().concat(name)
-				.concat(".png"); //$NON-NLS-1$
-		return new Image(Objects.requireNonNull(getClass().getResourceAsStream(path)));
+		final String path = "/images/custom/".concat(name).concat(".png"); //$NON-NLS-1$ //$NON-NLS-2$
+		Image icon = new Image(Objects.requireNonNull(getClass().getResourceAsStream(path)));
+		final Color iconColor = PreferencesManager.getInstance().getCurrentTheme().getImagesMainColor();
+		if (!Color.WHITE.equals(iconColor)) {
+			icon = GuiUtils.changeColorInImage(icon, Color.WHITE, iconColor);
+		}
+		return icon;
 	}
 
 	public enum Theme {
-		DARK("Dark", "/style/dark.css", "/images/dark/"), //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
-		GREY("Grey", "/style/grey.css", "/images/grey/"), //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
-		SUNNY("Sunny", "/style/sunny.css", "/images/sunny/"), //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
-		ICEBERG("Iceberg", "/style/iceberg.css", "/images/iceberg/"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+		DARK("Dark", "/style/dark.css", Color.WHITE), //$NON-NLS-1$ //$NON-NLS-2$
+		GREY("Grey", "/style/grey.css", Color.WHITE), //$NON-NLS-1$ //$NON-NLS-2$
+		SUNNY("Sunny", "/style/sunny.css", Color.SADDLEBROWN), //$NON-NLS-1$ //$NON-NLS-2$
+		ICEBERG("Iceberg", "/style/iceberg.css", Color.NAVY); //$NON-NLS-1$ //$NON-NLS-2$
 
 		private final String name;
 		private final String cssRelativePath;
-		private final String imagesRelativePath;
+		private final Color imagesMainColor;
 
-		private Theme(final String name, final String cssRelativePath, final String imagesRelativePath) {
+		private Theme(final String name, final String cssRelativePath, final Color imagesMainColor) {
 			this.name = name;
 			this.cssRelativePath = cssRelativePath;
-			this.imagesRelativePath = imagesRelativePath;
+			this.imagesMainColor = imagesMainColor;
 		}
 
 		public String getName() {
@@ -51,8 +56,8 @@ public class ThemesManager {
 			return this.cssRelativePath;
 		}
 
-		public String getImagesRelativePath() {
-			return this.imagesRelativePath;
+		public Color getImagesMainColor() {
+			return this.imagesMainColor;
 		}
 
 	}

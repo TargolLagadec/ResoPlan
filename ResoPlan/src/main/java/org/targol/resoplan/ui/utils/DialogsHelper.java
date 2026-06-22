@@ -17,7 +17,7 @@ import javafx.scene.control.Dialog;
 import javafx.scene.layout.GridPane;
 import javafx.stage.Window;
 
-public class DialogsManager {
+public class DialogsHelper {
 
 	private static final ResourceBundle bundle = ResourceBundle.getBundle("i18n.messages", Locale.getDefault()); //$NON-NLS-1$
 
@@ -31,7 +31,7 @@ public class DialogsManager {
 	 */
 	public static Optional<ProjectParams> showProjectEditorDialog(final Window owner, final ProjectParams prj) {
 		final FXMLLoader loader = new FXMLLoader(
-				DialogsManager.class.getResource("/gui/dialogs/ProjectEditDialog.fxml"), bundle); //$NON-NLS-1$
+				DialogsHelper.class.getResource("/gui/dialogs/ProjectEditDialog.fxml"), bundle); //$NON-NLS-1$
 		GridPane dialogContent;
 		try {
 			dialogContent = loader.load();
@@ -49,7 +49,7 @@ public class DialogsManager {
 		}
 		dialog.initOwner(owner);
 		dialog.getDialogPane().setContent(dialogContent);
-//		String css = DialogsManager.class.getResource("/stylesdouble_slider.css").toExternalForm();
+//		String css = DialogsHelper.class.getResource("/stylesdouble_slider.css").toExternalForm();
 //		scene.getStylesheets().add(css);
 		final ButtonType buttonTypeOk = new ButtonType(Messages.getString("Generic.dialog.Ok"), //$NON-NLS-1$
 				ButtonBar.ButtonData.OK_DONE);
