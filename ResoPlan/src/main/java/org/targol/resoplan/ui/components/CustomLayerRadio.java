@@ -1,6 +1,7 @@
 package org.targol.resoplan.ui.components;
 
 import org.targol.resoplan.i18n.Messages;
+import org.targol.resoplan.model.LayerType;
 import org.targol.resoplan.ui.utils.ThemesManager;
 import org.targol.resoplan.ui.utils.ThemesManager.Theme;
 import org.targol.resoplan.utils.IThemeChangeListener;
@@ -15,10 +16,10 @@ import javafx.scene.image.ImageView;
 
 public class CustomLayerRadio extends RadioButton implements IThemeChangeListener {
 
-	private final ObjectProperty<LayerRadioType> type = new SimpleObjectProperty<>(null);
-	private final DoubleProperty imgWidth = new SimpleDoubleProperty(16.0d);
+	private final ObjectProperty<LayerType> type = new SimpleObjectProperty<>(null);
+	private final DoubleProperty imgWidth = new SimpleDoubleProperty(20.0d);
 
-	public CustomLayerRadio(final LayerRadioType type) {
+	public CustomLayerRadio(final LayerType type) {
 		this.type.addListener((obs, oldValue, newValue) -> {
 			updateAppearance();
 		});
@@ -28,15 +29,15 @@ public class CustomLayerRadio extends RadioButton implements IThemeChangeListene
 		setType(type);
 	}
 
-	public LayerRadioType getType() {
+	public LayerType getType() {
 		return this.type.get();
 	}
 
-	public void setType(final LayerRadioType type) {
+	public void setType(final LayerType type) {
 		this.type.set(type);
 	}
 
-	public ObjectProperty<LayerRadioType> typeProperty() {
+	public ObjectProperty<LayerType> typeProperty() {
 		return this.type;
 	}
 
@@ -53,7 +54,7 @@ public class CustomLayerRadio extends RadioButton implements IThemeChangeListene
 	}
 
 	private void updateAppearance() {
-		final LayerRadioType buttonType = getType();
+		final LayerType buttonType = getType();
 		if (buttonType == null) {
 			return;
 		}

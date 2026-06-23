@@ -8,30 +8,29 @@ import java.util.ResourceBundle;
 
 import org.springframework.stereotype.Component;
 import org.targol.resoplan.i18n.Messages;
-import org.targol.resoplan.model.Floor;
 import org.targol.resoplan.model.Project;
 import org.targol.resoplan.services.ProjectsService;
-import org.targol.resoplan.ui.components.CustomButton;
-import org.targol.resoplan.ui.components.LayerRadioType;
 import org.targol.resoplan.ui.dialogs.PreferencesDialogControler;
 import org.targol.resoplan.ui.panels.FloorsAdjustmentPanel;
 import org.targol.resoplan.ui.panels.WelcomePanelController;
 import org.targol.resoplan.ui.panels.floornetwork.FloorsNetworksTab;
+import org.targol.resoplan.ui.panels.floornetwork.layers.evac.EvacMode;
+import org.targol.resoplan.ui.toolbars.DefaultToolBar;
+import org.targol.resoplan.ui.toolbars.EvacToolBar;
+import org.targol.resoplan.ui.utils.AppActionEvent;
 import org.targol.resoplan.ui.utils.AppState;
 import org.targol.resoplan.ui.utils.AppStateManager;
 import org.targol.resoplan.ui.utils.DialogsHelper;
 import org.targol.resoplan.ui.utils.GuiUtils;
-import org.targol.resoplan.utils.PreferencesManager;
 import org.targol.resoplan.utils.ProjectParams;
 
-import javafx.beans.binding.Bindings;
-import javafx.beans.binding.BooleanBinding;
 import javafx.beans.property.ObjectProperty;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.control.Menu;
 import javafx.scene.control.MenuItem;
+import javafx.scene.layout.HBox;
 import javafx.scene.layout.StackPane;
 import javafx.stage.Stage;
 
@@ -51,30 +50,7 @@ public class MainWindowController {
 	@FXML
 	private MenuItem mnuDebit;
 	@FXML
-	private CustomButton toolAlign;
-	@FXML
-	private CustomButton toolNetworks;
-	@FXML
-	private CustomButton toolEvacSortie;
-	@FXML
-	private CustomButton toolEvacDown3;
-	@FXML
-	private CustomButton toolEvacDown4;
-	@FXML
-	private CustomButton toolEvacDown10;
-	@FXML
-	private CustomButton toolEvacUp3;
-	@FXML
-	private CustomButton toolEvacUp4;
-	@FXML
-	private CustomButton toolEvacUp10;
-	@FXML
-	private CustomButton toolEvacTube3;
-	@FXML
-	private CustomButton toolEvacTube4;
-	@FXML
-	private CustomButton toolEvacTube10;
-
+	private HBox toolbarContainer;
 	@FXML
 	private StackPane contentPane;
 
@@ -89,6 +65,54 @@ public class MainWindowController {
 		refreshRecentProjectsMenu();
 		loadWelcomeView();
 		manageAccesses();
+		manageDynamicToolbar();
+	}
+
+	private void manageDynamicToolbar() {
+		// Listen toolbarEvents that are for me
+		this.toolbarContainer.addEventHandler(AppActionEvent.TRIGGER_ALIGN, e -> displayAdjustPanel());
+		this.toolbarContainer.addEventHandler(AppActionEvent.TRIGGER_NETWORKS, e -> displayNetworksPanel());
+		// listen for toolbar events that change appState
+		this.toolbarContainer.addEventHandler(AppActionEvent.EVAC_MODE_CHANGED, event -> {
+			final EvacMode selectedMode = event.getEvacMode();
+			System.err.println("Dans l'event handler de MainWindowController " + selectedMode.toString());
+			AppStateManager.getInstance().setCurrentEvacMode(selectedMode);
+		});
+		this.toolbarContainer.getChildren().clear();
+		final DefaultToolBar defBar = new DefaultToolBar();
+		this.toolbarContainer.getChildren().setAll(defBar);
+		final AppStateManager stateMgr = AppStateManager.getInstance();
+		stateMgr.activeNetworkLayerProperty().addListener((obs, oldLayer, newLayer) -> {
+			this.toolbarContainer.getChildren().clear();
+			if (newLayer == null || stateMgr.currentProjectProperty().get() == null) {
+				this.toolbarContainer.getChildren().setAll(defBar);
+				return;
+			}
+			final Project currentProject = stateMgr.currentProjectProperty().get();
+			switch (newLayer) {
+			case EAU_EVAC:
+				final EvacToolBar evacBar = new EvacToolBar(currentProject);
+				this.toolbarContainer.getChildren().setAll(evacBar);
+				break;
+
+			case EAU_ALIM:
+				// TODO Mettre la bonne toolbar
+				this.toolbarContainer.getChildren().setAll(defBar);
+				break;
+
+			case ELEC:
+				// TODO Mettre la bonne toolbar
+				this.toolbarContainer.getChildren().setAll(defBar);
+				break;
+			case NET:
+				// TODO Mettre la bonne toolbar
+				this.toolbarContainer.getChildren().setAll(defBar);
+				break;
+
+			default:
+				break;
+			}
+		});
 	}
 
 	private void manageAccesses() {
@@ -96,59 +120,10 @@ public class MainWindowController {
 		final ObjectProperty<AppState> state = stateMgr.currentAppStateProperty();
 		this.mnuClose.disableProperty().bind(state.isEqualTo(AppState.NO_PROJECT));
 		this.mnuAlign.disableProperty().bind(state.isEqualTo(AppState.NO_PROJECT));
-		this.toolAlign.disableProperty().bind(state.isEqualTo(AppState.NO_PROJECT));
-		PreferencesManager.getInstance().addThemeChangeListener(this.toolAlign);
 		this.mnuNetwork.disableProperty()
 				.bind(state.isEqualTo(AppState.NO_PROJECT).or(state.isEqualTo(AppState.PROJECT_WITHOUT_IMAGES)));
-		this.toolNetworks.disableProperty()
-				.bind(state.isEqualTo(AppState.NO_PROJECT).or(state.isEqualTo(AppState.PROJECT_WITHOUT_IMAGES)));
-		PreferencesManager.getInstance().addThemeChangeListener(this.toolNetworks);
 		this.mnuDebit.disableProperty()
 				.bind(state.isEqualTo(AppState.NO_PROJECT).or(state.isEqualTo(AppState.PROJECT_WITHOUT_IMAGES)));
-
-		final BooleanBinding baseEvacDisable = stateMgr.currentAppStateProperty().isNotEqualTo(AppState.PROJECT_READY)
-				.or(stateMgr.activeFloorProperty().isNull())
-				.or(stateMgr.activeNetworkLayerProperty().isNotEqualTo(LayerRadioType.EAU_EVAC));
-		final BooleanBinding sortieDisable = baseEvacDisable
-				.or(Bindings.createBooleanBinding(
-						() -> stateMgr.activeFloorProperty().get() == null
-								|| stateMgr.activeFloorProperty().get().getNumber() != 0,
-						stateMgr.activeFloorProperty()));
-		final BooleanBinding downDisable = baseEvacDisable
-				.or(Bindings.createBooleanBinding(
-						() -> stateMgr.activeFloorProperty().get() != null
-								&& stateMgr.activeFloorProperty().get().getNumber() == 0,
-						stateMgr.activeFloorProperty()));
-		final BooleanBinding upDisable = baseEvacDisable.or(Bindings.createBooleanBinding(() -> {
-			final Floor activeFloor = stateMgr.activeFloorProperty().get();
-			final Project activeProj = stateMgr.currentProjectProperty().get();
-			if (activeFloor == null) {
-				return true;
-			}
-			final int lastFloorNumber = activeProj.getFloors().size() - 1;
-			return activeFloor.getNumber() == lastFloorNumber;
-		}, stateMgr.activeFloorProperty()));
-
-		final List<CustomButton> tubeTools = List.of(this.toolEvacTube3, this.toolEvacTube4, this.toolEvacTube10);
-		tubeTools.forEach(btn -> {
-			PreferencesManager.getInstance().addThemeChangeListener(btn);
-			btn.disableProperty().bind(baseEvacDisable);
-		});
-
-		PreferencesManager.getInstance().addThemeChangeListener(this.toolEvacSortie);
-		this.toolEvacSortie.disableProperty().bind(sortieDisable);
-
-		final List<CustomButton> downTools = List.of(this.toolEvacDown3, this.toolEvacDown4, this.toolEvacDown10);
-		downTools.forEach(btn -> {
-			PreferencesManager.getInstance().addThemeChangeListener(btn);
-			btn.disableProperty().bind(downDisable);
-		});
-
-		final List<CustomButton> upTools = List.of(this.toolEvacUp3, this.toolEvacUp4, this.toolEvacUp10);
-		upTools.forEach(btn -> {
-			PreferencesManager.getInstance().addThemeChangeListener(btn);
-			btn.disableProperty().bind(upDisable);
-		});
 	}
 
 	@FXML

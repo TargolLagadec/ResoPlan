@@ -1,6 +1,9 @@
 package org.targol.resoplan.ui.components;
 
+import java.util.function.Supplier;
+
 import org.targol.resoplan.i18n.Messages;
+import org.targol.resoplan.ui.utils.AppActionEvent;
 import org.targol.resoplan.ui.utils.ThemesManager;
 import org.targol.resoplan.ui.utils.ThemesManager.Theme;
 import org.targol.resoplan.utils.IThemeChangeListener;
@@ -14,17 +17,23 @@ import javafx.scene.control.Tooltip;
 import javafx.scene.image.ImageView;
 
 public class CustomButton extends Button implements IThemeChangeListener {
-
+	private static final double size = 30.0d;
 	private final ObjectProperty<String> type = new SimpleObjectProperty<>(null);
-	private final DoubleProperty imgWidth = new SimpleDoubleProperty(16.0d);
+	private final DoubleProperty imgWidth = new SimpleDoubleProperty(25.0d);
+
+	public CustomButton(final String type, final Supplier<AppActionEvent> eventSupplier) {
+		this();
+		setType(type);
+		this.setOnAction(e -> fireEvent(eventSupplier.get()));
+	}
 
 	public CustomButton() {
-		this.setPrefHeight(20);
-		this.setPrefWidth(20);
-		this.setMinHeight(20);
-		this.setMinWidth(20);
-		this.setMaxHeight(20);
-		this.setMaxWidth(20);
+		this.setPrefHeight(size);
+		this.setPrefWidth(size);
+		this.setMinHeight(size);
+		this.setMinWidth(size);
+		this.setMaxHeight(size);
+		this.setMaxWidth(size);
 		this.type.addListener((obs, oldValue, newValue) -> {
 			updateAppearance();
 		});

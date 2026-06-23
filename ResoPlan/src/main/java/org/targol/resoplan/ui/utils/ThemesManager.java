@@ -36,7 +36,7 @@ public class ThemesManager {
 		DARK("Dark", "/style/dark.css", Color.WHITE), //$NON-NLS-1$ //$NON-NLS-2$
 		GREY("Grey", "/style/grey.css", Color.WHITE), //$NON-NLS-1$ //$NON-NLS-2$
 		SUNNY("Sunny", "/style/sunny.css", Color.SADDLEBROWN), //$NON-NLS-1$ //$NON-NLS-2$
-		ICEBERG("Iceberg", "/style/iceberg.css", Color.NAVY); //$NON-NLS-1$ //$NON-NLS-2$
+		ICEBERG("Iceberg", "/style/iceberg.css", Color.MEDIUMBLUE); //$NON-NLS-1$ //$NON-NLS-2$
 
 		private final String name;
 		private final String cssRelativePath;

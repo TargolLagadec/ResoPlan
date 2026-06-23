@@ -4,8 +4,8 @@ import java.io.File;
 
 import org.targol.resoplan.i18n.Messages;
 import org.targol.resoplan.model.Floor;
+import org.targol.resoplan.model.LayerType;
 import org.targol.resoplan.ui.components.CustomLayerRadio;
-import org.targol.resoplan.ui.components.LayerRadioType;
 import org.targol.resoplan.ui.panels.floornetwork.layers.evac.EvacuationsCanvas;
 import org.targol.resoplan.ui.utils.AppStateManager;
 import org.targol.resoplan.ui.utils.GuiUtils;
@@ -25,14 +25,15 @@ import javafx.scene.layout.StackPane;
 public class LayeredFloorTab extends Tab {
 
 	// Custom checkBoxes in tab header to display or not different networks layers
-	private final CustomLayerRadio radioElec = new CustomLayerRadio(LayerRadioType.ELEC);
-	private final CustomLayerRadio radioAlim = new CustomLayerRadio(LayerRadioType.EAU_ALIM);
-	private final CustomLayerRadio radioEvac = new CustomLayerRadio(LayerRadioType.EAU_EVAC);
-	private final CustomLayerRadio radioNet = new CustomLayerRadio(LayerRadioType.NET);
+	private final CustomLayerRadio radioElec = new CustomLayerRadio(LayerType.ELEC);
+	private final CustomLayerRadio radioAlim = new CustomLayerRadio(LayerType.EAU_ALIM);
+	private final CustomLayerRadio radioEvac = new CustomLayerRadio(LayerType.EAU_EVAC);
+	private final CustomLayerRadio radioNet = new CustomLayerRadio(LayerType.NET);
 	private ToggleGroup headerToggleGroup;
 	private ScrollPane centerScrollPane;
 	private Group imageContainer;
 	private StackPane stackPaneCalques;
+	// Layers
 	private EvacuationsCanvas evacCanvas;
 
 	private final Floor floor;
@@ -122,7 +123,7 @@ public class LayeredFloorTab extends Tab {
 		this.radioNet.setDisable(disable);
 	}
 
-	public LayerRadioType getCurrentLayer() {
+	public LayerType getCurrentLayer() {
 		final CustomLayerRadio rb = (CustomLayerRadio) this.headerToggleGroup.getSelectedToggle();
 		if (rb != null) {
 			return rb.getType();

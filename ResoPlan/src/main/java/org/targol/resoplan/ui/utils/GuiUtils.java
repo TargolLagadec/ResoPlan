@@ -67,13 +67,12 @@ public class GuiUtils {
 		final PixelReader reader = originalImage.getPixelReader();
 		final PixelWriter writer = resultImage.getPixelWriter();
 
-		// Changing black or dark grey pixels with pixels of chosen color
 		for (int y = 0; y < height; y++) {
 			for (int x = 0; x < width; x++) {
 				final Color pixelColor = reader.getColor(x, y);
 				if (areEqualsColorsExceptTransparency(initialColor, pixelColor)) {
-					final Color newColor = new Color(targetColor.getRed(), targetColor.getGreen(), targetColor.getBlue(),
-							pixelColor.getOpacity());
+					final Color newColor = new Color(targetColor.getRed(), targetColor.getGreen(),
+							targetColor.getBlue(), pixelColor.getOpacity());
 					writer.setColor(x, y, newColor);
 				} else {
 					writer.setColor(x, y, pixelColor);

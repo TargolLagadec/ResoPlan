@@ -1,6 +1,7 @@
 package org.targol.resoplan.ui.panels.floornetwork.layers.evac;
 
 import org.targol.resoplan.model.Floor;
+import org.targol.resoplan.ui.utils.AppStateManager;
 
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
@@ -12,44 +13,60 @@ public class EvacuationsCanvas extends Canvas {
 	private boolean isDrawingTube = false;
 	private double startX, startY;
 
-	private EvacMode currentMode = EvacMode.TUBE;
+	private EvacMode currentMode;
 	private final Floor floor;
 
 	public EvacuationsCanvas(final Floor floor, final double width, final double height) {
 		super(width, height);
 		this.floor = floor;
 		this.addEventHandler(MouseEvent.MOUSE_CLICKED, this::handleCanvasClick);
+		AppStateManager.getInstance().currentEvacModeProperty().addListener((obs, oldMode, newMode) -> {
+        Floor activeFloor = AppStateManager.getInstance().activeFloorProperty().get();
+        if (activeFloor != null && activeFloor.equals(this.floor)) {
+			System.err.println("Dans le listener EvacuationsCanvas, l'EvacMode est set à " + newMode);
+			if (newMode != null) {
+				this.setCurrentMode(newMode);
+			}}
+		});
 	}
 
 	private void handleCanvasClick(final MouseEvent event) {
 		final double x = event.getX();
 		final double y = event.getY();
 		final GraphicsContext gc = this.getGraphicsContext2D();
-
+		if (this.currentMode == null) {
+			return;
+		}
 		switch (this.currentMode) {
-		case DESCENT:
-			dessinerDescente(gc, x, y);
-			this.isDrawingTube = false; // Reset au cas où
-			break;
-
-		case RISE:
-			dessinerMontee(gc, x, y);
+		case DESCENT_32:
+		case DESCENT_40:
+		case DESCENT_100:
+			dessinerDescente(gc, x, y, this.currentMode.getDiam());
 			this.isDrawingTube = false;
+			AppStateManager.getInstance().setCurrentEvacMode(null);
 			break;
 
-		case TUBE:
+		case RISE_32:
+		case RISE_40:
+		case RISE_100:
+			dessinerMontee(gc, x, y, this.currentMode.getDiam());
+			this.isDrawingTube = false;
+			AppStateManager.getInstance().setCurrentEvacMode(null);
+			break;
+
+		case TUBE_32:
+		case TUBE_40:
+		case TUBE_100:
 			if (!this.isDrawingTube) {
-				// Premier clic : on mémorise le point de départ
 				this.startX = x;
 				this.startY = y;
 				this.isDrawingTube = true;
-				// Optionnel : dessiner un petit point temporaire de départ
 				gc.setFill(Color.BLUE);
 				gc.fillOval(x - 2, y - 2, 4, 4);
 			} else {
-				// Second clic : on trace la ligne du tuyau
-				dessinerTuyau(gc, this.startX, this.startY, x, y);
-				this.isDrawingTube = false; // Le tuyau est posé
+				dessinerTuyau(gc, this.startX, this.startY, x, y, this.currentMode.getDiam());
+				this.isDrawingTube = false;
+				AppStateManager.getInstance().setCurrentEvacMode(null);
 			}
 			break;
 
@@ -59,47 +76,46 @@ public class EvacuationsCanvas extends Canvas {
 			// une liste d'objets métier,
 			// vider le canvas avec gc.clearRect() et tout redessiner sauf l'élément
 			// supprimé.
+			AppStateManager.getInstance().setCurrentEvacMode(null);
+			break;
+		case HOME_OUT:
+			AppStateManager.getInstance().setCurrentEvacMode(null);
+			break;
+		default:
 			break;
 		}
+		event.consume();
 	}
 
-	// --- FONCTIONS DE DESSIN GÉOMÉTRIQUE (Exigence 2) ---
-
-	private void dessinerDescente(final GraphicsContext gc, final double x, final double y) {
+	private void dessinerDescente(final GraphicsContext gc, final double x, final double y, final double tubeDiam) {
 		gc.setStroke(Color.BROWN); // Couleur conventionnelle pour les eaux usées
 		gc.setLineWidth(2);
-
-		// Exemple de symbole Descente : Un cercle barré d'une croix ou avec un rond
-		// plein
 		gc.strokeOval(x - 8, y - 8, 16, 16);
 		gc.setFill(Color.BROWN);
 		gc.fillOval(x - 4, y - 4, 8, 8); // Rond plein au centre = ça descend
+		gc.fillText(Double.toString(tubeDiam / 10), x + 8, y + 8);
 	}
 
-	private void dessinerMontee(final GraphicsContext gc, final double x, final double y) {
+	private void dessinerMontee(final GraphicsContext gc, final double x, final double y, final double tubeDiam) {
 		gc.setStroke(Color.BROWN);
 		gc.setLineWidth(2);
-
-		// Exemple de symbole Montée : Un cercle vide avec une croix à l'intérieur
 		gc.strokeOval(x - 8, y - 8, 16, 16);
 		gc.strokeLine(x - 6, y - 6, x + 6, y + 6);
 		gc.strokeLine(x + 6, y - 6, x - 6, y + 6);
+		gc.setFill(Color.BROWN);
+		gc.fillText(Double.toString(tubeDiam / 10), x + 8, y + 8);
 	}
 
 	private void dessinerTuyau(final GraphicsContext gc, final double x1, final double y1, final double x2,
-			final double y2) {
+			final double y2, final double tubeDiam) {
 		gc.setStroke(Color.BROWN);
-		gc.setLineWidth(4); // Un tuyau horizontal est dessiné plus épais
+		gc.setLineWidth(tubeDiam / 10);
 		gc.setLineCap(javafx.scene.shape.StrokeLineCap.ROUND);
-
-		// Trace la ligne droite entre le premier et le second clic
 		gc.strokeLine(x1, y1, x2, y2);
 	}
 
-	// Setter pour changer le mode depuis ton contrôleur principal ou une barre
-	// d'outils
 	public void setCurrentMode(final EvacMode mode) {
 		this.currentMode = mode;
-		this.isDrawingTube = false; // Sécurité
+		this.isDrawingTube = false;
 	}
 }
