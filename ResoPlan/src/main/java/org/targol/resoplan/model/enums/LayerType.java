@@ -1,4 +1,4 @@
-package org.targol.resoplan.model;
+package org.targol.resoplan.model.enums;
 
 public enum LayerType {
 	ELEC("elec"), //$NON-NLS-1$

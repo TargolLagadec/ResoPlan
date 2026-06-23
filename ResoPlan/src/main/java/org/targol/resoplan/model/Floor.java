@@ -1,5 +1,6 @@
 package org.targol.resoplan.model;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import jakarta.persistence.CascadeType;
@@ -37,15 +38,19 @@ public class Floor {
 	@Column(name = "zoomFactor")
 	private double zoomFactor;
 
+	@Column(name = "vitual")
+	private boolean virtual;
+
 	@OneToMany(fetch = FetchType.EAGER, cascade = CascadeType.ALL, orphanRemoval = true)
-	@JoinColumn(name = "ProjectId", referencedColumnName = "id")
-	private List<Room> rooms;
+	@JoinColumn(name = "FloorId", referencedColumnName = "id")
+	private List<Layer> layers;
 
 	public Floor() {
-		this(0);
+		this.layers = new ArrayList<>();
 	}
 
 	public Floor(final int number) {
+		this();
 		this.number = number;
 	}
 
@@ -97,20 +102,19 @@ public class Floor {
 		this.zoomFactor = zoomFactor;
 	}
 
-	public List<Room> getRooms() {
-		return this.rooms;
+	public List<Layer> getRooms() {
+		return this.layers;
 	}
 
-	public void setRooms(final List<Room> rooms) {
-		this.rooms = rooms;
+	public void setRooms(final List<Layer> layers) {
+		this.layers = layers;
 	}
 
-	public void addRoom(final Room r) {
-		this.rooms.add(r);
+	public void addRoom(final Layer r) {
+		this.layers.add(r);
 	}
 
-	public void removeRoom(final Room r) {
-		this.rooms.remove(r);
+	public void removeRoom(final Layer r) {
+		this.layers.remove(r);
 	}
-
 }

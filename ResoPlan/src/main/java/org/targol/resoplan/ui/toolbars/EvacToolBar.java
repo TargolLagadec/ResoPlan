@@ -3,8 +3,8 @@ package org.targol.resoplan.ui.toolbars;
 import java.util.List;
 
 import org.targol.resoplan.model.Floor;
-import org.targol.resoplan.model.LayerType;
 import org.targol.resoplan.model.Project;
+import org.targol.resoplan.model.enums.LayerType;
 import org.targol.resoplan.ui.components.CustomButton;
 import org.targol.resoplan.ui.panels.floornetwork.layers.evac.EvacMode;
 import org.targol.resoplan.ui.utils.AppActionEvent;

@@ -1,8 +1,8 @@
 package org.targol.resoplan.ui.utils;
 
 import org.targol.resoplan.model.Floor;
-import org.targol.resoplan.model.LayerType;
 import org.targol.resoplan.model.Project;
+import org.targol.resoplan.model.enums.LayerType;
 import org.targol.resoplan.ui.panels.floornetwork.layers.evac.EvacMode;
 
 import javafx.beans.property.ObjectProperty;

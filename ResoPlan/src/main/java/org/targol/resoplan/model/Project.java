@@ -27,40 +27,33 @@ public class Project {
 	@Column(name = "name", nullable = false)
 	private String name;
 
-	@Column(name = "last_opened")
+	@Column(name = "lastOpened")
 	private LocalDateTime lastOpened;
+
+	/**
+	 * Échelle des plans en pixels par metre
+	 */
+	@Column(name = "plansScale")
+	private int plansScale;
+
+	/**
+	 * Marge en % lors du calcul des débits. Ce pourcentage est ajouté aux quantités
+	 * calculées.
+	 */
+	@Column(name = "consumptionMargin")
+	private int consumptionMargin;
 
 	@OneToMany(fetch = FetchType.EAGER, cascade = CascadeType.ALL, orphanRemoval = true)
 	@JoinColumn(name = "ProjectId", referencedColumnName = "id")
 	private List<Floor> floors;
 
-//	@OneToMany(fetch = FetchType.EAGER, cascade = CascadeType.ALL, orphanRemoval = true)
-//	@JoinColumn(name = "ProjectId", referencedColumnName = "id")
-//	private List<AbstractDataType> availableDataTypes;
-//
-//	@OneToMany(fetch = FetchType.EAGER, cascade = CascadeType.ALL, orphanRemoval = true)
-//	@JoinColumn(name = "ProjectId", referencedColumnName = "id")
-//	private List<UmlEnumeration> enums;
-//
-//	@OneToMany(fetch = FetchType.EAGER, cascade = CascadeType.ALL, orphanRemoval = true)
-//	@JoinColumn(name = "ProjectId", referencedColumnName = "id")
-//	private List<UmlClass> classes;
-//
-//	@OneToMany(fetch = FetchType.EAGER, cascade = CascadeType.ALL, orphanRemoval = true)
-//	@JoinColumn(name = "ProjectId", referencedColumnName = "id")
-//	private List<UmlAbstractClass> abstracts;
-//
-//	@OneToMany(fetch = FetchType.EAGER, cascade = CascadeType.ALL, orphanRemoval = true)
-//	@JoinColumn(name = "ProjectId", referencedColumnName = "id")
-//	private List<UmlInterface> interfaces;
-
 	public Project() {
-		this("FakeProject"); //$NON-NLS-1$
+		this.floors = new ArrayList<>();
 	}
 
 	public Project(final String name) {
+		this();
 		this.name = name;
-		this.floors = new ArrayList<>();
 	}
 
 	public int getId() {
@@ -85,6 +78,22 @@ public class Project {
 
 	public void setLastOpened(final LocalDateTime lastOpened) {
 		this.lastOpened = lastOpened;
+	}
+
+	public int getPlansScale() {
+		return this.plansScale;
+	}
+
+	public void setPlansScale(final int plansScale) {
+		this.plansScale = plansScale;
+	}
+
+	public int getConsumptionMargin() {
+		return this.consumptionMargin;
+	}
+
+	public void setConsumptionMargin(final int consumptionMargin) {
+		this.consumptionMargin = consumptionMargin;
 	}
 
 	public List<Floor> getFloors() {

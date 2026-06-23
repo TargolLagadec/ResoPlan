@@ -1,7 +1,7 @@
 package org.targol.resoplan.ui.components;
 
 import org.targol.resoplan.i18n.Messages;
-import org.targol.resoplan.model.LayerType;
+import org.targol.resoplan.model.enums.LayerType;
 import org.targol.resoplan.ui.utils.ThemesManager;
 import org.targol.resoplan.ui.utils.ThemesManager.Theme;
 import org.targol.resoplan.utils.IThemeChangeListener;
