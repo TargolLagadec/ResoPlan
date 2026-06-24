@@ -1,10 +1,12 @@
-package org.targol.resoplan.model;
+package org.targol.resoplan.model.catalog;
 
 import java.util.ArrayList;
 import java.util.List;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -29,9 +31,13 @@ public class NodeModel {
 	@Column(name = "description")
 	private String description;
 
+	@Enumerated(EnumType.STRING)
+	@Column(length = 20, name = "category")
+	private NodeCategory category;
+
 	@ManyToMany(fetch = FetchType.EAGER)
 	@JoinTable(name = "ModelAllowedHooks", joinColumns = @JoinColumn(name = "ModelId"), inverseJoinColumns = @JoinColumn(name = "NodeHookId"))
-	private List<NodeHook> allowedHooks;
+	private List<HookType> allowedHooks;
 
 	public NodeModel() {
 		this.allowedHooks = new ArrayList<>();
@@ -66,19 +72,27 @@ public class NodeModel {
 		this.description = description;
 	}
 
-	public List<NodeHook> getAllowedHooks() {
+	public NodeCategory getCategory() {
+		return this.category;
+	}
+
+	public void setCategory(final NodeCategory category) {
+		this.category = category;
+	}
+
+	public List<HookType> getAllowedHooks() {
 		return this.allowedHooks;
 	}
 
-	public void setAllowedHooks(final List<NodeHook> allowedHooks) {
+	public void setAllowedHooks(final List<HookType> allowedHooks) {
 		this.allowedHooks = allowedHooks;
 	}
 
-	public void addAllowedHook(final NodeHook allowedHook) {
+	public void addAllowedHook(final HookType allowedHook) {
 		this.allowedHooks.add(allowedHook);
 	}
 
-	public void removeAllowedHook(final NodeHook allowedHook) {
+	public void removeAllowedHook(final HookType allowedHook) {
 		this.allowedHooks.remove(allowedHook);
 	}
 }

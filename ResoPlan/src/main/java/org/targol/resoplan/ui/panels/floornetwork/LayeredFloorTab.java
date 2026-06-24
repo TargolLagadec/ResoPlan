@@ -26,8 +26,8 @@ public class LayeredFloorTab extends Tab {
 
 	// Custom checkBoxes in tab header to display or not different networks layers
 	private final CustomLayerRadio radioElec = new CustomLayerRadio(LayerType.ELEC);
-	private final CustomLayerRadio radioAlim = new CustomLayerRadio(LayerType.EAU_ALIM);
-	private final CustomLayerRadio radioEvac = new CustomLayerRadio(LayerType.EAU_EVAC);
+	private final CustomLayerRadio radioAlim = new CustomLayerRadio(LayerType.WATER_ALIM);
+	private final CustomLayerRadio radioEvac = new CustomLayerRadio(LayerType.WATER_EVAC);
 	private final CustomLayerRadio radioNet = new CustomLayerRadio(LayerType.NET);
 	private ToggleGroup headerToggleGroup;
 	private ScrollPane centerScrollPane;

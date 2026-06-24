@@ -1,0 +1,38 @@
+name,description,allowedHooks,Category
+Module RJ45,Module RJ45 pour tableau électrique,rj45,TABLEAU
+Prise RJ45,Prise RJ45 pour brancher les câbles Ethernet,rj45,MURALES
+Petit débit d'eau,"Point d'eau à petit débit (lavabo, bidet, ...)",pvc32 per12,DIVERS
+Gros débit d'eau,"Point d'eau à gros débit (douche, baignoire, évier, ...)",pvc40 per16,DIVERS
+Chauffe-eau,Chauffe-eau électrique à ballon intégré,pvc32 per12 prise,DIVERS
+W.C,W.C standard,pvc100 per12,DIVERS
+Spot encastré,Spot encastré commandé via va-et-vient ou télérupteur,eclcommun eclcommand,PLAFOND
+Boîtier DCL,Boîtier encastré à la norm DCL pour plafonnier commandé via va-et-vient ou télérupteur,eclcommun eclcommand,PLAFOND
+Interrupteur,Interrupteur unique pour commander un ou des spot(s) encastré(s) ou plafonnier(s),eclcommand eclcommand,MURALES
+Va-et-vient,Va-et-vient utilisable par paire pour commander un ou des spot(s) encastré(s) ou plafonnier(s),eclcommand vaetvien,MURALES
+Prise 2P+T,Prise murale 2 pôles + terre,prise prise,MURALES
+Module 10A,Module 10A de tableau électrique pour circuits d’éclairage,eclcommand eclcommun,TABLEAU
+Module 16A,Module 16A de tableau électrique pour circuits de prises,prise,TABLEAU
+Module télérupteur,Module Télérupteur de tableau électrique pour commander un ou des spot(s) encastré(s) ou plafonnier(s),eclcommand telrupt,TABLEAU
+Poussoir télérupteur,"Poussoir pour commander, via un télérupteur, un ou des spot(s) encastré(s) ou plafonnier(s)",telrupt,MURALES
+Coude 90° 12mm,Coude pour tuyau PER 90° 12 mm,per12 per12,JONCTIONS_PER_12
+Coude 90° 16mm,Coude pour tuyau PER 90° 16 mm,per16 per16,JONCTIONS_PER_16
+Coude 90° 20mm,Coude pour tuyau PER 90° 20 mm,per20 per20,JONCTIONS_PER_20
+Té 12mm,Té pour tuyau PER 12 mm ,per12 per12 per12,JONCTIONS_PER_12
+Té 16mm,Té pour tuyau PER 16 mm ,per16 per16 per16,JONCTIONS_PER_16
+Té 20mm,Té pour tuyau PER 20 mm ,per20 per20 per20,JONCTIONS_PER_16
+Té inégal 16 mm / 12mm,Té inégal pour tuyau PER 2 x 16 mm / 1 x 12mm,per16 per16 per12,JONCTIONS_PER
+Té inégal 20 mm / 16mm,Té inégal pour tuyau PER 2 x 20 mm / 1 x 16mm,per16 per20 per20,JONCTIONS_PER
+Coude 90° Ø32 mm,Coude 87.3° en pvc à coller Ø32 mm,pvc32 pvc32,JONCTIONS_PVC_32
+Coude 90° Ø40 mm,Coude 87.3° en pvc à coller Ø40 mm,pvc40 pvc40,JONCTIONS_PVC_40
+Coude 90° Ø100 mm,Coude 87.3° en pvc à coller Ø100 mm,pvc100 pvc100,JONCTIONS_PVC_100
+Coude 45° Ø32 mm,Coude 45° en pvc à coller Ø32 mm,pvc32 pvc32,JONCTIONS_PVC_32
+Coude 45° Ø40 mm,Coude 45° en pvc à coller Ø40 mm,pvc40 pvc40,JONCTIONS_PVC_40
+Coude 45° Ø100 mm,Coude 45° en pvc à coller Ø100 mm,pvc100 pvc100,JONCTIONS_PVC_100
+Té 90° Ø32 mm,Té 87.3° en pvc à coller Ø32 mm ,pvc32 pvc32 pvc32,JONCTIONS_PVC_32
+Té 90° Ø40 mm,Té 87.3° en pvc à coller Ø40 mm ,pvc40 pvc40 pvc40,JONCTIONS_PVC_40
+Té 90° Ø100 mm,Té 87.3° en pvc à coller Ø100 mm ,pvc100 pvc100 pvc100,JONCTIONS_PVC_100
+Culotte 45° Ø32 mm,Culotte 45° en pvc à coller Ø32 mm ,pvc32 pvc32 pvc32,JONCTIONS_PVC_32
+Culotte 45° Ø40 mm,Culotte 45° en pvc à coller Ø40 mm ,pvc40 pvc40 pvc40,JONCTIONS_PVC_40
+Culotte 45° Ø100 mm,Culotte 45° en pvc à coller Ø100 mm ,pvc100 pvc100 pvc100,JONCTIONS_PVC_100
+Té réduit Ø100/40 mm,Té réduit PVC 87.3° Ø100/40 mm,pvc100 pvc100 pvc40,JONCTIONS_PVC
+Té réduit Ø40/32 mm,Té réduit PVC 87.3° Ø40/32 mm,pvc40 pvc40 pvc32,JONCTIONS_PVC

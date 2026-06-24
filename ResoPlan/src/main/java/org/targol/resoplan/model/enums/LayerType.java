@@ -2,8 +2,8 @@ package org.targol.resoplan.model.enums;
 
 public enum LayerType {
 	ELEC("elec"), //$NON-NLS-1$
-	EAU_ALIM("arrivee"), //$NON-NLS-1$
-	EAU_EVAC("evac"), //$NON-NLS-1$
+	WATER_ALIM("arrivee"), //$NON-NLS-1$
+	WATER_EVAC("evac"), //$NON-NLS-1$
 	NET("net"); //$NON-NLS-1$
 
 	private final String key;
@@ -16,4 +16,7 @@ public enum LayerType {
 		return this.key;
 	}
 
+//	public List<> getSubCategoryClass() {
+//		return (Class<T>) this.subCategoryClass;
+//	}
 }

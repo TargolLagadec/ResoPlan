@@ -30,8 +30,8 @@ public class DialogsHelper {
 	 *         with "cancel" button.
 	 */
 	public static Optional<ProjectParams> showProjectEditorDialog(final Window owner, final ProjectParams prj) {
-		final FXMLLoader loader = new FXMLLoader(
-				DialogsHelper.class.getResource("/gui/dialogs/ProjectEditDialog.fxml"), bundle); //$NON-NLS-1$
+		final FXMLLoader loader = new FXMLLoader(DialogsHelper.class.getResource("/gui/dialogs/ProjectEditDialog.fxml"), //$NON-NLS-1$
+				bundle);
 		GridPane dialogContent;
 		try {
 			dialogContent = loader.load();
@@ -49,8 +49,6 @@ public class DialogsHelper {
 		}
 		dialog.initOwner(owner);
 		dialog.getDialogPane().setContent(dialogContent);
-//		String css = DialogsHelper.class.getResource("/stylesdouble_slider.css").toExternalForm();
-//		scene.getStylesheets().add(css);
 		final ButtonType buttonTypeOk = new ButtonType(Messages.getString("Generic.dialog.Ok"), //$NON-NLS-1$
 				ButtonBar.ButtonData.OK_DONE);
 		dialog.getDialogPane().getButtonTypes().addAll(buttonTypeOk, ButtonType.CANCEL);

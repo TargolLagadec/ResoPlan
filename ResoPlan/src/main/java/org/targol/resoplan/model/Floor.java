@@ -102,19 +102,27 @@ public class Floor {
 		this.zoomFactor = zoomFactor;
 	}
 
-	public List<Layer> getRooms() {
+	public boolean isVirtual() {
+		return this.virtual;
+	}
+
+	public void setVirtual(final boolean virtual) {
+		this.virtual = virtual;
+	}
+
+	public List<Layer> getLayers() {
 		return this.layers;
 	}
 
-	public void setRooms(final List<Layer> layers) {
+	public void setLayers(final List<Layer> layers) {
 		this.layers = layers;
 	}
 
-	public void addRoom(final Layer r) {
+	public void addLayer(final Layer r) {
 		this.layers.add(r);
 	}
 
-	public void removeRoom(final Layer r) {
+	public void removeLayer(final Layer r) {
 		this.layers.remove(r);
 	}
 }

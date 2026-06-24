@@ -1,10 +1,15 @@
 package org.targol.resoplan.model;
 
+import java.util.ArrayList;
 import java.util.List;
+
+import org.targol.resoplan.model.enums.LayerType;
 
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -22,19 +27,21 @@ public class Layer {
 	@Column(name = "id")
 	private int id;
 
-	@Column(name = "name", nullable = false)
-	private String name;
+	@Enumerated(EnumType.STRING)
+	@Column(length = 10, name = "layerType")
+	private LayerType layerType;
 
 	@OneToMany(fetch = FetchType.EAGER, cascade = CascadeType.ALL, orphanRemoval = true)
 	@JoinColumn(name = "LayerId", referencedColumnName = "id")
-	private List<AbstractLink> links;
+	private List<Link> links;
 
 	public Layer() {
-		this("FakeProject");
+		this.links = new ArrayList<>();
 	}
 
-	public Layer(final String name) {
-		this.name = name;
+	public Layer(final LayerType type) {
+		this();
+		this.layerType = type;
 	}
 
 	public int getId() {
@@ -45,27 +52,27 @@ public class Layer {
 		this.id = id;
 	}
 
-	public String getName() {
-		return this.name;
+	public LayerType getLayerType() {
+		return this.layerType;
 	}
 
-	public void setName(final String name) {
-		this.name = name;
+	public void setLayerType(final LayerType layerType) {
+		this.layerType = layerType;
 	}
 
-	public List<AbstractLink> getLinks() {
+	public List<Link> getLinks() {
 		return this.links;
 	}
 
-	public void setLinks(final List<AbstractLink> links) {
+	public void setLinks(final List<Link> links) {
 		this.links = links;
 	}
 
-	public void addLink(final AbstractLink link) {
+	public void addLink(final Link link) {
 		this.links.add(link);
 	}
 
-	public void removeLink(final AbstractLink link) {
+	public void removeLink(final Link link) {
 		this.links.remove(link);
 	}
 }

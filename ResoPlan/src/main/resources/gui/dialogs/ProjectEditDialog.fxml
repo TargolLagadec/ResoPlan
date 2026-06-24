@@ -1,26 +1,68 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
+<?import javafx.scene.control.CheckBox?>
 <?import javafx.scene.control.Label?>
 <?import javafx.scene.control.Slider?>
 <?import javafx.scene.control.TextField?>
+<?import javafx.scene.control.Tooltip?>
 <?import javafx.scene.layout.ColumnConstraints?>
 <?import javafx.scene.layout.GridPane?>
 <?import javafx.scene.layout.RowConstraints?>
 
-<GridPane hgap="10" vgap="10" xmlns="http://javafx.com/javafx/26" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.targol.resoplan.ui.dialogs.ProjectEditDialogControler">
+<GridPane prefWidth="500" hgap="10" vgap="10" xmlns="http://javafx.com/javafx/26"
+	xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.targol.resoplan.ui.dialogs.ProjectEditDialogControler">
 	<children>
 		<Label text="%Dialog.project.name" GridPane.columnIndex="0" GridPane.rowIndex="0" />
 		<TextField fx:id="nameTextField" GridPane.columnIndex="1" GridPane.rowIndex="0" />
 
 		<Label text="%Dialog.project.nbFloors" GridPane.columnIndex="0" GridPane.rowIndex="1" />
-		<Slider fx:id="nbFloorsSlider" blockIncrement="1" majorTickUnit="1" max="2" min="1" minorTickCount="0" snapToTicks="true" showTickLabels="true" showTickMarks="true" value="1" GridPane.columnIndex="1" GridPane.rowIndex="1" />
+		<Slider fx:id="nbFloorsSlider" blockIncrement="1" majorTickUnit="1" max="2" min="1" minorTickCount="0"
+			showTickLabels="true" showTickMarks="true" snapToTicks="true" value="1" GridPane.columnIndex="1"
+			GridPane.rowIndex="1" />
+
+		<Label text="%Dialog.project.generate.attic.label" GridPane.rowIndex="2" >
+			<tooltip>
+				<Tooltip text="%Dialog.project.generate.attic.tooltip" />
+			</tooltip>
+		</Label>
+		<CheckBox fx:id="atticCheck" mnemonicParsing="false" GridPane.columnIndex="1" GridPane.rowIndex="2">
+			<tooltip>
+				<Tooltip text="%Dialog.project.generate.attic.tooltip" />
+			</tooltip>
+		</CheckBox>
+
+		<Label text="%Dialog.project.generate.basement.label" GridPane.rowIndex="3"  >
+			<tooltip>
+				<Tooltip text="%Dialog.project.generate.basement.tooltip" />
+			</tooltip>
+		</Label>
+		<CheckBox fx:id="basementCheck" mnemonicParsing="false" GridPane.columnIndex="1" GridPane.rowIndex="3">
+			<tooltip>
+				<Tooltip text="%Dialog.project.generate.basement.tooltip" />
+			</tooltip>
+		</CheckBox>
+
+		<Label text="%Dialog.project.consumptionMargin.label" GridPane.rowIndex="4">
+			<tooltip>
+				<Tooltip text="%Dialog.project.consumptionMargin.tooltip" />
+			</tooltip>
+		</Label>
+		<Slider fx:id="marginSlider" min="10.0" max="60.0" majorTickUnit="10.0" minorTickCount="0" showTickLabels="true" showTickMarks="true"
+			value="10.0" GridPane.columnIndex="1" GridPane.rowIndex="4">
+			<tooltip>
+				<Tooltip text="%Dialog.project.consumptionMargin.tooltip" />
+			</tooltip>
+		</Slider>
 	</children>
-   <columnConstraints>
-      <ColumnConstraints />
-      <ColumnConstraints />
-   </columnConstraints>
-   <rowConstraints>
-      <RowConstraints />
-      <RowConstraints />
-   </rowConstraints>
+	<columnConstraints>
+		<ColumnConstraints />
+		<ColumnConstraints hgrow="ALWAYS" />
+	</columnConstraints>
+	<rowConstraints>
+		<RowConstraints />
+		<RowConstraints />
+		<RowConstraints minHeight="10.0" prefHeight="30.0" />
+		<RowConstraints minHeight="10.0" prefHeight="30.0" />
+		<RowConstraints minHeight="10.0" prefHeight="30.0" />
+	</rowConstraints>
 </GridPane>

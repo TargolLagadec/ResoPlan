@@ -1,5 +1,6 @@
 package org.targol.resoplan.model;
 
+import org.targol.resoplan.model.catalog.HookType;
 import org.targol.resoplan.model.enums.LinkDepth;
 
 import jakarta.persistence.Column;
@@ -8,12 +9,14 @@ import jakarta.persistence.DiscriminatorType;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
+import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.Inheritance;
 import jakarta.persistence.InheritanceType;
 import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
 
@@ -21,7 +24,7 @@ import jakarta.persistence.Table;
 @Table(name = "Link")
 @Inheritance(strategy = InheritanceType.SINGLE_TABLE)
 @DiscriminatorColumn(name = "layer", discriminatorType = DiscriminatorType.STRING, length = 10)
-public abstract class AbstractLink {
+public class Link {
 
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -31,6 +34,10 @@ public abstract class AbstractLink {
 	@Enumerated(EnumType.STRING)
 	@Column(length = 10, name = "depth")
 	protected LinkDepth depth;
+
+	@ManyToOne(fetch = FetchType.EAGER)
+	@JoinColumn(name = "hookTypeId")
+	private HookType hookType;
 
 	@OneToOne
 	@JoinColumn(name = "hook1Id")
@@ -54,6 +61,14 @@ public abstract class AbstractLink {
 
 	public void setDepth(final LinkDepth depth) {
 		this.depth = depth;
+	}
+
+	public HookType getHookType() {
+		return this.hookType;
+	}
+
+	public void setHookType(final HookType hookType) {
+		this.hookType = hookType;
 	}
 
 	public Hook getHook1() {

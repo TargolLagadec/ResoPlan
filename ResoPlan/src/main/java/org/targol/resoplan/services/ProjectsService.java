@@ -11,16 +11,19 @@ import org.targol.resoplan.i18n.Messages;
 import org.targol.resoplan.model.Floor;
 import org.targol.resoplan.model.Project;
 import org.targol.resoplan.repositories.ProjectsRepository;
+import org.targol.resoplan.utils.ProjectParams;
 
 @Service
 @Transactional
 public class ProjectsService {
 
 	private final ProjectsRepository repo;
+	private final FloorsService floorsService;
 	private Project openedProject = null;
 
-	public ProjectsService(final ProjectsRepository repo) {
+	public ProjectsService(final ProjectsRepository repo, final FloorsService floorsService) {
 		this.repo = repo;
+		this.floorsService = floorsService;
 	}
 
 	public void setOpenedProject(final Project project) {
@@ -47,14 +50,28 @@ public class ProjectsService {
 		return this.repo.findTop10ByOrderByLastOpenedDesc();
 	}
 
-	public Project createProject(final String name, final int nbFloors) throws ServiceException {
-		if (isProjectNameDuplicate(name)) {
+	public Project createProject(final ProjectParams params) throws ServiceException {
+		if (isProjectNameDuplicate(params.name())) {
 			throw new ServiceException(Messages.getString("ProjectsService.CreateError.name.duplicate")); //$NON-NLS-1$
 		}
 		// On crée le projet et ses étages.
-		final Project proj = new Project(name);
-		for (int curFloorNum = 0; curFloorNum < nbFloors; curFloorNum++) {
+		final Project proj = new Project(params.name());
+		for (int curFloorNum = 0; curFloorNum < params.nbFloors(); curFloorNum++) {
 			final Floor curFloor = new Floor(curFloorNum);
+			curFloor.setVirtual(false);
+			this.floorsService.create(curFloor);
+			proj.addFloor(curFloor);
+		}
+		if (params.generateBasement()) {
+			final Floor curFloor = new Floor(-1);
+			curFloor.setVirtual(true);
+			this.floorsService.create(curFloor);
+			proj.addFloor(curFloor);
+		}
+		if (params.generateAttic()) {
+			final Floor curFloor = new Floor(params.nbFloors());
+			curFloor.setVirtual(true);
+			this.floorsService.create(curFloor);
 			proj.addFloor(curFloor);
 		}
 		proj.setLastOpened(LocalDateTime.now());

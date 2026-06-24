@@ -136,7 +136,7 @@ public class FloorPropertiesPanel extends GridPane {
 			this.shiftXProperty.set((double) this.shiftXSpinner.getValueFactory().getValue());
 			this.floor.setShiftY(this.shiftYSpinner.getValueFactory().getValue());
 			this.shiftYProperty.set((double) this.shiftYSpinner.getValueFactory().getValue());
-			this.floorsService.save(this.floor);
+			this.floorsService.update(this.floor);
 			System.out.println("Sauvegarde automatique de l'étage effectuée en BDD.");
 		});
 		this.zoomSpinner.getValueFactory().valueProperty()
@@ -167,7 +167,7 @@ public class FloorPropertiesPanel extends GridPane {
 		final File result = IoHelper.copyFile(file, newFileName);
 		this.fileNameTextField.setText(result.getAbsolutePath());
 		this.floor.setImgPath(result.getAbsolutePath());
-		this.floorsService.save(this.floor);
+		this.floorsService.update(this.floor);
 		final Image newImage = new Image(result.toURI().toString());
 		this.originalImage = newImage;
 		this.imageProperty.set(newImage);

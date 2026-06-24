@@ -59,7 +59,7 @@ public class EvacToolBar extends DefaultToolBar {
 
 		final BooleanBinding baseEvacDisable = stateMgr.currentAppStateProperty().isNotEqualTo(AppState.PROJECT_READY)
 				.or(stateMgr.activeFloorProperty().isNull())
-				.or(stateMgr.activeNetworkLayerProperty().isNotEqualTo(LayerType.EAU_EVAC));
+				.or(stateMgr.activeNetworkLayerProperty().isNotEqualTo(LayerType.WATER_EVAC));
 
 		final BooleanBinding sortieDisable = baseEvacDisable.or(Bindings.createBooleanBinding(() -> {
 			final Floor f = stateMgr.activeFloorProperty().get();

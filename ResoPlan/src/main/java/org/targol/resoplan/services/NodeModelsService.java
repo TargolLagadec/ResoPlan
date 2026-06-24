@@ -5,7 +5,7 @@ import java.util.List;
 import org.hibernate.service.spi.ServiceException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.targol.resoplan.model.NodeModel;
+import org.targol.resoplan.model.catalog.NodeModel;
 import org.targol.resoplan.repositories.NodeModelsRepository;
 
 @Service

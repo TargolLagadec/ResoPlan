@@ -90,12 +90,12 @@ public class MainWindowController {
 			}
 			final Project currentProject = stateMgr.currentProjectProperty().get();
 			switch (newLayer) {
-			case EAU_EVAC:
+			case WATER_EVAC:
 				final EvacToolBar evacBar = new EvacToolBar(currentProject);
 				this.toolbarContainer.getChildren().setAll(evacBar);
 				break;
 
-			case EAU_ALIM:
+			case WATER_ALIM:
 				// TODO Mettre la bonne toolbar
 				this.toolbarContainer.getChildren().setAll(defBar);
 				break;
@@ -131,7 +131,7 @@ public class MainWindowController {
 		final Optional<ProjectParams> resu = DialogsHelper
 				.showProjectEditorDialog(this.contentPane.getScene().getWindow(), null);
 		resu.ifPresent(param -> {
-			final Project proj = this.service.createProject(param.name(), param.nbFloors());
+			final Project proj = this.service.createProject(param);
 			refreshRecentProjectsMenu();
 			openProject(proj, true);
 		});
