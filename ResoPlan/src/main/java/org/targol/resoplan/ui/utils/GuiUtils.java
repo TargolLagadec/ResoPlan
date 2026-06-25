@@ -1,20 +1,34 @@
 package org.targol.resoplan.ui.utils;
 
+import java.util.List;
 import java.util.Optional;
 
 import org.targol.resoplan.i18n.Messages;
+import org.targol.resoplan.model.catalog.NodeModel;
+import org.targol.resoplan.model.catalog.enums.NodeCategory;
+import org.targol.resoplan.services.NodeModelsService;
+import org.targol.resoplan.ui.components.CatalogButton;
+import org.targol.resoplan.utils.PreferencesManager;
 
+import javafx.event.EventType;
+import javafx.geometry.Pos;
 import javafx.scene.control.Alert;
+import javafx.scene.control.ChoiceBox;
+import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
 import javafx.scene.control.TextFormatter;
 import javafx.scene.control.TextInputDialog;
+import javafx.scene.control.ToggleGroup;
+import javafx.scene.control.Tooltip;
 import javafx.scene.effect.ColorAdjust;
 import javafx.scene.effect.Effect;
 import javafx.scene.image.Image;
 import javafx.scene.image.PixelReader;
 import javafx.scene.image.PixelWriter;
 import javafx.scene.image.WritableImage;
+import javafx.scene.layout.HBox;
 import javafx.scene.paint.Color;
+import javafx.util.StringConverter;
 
 public class GuiUtils {
 
@@ -145,6 +159,60 @@ public class GuiUtils {
 		alert.setTitle(title);
 		alert.setContentText(contentText);
 		alert.showAndWait();
+	}
+
+	public static HBox buildCategorizeNodeModelsToolbar(final NodeCategory cat, final NodeModelsService modelsService,
+			final ToggleGroup placementGroup) {
+		final HBox ret = new HBox(5);
+		ret.setAlignment(Pos.CENTER_LEFT);
+		final Label catLab = new Label(cat.getLabel() + " : ");
+		catLab.setStyle("-fx-font-weight: bold;");
+		ret.getChildren().add(catLab);
+		final List<NodeModel> models = modelsService.getAllByCategory(cat);
+		for (final NodeModel model : modelsService.getAllByCategory(cat)) {
+			final CatalogButton btn = new CatalogButton(model,
+					() -> new AppActionEvent(new EventType<>(AppActionEvent.ANY, model.getName())));
+			btn.setToggleGroup(placementGroup); // Partagé pour qu'un seul outil soit actif à la fois
+			btn.setUserData(model);
+			ret.getChildren().add(btn);
+		}
+		ret.getChildren().stream().filter(node -> node instanceof CatalogButton)
+				.forEach(node -> PreferencesManager.getInstance().addThemeChangeListener((CatalogButton) node));
+
+		return ret;
+	}
+
+	// TODO à supprimer ?
+	public static HBox buildCategorizeNodeModelsChoiceBox(final NodeCategory cat,
+			final NodeModelsService modelsService) {
+		final HBox ret = new HBox(10);
+		final Label catLab = new Label(cat.getLabel());
+		final String desc = cat.getDescription();
+		catLab.setTooltip(new Tooltip(desc));
+		ret.getChildren().add(catLab);
+		final List<NodeModel> models = modelsService.getAllByCategory(cat);
+		final ChoiceBox<NodeModel> choice = new ChoiceBox<>();
+		choice.setPrefWidth(100);
+		choice.getItems().setAll(models);
+		choice.setConverter(new StringConverter<NodeModel>() {
+			@Override
+			public String toString(final NodeModel model) {
+				if (model != null) {
+					return model.getName();
+				}
+				return "";
+			}
+
+			@Override
+			// not used...
+			public NodeModel fromString(final String s) {
+				return null;
+			}
+		});
+		choice.setTooltip(new Tooltip(desc));
+		ret.getChildren().add(choice);
+
+		return ret;
 	}
 
 }

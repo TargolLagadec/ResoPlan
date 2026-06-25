@@ -5,7 +5,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.targol.resoplan.model.Floor;
 import org.targol.resoplan.model.Layer;
-import org.targol.resoplan.model.enums.LayerType;
+import org.targol.resoplan.model.LayerType;
 import org.targol.resoplan.repositories.FloorsRepository;
 
 @Service

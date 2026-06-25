@@ -32,6 +32,16 @@ public class ThemesManager {
 		return icon;
 	}
 
+	public Image getCatalogIcon(final String name, final boolean themeDependant) {
+		final String path = "/images/catalog/".concat(name).concat(".png"); //$NON-NLS-1$ //$NON-NLS-2$
+		Image icon = new Image(Objects.requireNonNull(getClass().getResourceAsStream(path)));
+		final Color iconColor = PreferencesManager.getInstance().getCurrentTheme().getImagesMainColor();
+		if (themeDependant && !Color.WHITE.equals(iconColor)) {
+			icon = GuiUtils.changeColorInImage(icon, Color.WHITE, iconColor);
+		}
+		return icon;
+	}
+
 	public enum Theme {
 		DARK("Dark", "/style/dark.css", Color.WHITE), //$NON-NLS-1$ //$NON-NLS-2$
 		GREY("Grey", "/style/grey.css", Color.WHITE), //$NON-NLS-1$ //$NON-NLS-2$

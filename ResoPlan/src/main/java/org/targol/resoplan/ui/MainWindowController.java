@@ -48,6 +48,8 @@ public class MainWindowController {
 	@FXML
 	private MenuItem mnuNetwork;
 	@FXML
+	private MenuItem mnuCatalog;
+	@FXML
 	private MenuItem mnuDebit;
 	@FXML
 	private HBox toolbarContainer;
@@ -63,15 +65,17 @@ public class MainWindowController {
 	@FXML
 	private void initialize() {
 		refreshRecentProjectsMenu();
-		loadWelcomeView();
+		displayWelcomePanel();
 		manageAccesses();
 		manageDynamicToolbar();
 	}
 
 	private void manageDynamicToolbar() {
 		// Listen toolbarEvents that are for me
-		this.toolbarContainer.addEventHandler(AppActionEvent.TRIGGER_ALIGN, e -> displayAdjustPanel());
+		this.toolbarContainer.addEventHandler(AppActionEvent.TRIGGER_CATALOG, e -> displayCatalogPanel());
 		this.toolbarContainer.addEventHandler(AppActionEvent.TRIGGER_NETWORKS, e -> displayNetworksPanel());
+		this.toolbarContainer.addEventHandler(AppActionEvent.TRIGGER_ALIGN, e -> displayAdjustPanel());
+		this.toolbarContainer.addEventHandler(AppActionEvent.TRIGGER_DEBIT, e -> displayDebitPanel());
 		// listen for toolbar events that change appState
 		this.toolbarContainer.addEventHandler(AppActionEvent.EVAC_MODE_CHANGED, event -> {
 			final EvacMode selectedMode = event.getEvacMode();
@@ -144,6 +148,47 @@ public class MainWindowController {
 		dialog.showAndWait();
 	}
 
+	private void openProject(final Project project) {
+		openProject(project, false);
+	}
+
+	private void openProject(final Project project, final boolean newProj) {
+		this.service.setOpenedProject(project);
+		// Attention, bien passer par service.getOpenedProject() parce que
+		// service.setOpenedProject(project) chareg les étages en plus dans le projet.
+		AppStateManager.getInstance().setOpenedProject(this.service.getOpenedProject());
+		if (newProj) {
+			displayAdjustPanel();
+		} else {
+			final boolean hasMissingImage = this.service.getOpenedProject().getFloors().stream()
+					.anyMatch(floor -> floor.getImgPath() == null || floor.getImgPath().isEmpty());
+			if (hasMissingImage) {
+				displayAdjustPanel();
+			} else {
+				displayNetworksPanel();
+			}
+		}
+		final Stage stage = (Stage) this.contentPane.getScene().getWindow();
+		stage.setTitle(Messages.getString("MainWindow.title.withProj", project.getName())); //$NON-NLS-1$
+	}
+
+	private void displayWelcomePanel() {
+		try {
+			final FXMLLoader loader = new FXMLLoader(getClass().getResource("/gui/panels/WelcomePanel.fxml"), //$NON-NLS-1$
+					this.bundle);
+			final Parent root = loader.load();
+			this.contentPane.getChildren().setAll(root);
+			final WelcomePanelController controller = loader.getController();
+			controller.setProjects(this.service.getAllProjects());
+			controller.setProjectOpenListener(this::openProject);
+			controller.setNewProjectListener(this::newProject);
+			this.mnuClose.setDisable(true);
+		} catch (final IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	}
+
 	@FXML
 	private void displayAdjustPanel() {
 		this.contentPane.getChildren().setAll(new FloorsAdjustmentPanel(this.service.getOpenedProject()));
@@ -162,6 +207,16 @@ public class MainWindowController {
 	}
 
 	@FXML
+	private void displayCatalogPanel() {
+//		Voici les champs du détail :
+//			 * nom : TextField
+//			 * description : Textfield mais éventuellement texte long
+//			 * Catégorie : ChoiceBox valeurs de l'enum NodeCategory que j'ai ajoutée
+//			 * Points d'accroche : Liste variable de 1 à n constantes, représentant les différentes valeurs de HookType possibles. Cette liste peut contenir plusieurs fois la même valeur.
+//			 * AlimConstraint
+	}
+
+	@FXML
 	private void displayDebitPanel() {
 
 	}
@@ -170,7 +225,7 @@ public class MainWindowController {
 	private void closeProject() {
 		this.service.setOpenedProject(null);
 		AppStateManager.getInstance().setOpenedProject(null);
-		loadWelcomeView();
+		displayWelcomePanel();
 		final Stage stage = (Stage) this.contentPane.getScene().getWindow();
 		stage.setTitle(Messages.getString("MainWindow.title")); //$NON-NLS-1$
 	}
@@ -189,38 +244,4 @@ public class MainWindowController {
 			this.mnuRecentProjects.getItems().add(emptyItem);
 		}
 	}
-
-	private void openProject(final Project project) {
-		openProject(project, false);
-	}
-
-	private void openProject(final Project project, final boolean newProj) {
-		this.service.setOpenedProject(project);
-		AppStateManager.getInstance().setOpenedProject(project);
-		if (newProj) {
-			displayAdjustPanel();
-		} else {
-			displayNetworksPanel();
-		}
-		final Stage stage = (Stage) this.contentPane.getScene().getWindow();
-		stage.setTitle(Messages.getString("MainWindow.title.withProj", project.getName())); //$NON-NLS-1$
-	}
-
-	private void loadWelcomeView() {
-		try {
-			final FXMLLoader loader = new FXMLLoader(getClass().getResource("/gui/panels/WelcomePanel.fxml"), //$NON-NLS-1$
-					this.bundle);
-			final Parent root = loader.load();
-			this.contentPane.getChildren().setAll(root);
-			final WelcomePanelController controller = loader.getController();
-			controller.setProjects(this.service.getAllProjects());
-			controller.setProjectOpenListener(this::openProject);
-			controller.setNewProjectListener(this::newProject);
-			this.mnuClose.setDisable(true);
-		} catch (final IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-	}
-
 }

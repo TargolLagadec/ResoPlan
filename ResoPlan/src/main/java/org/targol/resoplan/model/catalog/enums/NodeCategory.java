@@ -1,4 +1,4 @@
-package org.targol.resoplan.model.catalog;
+package org.targol.resoplan.model.catalog.enums;
 
 import org.targol.resoplan.i18n.Messages;
 
@@ -17,6 +17,11 @@ public enum NodeCategory {
 	JONCTIONS_PER;
 
 	public String getLabel() {
-		return Messages.getString(toString());
+		return Messages.getString("NodeCategory." + this.toString()); //$NON-NLS-1$
 	}
+
+	public String getDescription() {
+		return Messages.getString("NodeCategory." + this.toString() + ".desc"); //$NON-NLS-1$ //$NON-NLS-2$
+	}
+
 }

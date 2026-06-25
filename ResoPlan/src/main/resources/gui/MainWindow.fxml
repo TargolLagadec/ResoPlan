@@ -25,11 +25,13 @@
 				<Menu mnemonicParsing="false" text="%MainWindow.mnu_aff">
 					<items>
 						<MenuItem fx:id="mnuAlign" disable="true" mnemonicParsing="false" onAction="#displayAdjustPanel"
-							text="%MainWindow.mnu_aff.itm_ajust" />
+							text="%CustomButton.alignment" />
 						<MenuItem fx:id="mnuNetwork" disable="true" mnemonicParsing="false" onAction="#displayNetworksPanel"
-							text="%MainWindow.mnu_aff.itm_network" />
+							text="%CustomButton.reseaux" />
+						<MenuItem fx:id="mnuCatalog" disable="true" mnemonicParsing="false" onAction="#displayCatalogPanel"
+							text="%CustomButton.catalog" />
 						<MenuItem fx:id="mnuDebit" disable="true" mnemonicParsing="false" onAction="#displayDebitPanel"
-							text="%MainWindow.mnu_aff.itm_debit" />
+							text="%CustomButton.debit" />
 					</items>
 				</Menu>
 			</menus>

@@ -4,15 +4,13 @@ import java.io.File;
 
 import org.targol.resoplan.i18n.Messages;
 import org.targol.resoplan.model.Floor;
-import org.targol.resoplan.model.enums.LayerType;
+import org.targol.resoplan.model.LayerType;
 import org.targol.resoplan.ui.components.CustomLayerRadio;
 import org.targol.resoplan.ui.panels.floornetwork.layers.evac.EvacuationsCanvas;
 import org.targol.resoplan.ui.utils.AppStateManager;
-import org.targol.resoplan.ui.utils.GuiUtils;
 import org.targol.resoplan.utils.PreferencesManager;
 
 import javafx.geometry.Pos;
-import javafx.scene.Group;
 import javafx.scene.control.Label;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.control.Tab;
@@ -20,25 +18,30 @@ import javafx.scene.control.ToggleGroup;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.HBox;
-import javafx.scene.layout.StackPane;
+import javafx.scene.layout.Pane;
 
 public class LayeredFloorTab extends Tab {
 
+	private static final double SCALE_FACTOR = 0.1;
+
+	// parent
+	private final FloorsNetworksTab parentController;
 	// Custom checkBoxes in tab header to display or not different networks layers
 	private final CustomLayerRadio radioElec = new CustomLayerRadio(LayerType.ELEC);
 	private final CustomLayerRadio radioAlim = new CustomLayerRadio(LayerType.WATER_ALIM);
 	private final CustomLayerRadio radioEvac = new CustomLayerRadio(LayerType.WATER_EVAC);
 	private final CustomLayerRadio radioNet = new CustomLayerRadio(LayerType.NET);
+	// content
 	private ToggleGroup headerToggleGroup;
 	private ScrollPane centerScrollPane;
-	private Group imageContainer;
-	private StackPane stackPaneCalques;
+	private Pane mainNetworkPane;
 	// Layers
 	private EvacuationsCanvas evacCanvas;
 
 	private final Floor floor;
 
-	public LayeredFloorTab(final Floor floor, final boolean active) {
+	public LayeredFloorTab(final FloorsNetworksTab parentController, final Floor floor, final boolean active) {
+		this.parentController = parentController;
 		this.floor = floor;
 		initTabHeader();
 		initContent();
@@ -48,31 +51,50 @@ public class LayeredFloorTab extends Tab {
 	private void initContent() {
 		this.centerScrollPane = new ScrollPane();
 		this.setContent(this.centerScrollPane);
-		this.imageContainer = new Group();
-		this.stackPaneCalques = new StackPane();
-		this.imageContainer.getChildren().add(this.stackPaneCalques);
-		this.centerScrollPane.setContent(this.imageContainer);
 
-		if (this.floor.getImgPath() == null) {
-			// Should never happen, we check that before opening this panel
-			GuiUtils.errorAlert(Messages.getString("LayeredFloorTab.floorWithNoImage")); //$NON-NLS-1$
-		} else {
-			final ImageView layerImageView = new ImageView();
-			final File imgFile = new File(this.floor.getImgPath());
-			final Image img = new Image(imgFile.toURI().toString());
-			layerImageView.setImage(img);
-			layerImageView.setPickOnBounds(true);
-			layerImageView.setPreserveRatio(true);
-			this.stackPaneCalques.getChildren().add(layerImageView);
-			this.evacCanvas = new EvacuationsCanvas(this.floor, img.getWidth(), img.getHeight());
-			this.stackPaneCalques.getChildren().add(this.evacCanvas);
+		this.mainNetworkPane = new Pane();
+		// Zoom avec Ctrl + Molette
+		this.mainNetworkPane.setOnScroll(event -> {
+			if (event.isControlDown()) {
+				event.consume();
+				final double deltaY = event.getDeltaY();
+				if (Math.abs(deltaY) < 0.01) {
+					return;
+				}
+				final int direction = deltaY > 0 ? 1 : -1;
+				final double zoomFactor = direction > 0 ? 1 + SCALE_FACTOR : 1 - SCALE_FACTOR;
+				this.parentController.syncZoom(zoomFactor);
+			}
+		});
+		this.centerScrollPane.setContent(this.mainNetworkPane);
 
-			this.stackPaneCalques.setScaleX(this.floor.getZoomFactor());
-			this.stackPaneCalques.setScaleY(this.floor.getZoomFactor());
-			this.stackPaneCalques.setTranslateX(this.floor.getShiftX());
-			this.stackPaneCalques.setTranslateY(this.floor.getShiftY());
-			this.evacCanvas.visibleProperty().bind(this.radioEvac.selectedProperty());
+		final ImageView layerImageView = new ImageView();
+		final File imgFile = new File(this.floor.getImgPath());
+		final Image img = new Image(imgFile.toURI().toString());
+		layerImageView.setImage(img);
+		layerImageView.setPickOnBounds(true);
+		layerImageView.setPreserveRatio(true);
+		if (this.floor.isVirtual()) {
+			layerImageView.setOpacity(0.5d);
 		}
+		layerImageView.setTranslateX(0);
+		layerImageView.setTranslateY(0);
+		layerImageView.setScaleX(this.floor.getZoomFactor());
+		layerImageView.setScaleY(this.floor.getZoomFactor());
+		layerImageView.setTranslateX(this.floor.getShiftX());
+		layerImageView.setTranslateY(this.floor.getShiftY());
+		this.mainNetworkPane.getChildren().add(layerImageView);
+		this.evacCanvas = new EvacuationsCanvas(this.floor, img.getWidth(), img.getHeight());
+		this.mainNetworkPane.getChildren().add(this.evacCanvas);
+		this.evacCanvas.visibleProperty().bind(this.radioEvac.selectedProperty());
+	}
+
+	public ScrollPane getCenterScrollPane() {
+		return this.centerScrollPane;
+	}
+
+	public Pane getMainNetworkPane() {
+		return this.mainNetworkPane;
 	}
 
 	private void initTabHeader() {

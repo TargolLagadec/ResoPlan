@@ -1,7 +1,7 @@
-package org.targol.resoplan.model.catalog;
+package org.targol.resoplan.model.catalog.enums;
 
 import org.targol.resoplan.i18n.Messages;
-import org.targol.resoplan.model.enums.LayerType;
+import org.targol.resoplan.model.LayerType;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;

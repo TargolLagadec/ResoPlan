@@ -12,7 +12,11 @@ import org.springframework.boot.CommandLineRunner;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.ResourceLoader;
 import org.springframework.stereotype.Component;
-import org.targol.resoplan.model.enums.LayerType;
+import org.targol.resoplan.model.LayerType;
+import org.targol.resoplan.model.catalog.enums.AlimConstraint;
+import org.targol.resoplan.model.catalog.enums.HookType;
+import org.targol.resoplan.model.catalog.enums.NodeCategory;
+import org.targol.resoplan.model.catalog.enums.NodeCross;
 import org.targol.resoplan.services.HookTypesService;
 import org.targol.resoplan.services.NodeModelsService;
 
@@ -27,6 +31,8 @@ public class DatabaseInitializer implements CommandLineRunner {
 		allHooks.put("per12", LayerType.WATER_ALIM); //$NON-NLS-1$
 		allHooks.put("per16", LayerType.WATER_ALIM); //$NON-NLS-1$
 		allHooks.put("per20", LayerType.WATER_ALIM); //$NON-NLS-1$
+		allHooks.put("vis2027", LayerType.WATER_ALIM); //$NON-NLS-1$
+		allHooks.put("vis1521", LayerType.WATER_ALIM); //$NON-NLS-1$
 		allHooks.put("pvc32", LayerType.WATER_EVAC); //$NON-NLS-1$
 		allHooks.put("pvc40", LayerType.WATER_EVAC); //$NON-NLS-1$
 		allHooks.put("pvc100", LayerType.WATER_EVAC); //$NON-NLS-1$
@@ -56,6 +62,10 @@ public class DatabaseInitializer implements CommandLineRunner {
 	@Override
 	public void run(final String... args) throws Exception {
 		// Si les HookTypes sont là, c'est que l'init est Ok (ils sont immuables)
+		// FIXME virer cet effacement total.
+		this.modelSvc.deleteAll();
+		this.typeSvc.deleteAll();
+
 		if (!this.typeSvc.getAll().isEmpty()) {
 			return;
 		}
@@ -96,6 +106,9 @@ public class DatabaseInitializer implements CommandLineRunner {
 				final String description = nextLine[1];
 				final String hooksString = nextLine[2];
 				final String category = nextLine[3];
+				final String constr = nextLine[4];
+				final String nodeCross = nextLine[5];
+				final String imgName = nextLine[6];
 				// CHECK HookType
 				final List<HookType> hooks = convertCsvHookKeysToHookTypes(hooksString, numLine);
 				if (hooks.isEmpty()) {
@@ -111,10 +124,31 @@ public class DatabaseInitializer implements CommandLineRunner {
 					this.readErrors.add("Ligne " + numLine + " => Impossible de déterminer la catégorie du matériel."); //$NON-NLS-1$ //$NON-NLS-2$
 					continue;
 				}
+				// CHECK AlimConstraint
+				AlimConstraint constraint;
+				try {
+					constraint = AlimConstraint.valueOf(constr);
+				} catch (final Exception e) {
+					this.readErrors.add("Ligne " + numLine //$NON-NLS-1$
+							+ " => Impossible de déterminer la contrainte d'alimentation du matériel."); //$NON-NLS-1$
+					continue;
+				}
+				// CHECK NodeCross
+				final NodeCross cross;
+				try {
+					cross = NodeCross.valueOf(nodeCross);
+				} catch (final Exception e) {
+					this.readErrors.add("Ligne " + numLine //$NON-NLS-1$
+							+ " => Impossible de déterminer le type de changement de niveau du matériel."); //$NON-NLS-1$
+					continue;
+				}
 				final NodeModel nodeModel = new NodeModel(name);
 				nodeModel.setDescription(description);
 				nodeModel.setCategory(cat);
+				nodeModel.setAlimConstraint(constraint);
 				nodeModel.setAllowedHooks(hooks);
+				nodeModel.setNodeCross(cross);
+				nodeModel.setImgName(imgName);
 				this.modelSvc.save(nodeModel);
 				numLine++;
 			}

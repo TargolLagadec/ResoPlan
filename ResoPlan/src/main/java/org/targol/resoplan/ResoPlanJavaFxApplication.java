@@ -40,6 +40,7 @@ public class ResoPlanJavaFxApplication extends Application {
 		final Theme theme = PreferencesManager.getInstance().getCurrentTheme();
 		stage.getScene().getStylesheets().clear();
 		stage.getScene().getStylesheets().add(getClass().getResource(theme.getCssfilePath()).toExternalForm());
+		stage.setMaximized(true);
 		stage.show();
 	}
 

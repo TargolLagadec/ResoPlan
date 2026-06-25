@@ -1,8 +1,8 @@
 package org.targol.resoplan.ui.utils;
 
 import org.targol.resoplan.model.Floor;
+import org.targol.resoplan.model.LayerType;
 import org.targol.resoplan.model.Project;
-import org.targol.resoplan.model.enums.LayerType;
 import org.targol.resoplan.ui.panels.floornetwork.layers.evac.EvacMode;
 
 import javafx.beans.property.ObjectProperty;
@@ -37,6 +37,10 @@ public class AppStateManager {
 	}
 
 	public void updateProjectState(final Project project) {
+		if (project == null) {
+			this.currentAppState.set(AppState.NO_PROJECT);
+			return;
+		}
 		final boolean missingImage = project.getFloors().stream()
 				.anyMatch(f -> f.getImgPath() == null || f.getImgPath().isEmpty());
 

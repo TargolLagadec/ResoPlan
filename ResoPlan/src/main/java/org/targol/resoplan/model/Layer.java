@@ -3,8 +3,6 @@ package org.targol.resoplan.model;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.targol.resoplan.model.enums.LayerType;
-
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -31,7 +29,7 @@ public class Layer {
 	@Column(length = 10, name = "layerType")
 	private LayerType layerType;
 
-	@OneToMany(fetch = FetchType.EAGER, cascade = CascadeType.ALL, orphanRemoval = true)
+	@OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
 	@JoinColumn(name = "LayerId", referencedColumnName = "id")
 	private List<Link> links;
 

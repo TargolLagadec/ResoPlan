@@ -6,8 +6,8 @@ import java.util.Optional;
 import org.hibernate.service.spi.ServiceException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.targol.resoplan.model.catalog.HookType;
-import org.targol.resoplan.model.enums.LayerType;
+import org.targol.resoplan.model.LayerType;
+import org.targol.resoplan.model.catalog.enums.HookType;
 import org.targol.resoplan.repositories.HookTypesRepository;
 
 @Service
@@ -40,4 +40,8 @@ public class HookTypesService {
 		this.repo.deleteById(id);
 	}
 
+	// TODO remove that : too dangerous !
+	public void deleteAll() {
+		this.repo.deleteAll();
+	}
 }

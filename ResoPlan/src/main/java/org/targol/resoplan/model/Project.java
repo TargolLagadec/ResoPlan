@@ -3,6 +3,7 @@ package org.targol.resoplan.model;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
@@ -37,13 +38,19 @@ public class Project {
 	private int plansScale;
 
 	/**
+	 * hauteur sous plafond en centimetres
+	 */
+	@Column(name = "hsp")
+	private int hsp;
+
+	/**
 	 * Marge en % lors du calcul des débits. Ce pourcentage est ajouté aux quantités
 	 * calculées.
 	 */
 	@Column(name = "consumptionMargin")
 	private int consumptionMargin;
 
-	@OneToMany(fetch = FetchType.EAGER, cascade = CascadeType.ALL, orphanRemoval = true)
+	@OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
 	@JoinColumn(name = "ProjectId", referencedColumnName = "id")
 	private List<Floor> floors;
 
@@ -56,6 +63,16 @@ public class Project {
 		this.name = name;
 	}
 
+	public Optional<Floor> getFloorByNumber(final int number) {
+		for (final Floor floor : this.floors) {
+			if (floor.getNumber() == number) {
+				return Optional.of(floor);
+			}
+		}
+		return Optional.empty();
+	}
+
+	// getters and setters
 	public int getId() {
 		return this.id;
 	}
@@ -82,6 +99,14 @@ public class Project {
 
 	public int getPlansScale() {
 		return this.plansScale;
+	}
+
+	public int getHsp() {
+		return this.hsp;
+	}
+
+	public void setHsp(final int hsp) {
+		this.hsp = hsp;
 	}
 
 	public void setPlansScale(final int plansScale) {

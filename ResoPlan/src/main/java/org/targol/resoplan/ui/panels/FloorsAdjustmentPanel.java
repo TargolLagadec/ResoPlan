@@ -52,27 +52,29 @@ public class FloorsAdjustmentPanel extends BorderPane {
 		final List<Floor> sortedFloors = this.proj.getFloors().stream()
 				.sorted(Comparator.comparingInt(Floor::getNumber)).toList();
 		for (final Floor floor : sortedFloors) {
-			final TitledPane titPane = new TitledPane();
-			titPane.setText(Messages.getString("ProjectPane.floorname", floor.getNumber())); //$NON-NLS-1$
-			final FloorPropertiesPanel propPanel = new FloorPropertiesPanel(floor);
-			titPane.setContent(propPanel);
-			this.accordion.getPanes().add(titPane);
-			if (floor.getNumber() == 0) {
-				this.accordion.setExpandedPane(titPane);
+			if (!floor.isVirtual()) {
+				final TitledPane titPane = new TitledPane();
+				titPane.setText(Messages.getString("ProjectPane.floorname", floor.getNumber())); //$NON-NLS-1$
+				final FloorPropertiesPanel propPanel = new FloorPropertiesPanel(floor);
+				titPane.setContent(propPanel);
+				this.accordion.getPanes().add(titPane);
+				if (floor.getNumber() == 0) {
+					this.accordion.setExpandedPane(titPane);
+				}
+				final ImageView layerImageView = new ImageView();
+				layerImageView.setPickOnBounds(true);
+				layerImageView.setPreserveRatio(true);
+				layerImageView.setVisible(propPanel.getVisibleCheck().isSelected());
+				layerImageView.imageProperty().bind(propPanel.imageProperty());
+				layerImageView.visibleProperty().bind(propPanel.getVisibleCheck().selectedProperty());
+				layerImageView.opacityProperty().bind(propPanel.getTransparencySlider().valueProperty());
+				layerImageView.scaleXProperty().bind(propPanel.zoomProperty());
+				layerImageView.scaleYProperty().bind(propPanel.zoomProperty());
+				layerImageView.translateXProperty().bind(propPanel.shiftXProperty());
+				layerImageView.translateYProperty().bind(propPanel.shiftYProperty());
+				layerImageView.visibleProperty().bind(propPanel.getVisibleCheck().selectedProperty());
+				this.stackPaneCalques.getChildren().add(layerImageView);
 			}
-			final ImageView layerImageView = new ImageView();
-			layerImageView.setPickOnBounds(true);
-			layerImageView.setPreserveRatio(true);
-			layerImageView.setVisible(propPanel.getVisibleCheck().isSelected());
-			layerImageView.imageProperty().bind(propPanel.imageProperty());
-			layerImageView.visibleProperty().bind(propPanel.getVisibleCheck().selectedProperty());
-			layerImageView.opacityProperty().bind(propPanel.getTransparencySlider().valueProperty());
-			layerImageView.scaleXProperty().bind(propPanel.zoomProperty());
-			layerImageView.scaleYProperty().bind(propPanel.zoomProperty());
-			layerImageView.translateXProperty().bind(propPanel.shiftXProperty());
-			layerImageView.translateYProperty().bind(propPanel.shiftYProperty());
-			layerImageView.visibleProperty().bind(propPanel.getVisibleCheck().selectedProperty());
-			this.stackPaneCalques.getChildren().add(layerImageView);
 		}
 	}
 }

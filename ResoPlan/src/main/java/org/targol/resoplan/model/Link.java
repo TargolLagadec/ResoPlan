@@ -1,14 +1,11 @@
 package org.targol.resoplan.model;
 
-import org.targol.resoplan.model.catalog.HookType;
-import org.targol.resoplan.model.enums.LinkDepth;
+import org.targol.resoplan.model.catalog.enums.HookType;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.DiscriminatorColumn;
 import jakarta.persistence.DiscriminatorType;
 import jakarta.persistence.Entity;
-import jakarta.persistence.EnumType;
-import jakarta.persistence.Enumerated;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -31,11 +28,7 @@ public class Link {
 	@Column(name = "Id")
 	protected int id;
 
-	@Enumerated(EnumType.STRING)
-	@Column(length = 10, name = "depth")
-	protected LinkDepth depth;
-
-	@ManyToOne(fetch = FetchType.EAGER)
+	@ManyToOne(fetch = FetchType.LAZY)
 	@JoinColumn(name = "hookTypeId")
 	private HookType hookType;
 
@@ -53,14 +46,6 @@ public class Link {
 
 	public void setId(final int id) {
 		this.id = id;
-	}
-
-	public LinkDepth getDepth() {
-		return this.depth;
-	}
-
-	public void setDepth(final LinkDepth depth) {
-		this.depth = depth;
 	}
 
 	public HookType getHookType() {

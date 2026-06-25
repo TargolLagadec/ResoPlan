@@ -36,17 +36,22 @@ public class Floor {
 	private double shiftY;
 
 	@Column(name = "zoomFactor")
-	private double zoomFactor;
+	private double zoomFactor = 1.0d;
 
 	@Column(name = "vitual")
 	private boolean virtual;
 
-	@OneToMany(fetch = FetchType.EAGER, cascade = CascadeType.ALL, orphanRemoval = true)
+	@OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
 	@JoinColumn(name = "FloorId", referencedColumnName = "id")
 	private List<Layer> layers;
 
+	@OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
+	@JoinColumn(name = "FloorId", referencedColumnName = "id")
+	private final List<Node> nodes;
+
 	public Floor() {
 		this.layers = new ArrayList<>();
+		this.nodes = new ArrayList<>();
 	}
 
 	public Floor(final int number) {

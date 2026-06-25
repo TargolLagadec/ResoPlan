@@ -27,11 +27,17 @@ public class ProjectsService {
 	}
 
 	public void setOpenedProject(final Project project) {
-		if (project != null) {
-			project.setLastOpened(LocalDateTime.now());
-			updateProject(project);
+		if (project == null) {
+			this.openedProject = null;
+			return;
 		}
-		this.openedProject = project;
+
+		// On lit le projet en forçant la lecture de ses étages
+		final Project fullProject = this.repo.findByIdWithFloors(project.getId())
+				.orElseThrow(() -> new IllegalArgumentException("Projet introuvable en BDD"));
+		fullProject.setLastOpened(LocalDateTime.now());
+		this.repo.save(fullProject);
+		this.openedProject = fullProject;
 	}
 
 	public Project getOpenedProject() {
@@ -56,6 +62,8 @@ public class ProjectsService {
 		}
 		// On crée le projet et ses étages.
 		final Project proj = new Project(params.name());
+		proj.setHsp(params.hsp());
+		proj.setConsumptionMargin(params.margin());
 		for (int curFloorNum = 0; curFloorNum < params.nbFloors(); curFloorNum++) {
 			final Floor curFloor = new Floor(curFloorNum);
 			curFloor.setVirtual(false);

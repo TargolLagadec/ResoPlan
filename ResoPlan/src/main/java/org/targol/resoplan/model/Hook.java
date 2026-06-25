@@ -1,6 +1,6 @@
 package org.targol.resoplan.model;
 
-import org.targol.resoplan.model.catalog.HookType;
+import org.targol.resoplan.model.catalog.enums.HookType;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -21,7 +21,7 @@ public class Hook {
 	@Column(name = "Id")
 	private int id;
 
-	@ManyToOne(fetch = FetchType.EAGER)
+	@ManyToOne(fetch = FetchType.LAZY)
 	@JoinColumn(name = "hookTypeId")
 	private HookType hookType;
 
