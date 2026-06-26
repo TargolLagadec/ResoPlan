@@ -14,23 +14,28 @@ import org.targol.resoplan.ui.dialogs.PreferencesDialogControler;
 import org.targol.resoplan.ui.panels.FloorsAdjustmentPanel;
 import org.targol.resoplan.ui.panels.WelcomePanelController;
 import org.targol.resoplan.ui.panels.floornetwork.FloorsNetworksTab;
-import org.targol.resoplan.ui.panels.floornetwork.layers.evac.EvacMode;
+import org.targol.resoplan.ui.toolbars.AjustToolBar;
 import org.targol.resoplan.ui.toolbars.DefaultToolBar;
 import org.targol.resoplan.ui.toolbars.EvacToolBar;
-import org.targol.resoplan.ui.utils.AppActionEvent;
 import org.targol.resoplan.ui.utils.AppState;
 import org.targol.resoplan.ui.utils.AppStateManager;
+import org.targol.resoplan.ui.utils.BindingBuilder;
 import org.targol.resoplan.ui.utils.DialogsHelper;
 import org.targol.resoplan.ui.utils.GuiUtils;
+import org.targol.resoplan.ui.utils.events.AjustEvent;
+import org.targol.resoplan.ui.utils.events.GenericActionEvent;
+import org.targol.resoplan.ui.utils.events.LinkTracingEvent;
+import org.targol.resoplan.ui.utils.events.NodePlacementEvent;
 import org.targol.resoplan.utils.ProjectParams;
 
-import javafx.beans.property.ObjectProperty;
+import javafx.beans.binding.BooleanBinding;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.control.Menu;
 import javafx.scene.control.MenuItem;
 import javafx.scene.layout.HBox;
+import javafx.scene.layout.Region;
 import javafx.scene.layout.StackPane;
 import javafx.stage.Stage;
 
@@ -71,21 +76,36 @@ public class MainWindowController {
 	}
 
 	private void manageDynamicToolbar() {
+		final AppStateManager stateMgr = AppStateManager.getInstance();
 		// Listen toolbarEvents that are for me
-		this.toolbarContainer.addEventHandler(AppActionEvent.TRIGGER_CATALOG, e -> displayCatalogPanel());
-		this.toolbarContainer.addEventHandler(AppActionEvent.TRIGGER_NETWORKS, e -> displayNetworksPanel());
-		this.toolbarContainer.addEventHandler(AppActionEvent.TRIGGER_ALIGN, e -> displayAdjustPanel());
-		this.toolbarContainer.addEventHandler(AppActionEvent.TRIGGER_DEBIT, e -> displayDebitPanel());
+		this.toolbarContainer.addEventHandler(GenericActionEvent.TRIGGER_CATALOG, e -> displayCatalogPanel());
+		this.toolbarContainer.addEventHandler(GenericActionEvent.TRIGGER_NETWORKS, e -> displayNetworksPanel());
+		this.toolbarContainer.addEventHandler(GenericActionEvent.TRIGGER_ALIGN, e -> displayAdjustPanel());
+		this.toolbarContainer.addEventHandler(GenericActionEvent.TRIGGER_DEBIT, e -> displayDebitPanel());
 		// listen for toolbar events that change appState
-		this.toolbarContainer.addEventHandler(AppActionEvent.EVAC_MODE_CHANGED, event -> {
-			final EvacMode selectedMode = event.getEvacMode();
-			System.err.println("Dans l'event handler de MainWindowController " + selectedMode.toString());
-			AppStateManager.getInstance().setCurrentEvacMode(selectedMode);
+		this.toolbarContainer.addEventHandler(NodePlacementEvent.PLACEMENT_ANY, event -> {
+			AppStateManager.getInstance().getCurrentOpenedMainPanel().fireEvent(event);
+			event.consume();
+		});
+		this.toolbarContainer.addEventHandler(LinkTracingEvent.HOOK_ANY, event -> {
+			AppStateManager.getInstance().getCurrentOpenedMainPanel().fireEvent(event);
+			event.consume();
+		});
+		this.toolbarContainer.addEventHandler(AjustEvent.SCALE_LINE_START_REQUIRED, event -> {
+			AppStateManager.getInstance().getCurrentOpenedMainPanel().fireEvent(event);
+			event.consume();
 		});
 		this.toolbarContainer.getChildren().clear();
 		final DefaultToolBar defBar = new DefaultToolBar();
 		this.toolbarContainer.getChildren().setAll(defBar);
-		final AppStateManager stateMgr = AppStateManager.getInstance();
+		stateMgr.currentMainPanelProperty().addListener((obs, oldPane, newPane) -> {
+			if (newPane != null && newPane instanceof FloorsAdjustmentPanel) {
+				final Project currentProject = stateMgr.currentProjectProperty().get();
+				this.toolbarContainer.getChildren().clear();
+				final AjustToolBar tBar = new AjustToolBar(currentProject);
+				this.toolbarContainer.getChildren().setAll(tBar);
+			}
+		});
 		stateMgr.activeNetworkLayerProperty().addListener((obs, oldLayer, newLayer) -> {
 			this.toolbarContainer.getChildren().clear();
 			if (newLayer == null || stateMgr.currentProjectProperty().get() == null) {
@@ -120,14 +140,13 @@ public class MainWindowController {
 	}
 
 	private void manageAccesses() {
-		final AppStateManager stateMgr = AppStateManager.getInstance();
-		final ObjectProperty<AppState> state = stateMgr.currentAppStateProperty();
-		this.mnuClose.disableProperty().bind(state.isEqualTo(AppState.NO_PROJECT));
-		this.mnuAlign.disableProperty().bind(state.isEqualTo(AppState.NO_PROJECT));
-		this.mnuNetwork.disableProperty()
-				.bind(state.isEqualTo(AppState.NO_PROJECT).or(state.isEqualTo(AppState.PROJECT_WITHOUT_IMAGES)));
-		this.mnuDebit.disableProperty()
-				.bind(state.isEqualTo(AppState.NO_PROJECT).or(state.isEqualTo(AppState.PROJECT_WITHOUT_IMAGES)));
+		final BooleanBinding noProjectDisable = BindingBuilder.disableWhen().stateIs(AppState.NO_PROJECT).build();
+		this.mnuClose.disableProperty().bind(noProjectDisable);
+		this.mnuAlign.disableProperty().bind(noProjectDisable);
+		final BooleanBinding networkEtDebitDisable = BindingBuilder.disableWhen()
+				.stateIs(AppState.NO_PROJECT, AppState.PROJECT_INCOMPLETE).build();
+		this.mnuNetwork.disableProperty().bind(networkEtDebitDisable);
+		this.mnuDebit.disableProperty().bind(networkEtDebitDisable);
 	}
 
 	@FXML
@@ -154,15 +173,15 @@ public class MainWindowController {
 
 	private void openProject(final Project project, final boolean newProj) {
 		this.service.setOpenedProject(project);
+		final AppStateManager stateMgr = AppStateManager.getInstance();
 		// Attention, bien passer par service.getOpenedProject() parce que
-		// service.setOpenedProject(project) chareg les étages en plus dans le projet.
-		AppStateManager.getInstance().setOpenedProject(this.service.getOpenedProject());
+		// service.setOpenedProject(project) charge les étages en plus dans le projet.
+		stateMgr.setOpenedProject(this.service.getOpenedProject());
 		if (newProj) {
 			displayAdjustPanel();
 		} else {
-			final boolean hasMissingImage = this.service.getOpenedProject().getFloors().stream()
-					.anyMatch(floor -> floor.getImgPath() == null || floor.getImgPath().isEmpty());
-			if (hasMissingImage) {
+			final boolean isIncomplete = AppState.PROJECT_INCOMPLETE.equals(stateMgr.currentAppStateProperty().get());
+			if (isIncomplete) {
 				displayAdjustPanel();
 			} else {
 				displayNetworksPanel();
@@ -177,6 +196,7 @@ public class MainWindowController {
 			final FXMLLoader loader = new FXMLLoader(getClass().getResource("/gui/panels/WelcomePanel.fxml"), //$NON-NLS-1$
 					this.bundle);
 			final Parent root = loader.load();
+			AppStateManager.getInstance().setCurrentOpenedMainPanel((Region) root);
 			this.contentPane.getChildren().setAll(root);
 			final WelcomePanelController controller = loader.getController();
 			controller.setProjects(this.service.getAllProjects());
@@ -191,7 +211,9 @@ public class MainWindowController {
 
 	@FXML
 	private void displayAdjustPanel() {
-		this.contentPane.getChildren().setAll(new FloorsAdjustmentPanel(this.service.getOpenedProject()));
+		final FloorsAdjustmentPanel panel = new FloorsAdjustmentPanel(this.service.getOpenedProject());
+		AppStateManager.getInstance().setCurrentOpenedMainPanel(panel);
+		this.contentPane.getChildren().setAll(panel);
 	}
 
 	@FXML
@@ -203,7 +225,9 @@ public class MainWindowController {
 			displayAdjustPanel();
 			return;
 		}
-		this.contentPane.getChildren().setAll(new FloorsNetworksTab(this.service.getOpenedProject()));
+		final FloorsNetworksTab panel = new FloorsNetworksTab(this.service.getOpenedProject());
+		AppStateManager.getInstance().setCurrentOpenedMainPanel(panel);
+		this.contentPane.getChildren().setAll(panel);
 	}
 
 	@FXML

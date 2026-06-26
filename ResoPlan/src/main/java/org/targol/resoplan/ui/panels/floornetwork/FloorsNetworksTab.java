@@ -8,6 +8,7 @@ import org.targol.resoplan.model.Floor;
 import org.targol.resoplan.model.Project;
 import org.targol.resoplan.ui.utils.AppStateManager;
 
+import javafx.application.Platform;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.control.TabPane;
 import javafx.scene.layout.Pane;
@@ -52,17 +53,34 @@ public class FloorsNetworksTab extends TabPane {
 	 *
 	 * @param hValue zoom value
 	 */
-	void syncZoom(final double zoomFactor) {
+	void syncZoom(final double zoomFactor, final double mouseX, final double mouseY) {
 		if (this.isSyncing) {
 			return;
 		}
 		try {
 			this.isSyncing = true;
 			for (final LayeredFloorTab tab : this.floorTabs) {
+				final ScrollPane scrollPane = tab.getCenterScrollPane();
 				final Pane mainPane = tab.getMainNetworkPane();
+				// Position de la souris au moment du zoom poue centrer dessus.
+				final double hBoundsWidth = scrollPane.getContent().getBoundsInLocal().getWidth();
+				final double vBoundsHeight = scrollPane.getContent().getBoundsInLocal().getHeight();
+				if (hBoundsWidth == 0 || vBoundsHeight == 0) {
+					continue;
+				}
 				mainPane.setScaleX(mainPane.getScaleX() * zoomFactor);
 				mainPane.setScaleY(mainPane.getScaleY() * zoomFactor);
-				tab.getCenterScrollPane().layout();
+				tab.getCenterScrollPane().requestLayout();
+				Platform.runLater(() -> {
+					final double hValue = scrollPane.getHvalue();
+					final double vValue = scrollPane.getVvalue();
+					final double newH = hValue + mouseX / hBoundsWidth * (zoomFactor - 1)
+							* (scrollPane.getViewportBounds().getWidth() / hBoundsWidth);
+					final double newV = vValue + mouseY / vBoundsHeight * (zoomFactor - 1)
+							* (scrollPane.getViewportBounds().getHeight() / vBoundsHeight);
+					scrollPane.setHvalue(Math.max(0, Math.min(1, newH)));
+					scrollPane.setVvalue(Math.max(0, Math.min(1, newV)));
+				});
 			}
 		} finally {
 			this.isSyncing = false;

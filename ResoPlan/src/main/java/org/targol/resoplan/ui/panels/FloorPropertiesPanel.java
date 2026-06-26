@@ -14,13 +14,11 @@ import org.targol.resoplan.model.Project;
 import org.targol.resoplan.services.FloorsService;
 import org.targol.resoplan.services.ProjectsService;
 import org.targol.resoplan.ui.utils.AppStateManager;
-import org.targol.resoplan.ui.utils.GuiUtils;
+import org.targol.resoplan.ui.utils.events.AjustEvent;
 import org.targol.resoplan.utils.IoHelper;
 import org.targol.resoplan.utils.SpringContextHelper;
 
 import javafx.animation.PauseTransition;
-import javafx.beans.property.ObjectProperty;
-import javafx.beans.property.SimpleObjectProperty;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
@@ -29,7 +27,6 @@ import javafx.scene.control.Slider;
 import javafx.scene.control.Spinner;
 import javafx.scene.control.SpinnerValueFactory;
 import javafx.scene.control.TextField;
-import javafx.scene.image.Image;
 import javafx.scene.layout.GridPane;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Rectangle;
@@ -71,16 +68,11 @@ public class FloorPropertiesPanel extends GridPane {
 
 	private final Floor floor;
 	private final ResourceBundle bundle = ResourceBundle.getBundle("i18n.messages", Locale.getDefault()); //$NON-NLS-1$
-	private Image originalImage;
 
-	private final ObjectProperty<Image> imageProperty = new SimpleObjectProperty<>();
-	private final ObjectProperty<Color> colorProperty = new SimpleObjectProperty<>(Color.BLACK);
-	private final ObjectProperty<Double> zoomProperty = new SimpleObjectProperty<>(1.0d);
-	private final ObjectProperty<Double> shiftXProperty = new SimpleObjectProperty<>(0.0d);
-	private final ObjectProperty<Double> shiftYProperty = new SimpleObjectProperty<>(0.0d);
-
-	// Pause waiter to avoid saving too often sliders or spinners changes.
+	// Pause waiters to avoid saving or redrawing too often sliders or spinners
+	// changes.
 	private final PauseTransition autoSaveTimer = new PauseTransition(Duration.millis(500));
+	private final PauseTransition autoRedrawTimer = new PauseTransition(Duration.millis(500));
 
 	public FloorPropertiesPanel(final Floor floor) {
 		this.floor = floor;
@@ -104,9 +96,10 @@ public class FloorPropertiesPanel extends GridPane {
 				.setValueFactory(new SpinnerValueFactory.DoubleSpinnerValueFactory(-1500.0d, 1500.0d, 0.0d, 20.0d));
 		this.shiftYSpinner
 				.setValueFactory(new SpinnerValueFactory.DoubleSpinnerValueFactory(-1500.0d, 1500.0d, 0.0d, 20.0d));
-
+		this.transparencySlider.setValue(1.0);
+		this.teintSlider.setValue(0);
+		this.visibleCheck.setSelected(true);
 		if (this.floor.getNumber() == 0) {
-			this.visibleCheck.setSelected(true);
 			this.visibleCheck.setDisable(true);
 			this.transparencySlider.setDisable(true);
 			this.zoomSpinner.setDisable(true);
@@ -114,27 +107,21 @@ public class FloorPropertiesPanel extends GridPane {
 			this.shiftYSpinner.setDisable(true);
 		}
 		final double zoom = this.floor.getZoomFactor() < 0.1d ? 1.0d : this.floor.getZoomFactor();
-		this.zoomProperty.set(zoom);
 		this.zoomSpinner.getValueFactory().setValue(zoom * 100);
-		this.shiftXProperty.set(this.floor.getShiftX());
 		this.shiftXSpinner.getValueFactory().setValue(this.floor.getShiftX());
-		this.shiftYProperty.set(this.floor.getShiftY());
 		this.shiftYSpinner.getValueFactory().setValue(this.floor.getShiftY());
 
 		initializeSaveTimer();
+		initializeRedrawTimer();
 		this.teintSlider.valueProperty().addListener((observable, oldValue, newValue) -> {
 			changeColor(newValue.intValue());
 		});
-
-		this.teintSample.setFill(this.colorProperty.get());
+		final Color targetColor = colors.get((int) this.teintSlider.getValue());
+		this.teintSample.setFill(targetColor);
 		if (this.floor.getImgPath() != null) {
 			final File imageFile = new File(this.floor.getImgPath());
-
 			if (imageFile.exists()) {
 				this.fileNameTextField.setText(imageFile.getAbsolutePath());
-				final Image img = new Image(imageFile.toURI().toString());
-				this.originalImage = img;
-				this.imageProperty.set(img);
 			}
 		}
 	}
@@ -146,15 +133,12 @@ public class FloorPropertiesPanel extends GridPane {
 		this.autoSaveTimer.setOnFinished(event -> {
 			// On récupère les valeurs actuelles des contrôles graphiques
 			this.floor.setZoomFactor(this.zoomSpinner.getValueFactory().getValue() / 100);
-			this.zoomProperty.set(this.zoomSpinner.getValueFactory().getValue() / 100);
 			this.floor.setShiftX(this.shiftXSpinner.getValueFactory().getValue());
-			this.shiftXProperty.set((double) this.shiftXSpinner.getValueFactory().getValue());
 			this.floor.setShiftY(this.shiftYSpinner.getValueFactory().getValue());
-			this.shiftYProperty.set((double) this.shiftYSpinner.getValueFactory().getValue());
 			this.floorsService.update(this.floor);
 			checkVirtualAboveOrBellowFloor();
+			this.fireEvent(AjustEvent.fireFloorUpdated(this.floor));
 			informStateManager();
-			System.out.println("Sauvegarde automatique de l'étage effectuée en BDD.");
 		});
 		this.zoomSpinner.getValueFactory().valueProperty()
 				.addListener((obs, old, newVal) -> this.autoSaveTimer.playFromStart());
@@ -162,7 +146,22 @@ public class FloorPropertiesPanel extends GridPane {
 				.addListener((obs, old, newVal) -> this.autoSaveTimer.playFromStart());
 		this.shiftYSpinner.getValueFactory().valueProperty()
 				.addListener((obs, old, newVal) -> this.autoSaveTimer.playFromStart());
-		this.transparencySlider.valueProperty().addListener((obs, old, newVal) -> this.autoSaveTimer.playFromStart());
+	}
+
+	/**
+	 * temporisation du rafraichissement graphique
+	 */
+	private void initializeRedrawTimer() {
+		this.autoRedrawTimer.setOnFinished(event -> {
+			// On récupère les valeurs actuelles des contrôles graphiques
+			final double opacity = this.transparencySlider.getValue();
+			final boolean visible = this.visibleCheck.isSelected();
+			final Color paint = colors.get((int) this.teintSlider.getValue());
+			this.fireEvent(AjustEvent.fireVisualChanged(this.floor, opacity, visible, paint));
+		});
+		this.visibleCheck.selectedProperty().addListener((obs, old, newVal) -> this.autoRedrawTimer.playFromStart());
+		this.transparencySlider.valueProperty().addListener((obs, old, newVal) -> this.autoRedrawTimer.playFromStart());
+		this.teintSlider.valueProperty().addListener((obs, old, newVal) -> this.autoRedrawTimer.playFromStart());
 	}
 
 	private void informStateManager() {
@@ -171,9 +170,7 @@ public class FloorPropertiesPanel extends GridPane {
 
 	private void changeColor(final int newValue) {
 		final Color targetColor = colors.get(newValue);
-		this.colorProperty.set(targetColor);
 		this.teintSample.setFill(targetColor);
-		this.imageProperty.set(GuiUtils.colorizeImage(this.originalImage, targetColor));
 	}
 
 	@FXML
@@ -189,17 +186,15 @@ public class FloorPropertiesPanel extends GridPane {
 		this.fileNameTextField.setText(result.getAbsolutePath());
 		this.floor.setImgPath(result.getAbsolutePath());
 		this.floorsService.update(this.floor);
-		final Image newImage = new Image(result.toURI().toString());
-		this.originalImage = newImage;
-		this.imageProperty.set(newImage);
 		checkVirtualAboveOrBellowFloor();
 		informStateManager();
+		this.fireEvent(AjustEvent.fireFloorUpdated(this.floor));
 	}
 
 	/**
-	 * Les étages viruels aus dessous du niveau 0 ou au dessus du niveau max, ont la
+	 * Les étages virtuels au dessous du niveau 0 ou au dessus du niveau max, ont la
 	 * même image que le niveau non virtuel le plus proche avec le même niveau de
-	 * zomm et le mème décalage. Elles seront affichées dans le panneau de pose des
+	 * zoom et le mème décalage. Elles seront affichées dans le panneau de pose des
 	 * Nodes avec une transparence à 50%
 	 */
 	private void checkVirtualAboveOrBellowFloor() {
@@ -230,29 +225,5 @@ public class FloorPropertiesPanel extends GridPane {
 				}
 			}
 		}
-	}
-
-	public ObjectProperty<Image> imageProperty() {
-		return this.imageProperty;
-	}
-
-	public ObjectProperty<Double> zoomProperty() {
-		return this.zoomProperty;
-	}
-
-	public ObjectProperty<Double> shiftXProperty() {
-		return this.shiftXProperty;
-	}
-
-	public ObjectProperty<Double> shiftYProperty() {
-		return this.shiftYProperty;
-	}
-
-	public CheckBox getVisibleCheck() {
-		return this.visibleCheck;
-	}
-
-	public Slider getTransparencySlider() {
-		return this.transparencySlider;
 	}
 }

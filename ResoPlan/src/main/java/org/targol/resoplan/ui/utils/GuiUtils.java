@@ -1,5 +1,6 @@
 package org.targol.resoplan.ui.utils;
 
+import java.util.Objects;
 import java.util.Optional;
 
 import org.targol.resoplan.i18n.Messages;
@@ -12,12 +13,13 @@ import org.targol.resoplan.services.HookTypesService;
 import org.targol.resoplan.services.NodeModelsService;
 import org.targol.resoplan.ui.components.CatalogButton;
 import org.targol.resoplan.ui.components.LayerLinkButton;
+import org.targol.resoplan.ui.utils.events.LinkTracingEvent;
+import org.targol.resoplan.ui.utils.events.NodePlacementEvent;
 import org.targol.resoplan.utils.MiscUtils;
 import org.targol.resoplan.utils.PreferencesManager;
 import org.targol.resoplan.utils.SpringContextHelper;
 
 import javafx.beans.binding.BooleanBinding;
-import javafx.event.EventType;
 import javafx.geometry.Pos;
 import javafx.scene.Node;
 import javafx.scene.control.Alert;
@@ -26,8 +28,6 @@ import javafx.scene.control.TextField;
 import javafx.scene.control.TextFormatter;
 import javafx.scene.control.TextInputDialog;
 import javafx.scene.control.ToggleGroup;
-import javafx.scene.effect.ColorAdjust;
-import javafx.scene.effect.Effect;
 import javafx.scene.image.Image;
 import javafx.scene.image.PixelReader;
 import javafx.scene.image.PixelWriter;
@@ -37,6 +37,13 @@ import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
 
 public class GuiUtils {
+
+	public static Image getCatalogIcon(final String name, final Color replacmentColor) {
+		final String path = "/images/catalog/".concat(name).concat(".png"); //$NON-NLS-1$ //$NON-NLS-2$
+		Image icon = new Image(Objects.requireNonNull(GuiUtils.class.getResourceAsStream(path)));
+		icon = GuiUtils.changeColorInImage(icon, Color.WHITE, replacmentColor);
+		return icon;
+	}
 
 	public static Image colorizeImage(final Image originalImage, final Color targetColor) {
 		if (originalImage == null) {
@@ -104,20 +111,6 @@ public class GuiUtils {
 
 	private static boolean areEqualsColorsExceptTransparency(final Color col1, final Color col2) {
 		return col1.getRed() == col2.getRed() && col1.getGreen() == col2.getGreen() && col1.getBlue() == col2.getBlue();
-	}
-
-	public static Effect buildColorFilter(final Color color) {
-		// Black color means no effect
-		if (Color.BLACK.equals(color)) {
-			return null;
-		}
-		final ColorAdjust colorAdjust = new ColorAdjust();
-//		final double hueForJavaFX = color.getHue() / 180.0 - 1.0;
-//		colorAdjust.setHue(hueForJavaFX);
-		colorAdjust.setHue(color.getHue());
-		colorAdjust.setSaturation(1.0);
-		colorAdjust.setBrightness(0.5);
-		return colorAdjust;
 	}
 
 	public static Image createImageViewFromInternalPng(final String imageInternalPath) {
@@ -198,8 +191,7 @@ public class GuiUtils {
 		ret.getChildren().add(catLab);
 		final HBox buttons = new HBox(5);
 		for (final NodeModel model : modelsService.getAllByCategory(cat)) {
-			final CatalogButton btn = new CatalogButton(model,
-					() -> new AppActionEvent(new EventType<>(AppActionEvent.ANY, model.getName())));
+			final CatalogButton btn = new CatalogButton(model, () -> NodePlacementEvent.of(layer, model));
 			btn.disableProperty().bind(buildNewDisabledBinding(layer, model.getNodeCross()));
 			btn.setToggleGroup(placementGroup); // Partagé pour qu'un seul outil soit actif à la fois
 			btn.setUserData(model);
@@ -228,8 +220,7 @@ public class GuiUtils {
 			final NodeModel fullmodel = optMod.get();
 			final HookTypesService hooksService = SpringContextHelper.getBean(HookTypesService.class);
 			if (MiscUtils.containsAny(fullmodel.getAllowedHooks(), hooksService.getAllFromLayer(layer))) {
-				final CatalogButton btn = new CatalogButton(fullmodel,
-						() -> new AppActionEvent(new EventType<>(AppActionEvent.ANY, model.getName())));
+				final CatalogButton btn = new CatalogButton(fullmodel, () -> NodePlacementEvent.of(layer, model));
 				btn.setToggleGroup(placementGroup); // Partagé pour qu'un seul outil soit actif à la fois
 				btn.disableProperty().bind(buildNewDisabledBinding(layer, fullmodel.getNodeCross()));
 				btn.setUserData(model);
@@ -251,8 +242,7 @@ public class GuiUtils {
 		final HBox buttons = new HBox(5);
 		final HookTypesService hooksService = SpringContextHelper.getBean(HookTypesService.class);
 		for (final HookType hook : hooksService.getAllFromLayer(layer)) {
-			final LayerLinkButton btn = new LayerLinkButton(hook,
-					() -> new AppActionEvent(new EventType<>(AppActionEvent.ANY, hook.getHookKey())));
+			final LayerLinkButton btn = new LayerLinkButton(hook, () -> LinkTracingEvent.of(layer, hook));
 			btn.setToggleGroup(placementGroup); // Partagé pour qu'un seul outil soit actif à la fois
 			btn.disableProperty().bind(buildNewDisabledBinding(layer, NodeCross.NONE));
 			btn.setUserData(hook);

@@ -35,7 +35,7 @@ public class ResoPlanJavaFxApplication extends Application {
 		final FXMLLoader loader = new FXMLLoader(getClass().getResource("/gui/MainWindow.fxml"), bundle); //$NON-NLS-1$
 		loader.setControllerFactory(this.context::getBean);
 		final Parent root = loader.load();
-		stage.setTitle("UML2Java");
+		stage.setTitle("ResoPlan"); //$NON-NLS-1$
 		stage.setScene(new Scene(root));
 		final Theme theme = PreferencesManager.getInstance().getCurrentTheme();
 		stage.getScene().getStylesheets().clear();

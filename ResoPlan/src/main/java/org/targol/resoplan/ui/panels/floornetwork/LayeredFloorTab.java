@@ -11,6 +11,7 @@ import org.targol.resoplan.ui.utils.AppStateManager;
 import org.targol.resoplan.utils.PreferencesManager;
 
 import javafx.geometry.Pos;
+import javafx.scene.Group;
 import javafx.scene.control.Label;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.control.Tab;
@@ -53,6 +54,7 @@ public class LayeredFloorTab extends Tab {
 		this.setContent(this.centerScrollPane);
 
 		this.mainNetworkPane = new Pane();
+		final Group zoomGroup = new Group(this.mainNetworkPane);
 		// Zoom avec Ctrl + Molette
 		this.mainNetworkPane.setOnScroll(event -> {
 			if (event.isControlDown()) {
@@ -63,10 +65,11 @@ public class LayeredFloorTab extends Tab {
 				}
 				final int direction = deltaY > 0 ? 1 : -1;
 				final double zoomFactor = direction > 0 ? 1 + SCALE_FACTOR : 1 - SCALE_FACTOR;
-				this.parentController.syncZoom(zoomFactor);
+				this.parentController.syncZoom(zoomFactor, event.getX(), event.getY());
 			}
 		});
-		this.centerScrollPane.setContent(this.mainNetworkPane);
+		this.centerScrollPane.setContent(zoomGroup);
+//		this.centerScrollPane.setContent(this.mainNetworkPane);
 
 		final ImageView layerImageView = new ImageView();
 		final File imgFile = new File(this.floor.getImgPath());

@@ -3,9 +3,9 @@ package org.targol.resoplan.ui.components;
 import java.util.function.Supplier;
 
 import org.targol.resoplan.model.catalog.NodeModel;
-import org.targol.resoplan.ui.utils.AppActionEvent;
 import org.targol.resoplan.ui.utils.ThemesManager;
 import org.targol.resoplan.ui.utils.ThemesManager.Theme;
+import org.targol.resoplan.ui.utils.events.GenericActionEvent;
 import org.targol.resoplan.utils.IThemeChangeListener;
 
 import javafx.beans.property.DoubleProperty;
@@ -19,7 +19,7 @@ public class CatalogButton extends ToggleButton implements IThemeChangeListener 
 	private final DoubleProperty imgWidth = new SimpleDoubleProperty(25.0d);
 	final NodeModel model;
 
-	public CatalogButton(final NodeModel model, final Supplier<AppActionEvent> eventSupplier) {
+	public CatalogButton(final NodeModel model, final Supplier<GenericActionEvent> eventSupplier) {
 		this.model = model;
 		this.setPrefHeight(size);
 		this.setPrefWidth(size);

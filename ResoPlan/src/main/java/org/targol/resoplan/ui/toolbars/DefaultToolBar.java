@@ -2,9 +2,9 @@ package org.targol.resoplan.ui.toolbars;
 
 import org.targol.resoplan.i18n.Messages;
 import org.targol.resoplan.ui.components.CustomButton;
-import org.targol.resoplan.ui.utils.AppActionEvent;
 import org.targol.resoplan.ui.utils.AppState;
 import org.targol.resoplan.ui.utils.BindingBuilder;
+import org.targol.resoplan.ui.utils.events.GenericActionEvent;
 import org.targol.resoplan.utils.PreferencesManager;
 
 import javafx.beans.binding.BooleanBinding;
@@ -23,10 +23,12 @@ public class DefaultToolBar extends ToolBar {
 
 	public DefaultToolBar() {
 		super();
-		this.toolCatalog = new CustomButton("catalog", () -> new AppActionEvent(AppActionEvent.TRIGGER_CATALOG)); //$NON-NLS-1$
-		this.toolAlign = new CustomButton("alignment", () -> new AppActionEvent(AppActionEvent.TRIGGER_ALIGN)); //$NON-NLS-1$
-		this.toolNetworks = new CustomButton("reseaux", () -> new AppActionEvent(AppActionEvent.TRIGGER_NETWORKS)); //$NON-NLS-1$
-		this.toolDebit = new CustomButton("debit", () -> new AppActionEvent(AppActionEvent.TRIGGER_DEBIT)); //$NON-NLS-1$
+		this.toolCatalog = new CustomButton("catalog", //$NON-NLS-1$
+				() -> new GenericActionEvent(GenericActionEvent.TRIGGER_CATALOG));
+		this.toolAlign = new CustomButton("alignment", () -> new GenericActionEvent(GenericActionEvent.TRIGGER_ALIGN)); //$NON-NLS-1$
+		this.toolNetworks = new CustomButton("reseaux", //$NON-NLS-1$
+				() -> new GenericActionEvent(GenericActionEvent.TRIGGER_NETWORKS));
+		this.toolDebit = new CustomButton("debit", () -> new GenericActionEvent(GenericActionEvent.TRIGGER_DEBIT)); //$NON-NLS-1$
 		final VBox ret = new VBox(5);
 		ret.getStyleClass().add("toolgroup"); //$NON-NLS-1$
 		ret.setAlignment(Pos.CENTER_LEFT);
@@ -39,9 +41,9 @@ public class DefaultToolBar extends ToolBar {
 		ret.getChildren().add(buttons);
 		this.getItems().addAll(ret, new Separator());
 		this.toolAlign.disableProperty().bind(BindingBuilder.disableWhen().stateIs(AppState.NO_PROJECT).build());
-		final BooleanBinding alimEtDebitDisable = BindingBuilder.disableWhen()
-				.stateIs(AppState.NO_PROJECT, AppState.PROJECT_WITHOUT_IMAGES).build();
-		this.toolNetworks.disableProperty().bind(alimEtDebitDisable);
-		this.toolDebit.disableProperty().bind(alimEtDebitDisable);
+		final BooleanBinding networkEtDebitDisable = BindingBuilder.disableWhen()
+				.stateIs(AppState.NO_PROJECT, AppState.PROJECT_INCOMPLETE).build();
+		this.toolNetworks.disableProperty().bind(networkEtDebitDisable);
+		this.toolDebit.disableProperty().bind(networkEtDebitDisable);
 	}
 }

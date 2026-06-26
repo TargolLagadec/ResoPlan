@@ -3,9 +3,9 @@ package org.targol.resoplan.ui.components;
 import java.util.function.Supplier;
 
 import org.targol.resoplan.model.catalog.HookType;
-import org.targol.resoplan.ui.utils.AppActionEvent;
 import org.targol.resoplan.ui.utils.ThemesManager;
 import org.targol.resoplan.ui.utils.ThemesManager.Theme;
+import org.targol.resoplan.ui.utils.events.GenericActionEvent;
 import org.targol.resoplan.utils.IThemeChangeListener;
 
 import javafx.beans.property.DoubleProperty;
@@ -19,7 +19,7 @@ public class LayerLinkButton extends ToggleButton implements IThemeChangeListene
 	private final DoubleProperty imgWidth = new SimpleDoubleProperty(25.0d);
 	final HookType hookType;
 
-	public LayerLinkButton(final HookType hookType, final Supplier<AppActionEvent> eventSupplier) {
+	public LayerLinkButton(final HookType hookType, final Supplier<GenericActionEvent> eventSupplier) {
 		this.hookType = hookType;
 		this.setPrefHeight(size);
 		this.setPrefWidth(size);

@@ -3,10 +3,10 @@ package org.targol.resoplan.ui.utils;
 import org.targol.resoplan.model.Floor;
 import org.targol.resoplan.model.LayerType;
 import org.targol.resoplan.model.Project;
-import org.targol.resoplan.ui.panels.floornetwork.layers.evac.EvacMode;
 
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SimpleObjectProperty;
+import javafx.scene.layout.Region;
 
 public class AppStateManager {
 
@@ -22,7 +22,7 @@ public class AppStateManager {
 	private final ObjectProperty<Floor> activeFloor = new SimpleObjectProperty<>(null);
 	private final ObjectProperty<LayerType> activeNetworkLayer = new SimpleObjectProperty<>(null);
 
-	private final ObjectProperty<EvacMode> currentEvacMode = new SimpleObjectProperty<>(null);
+	private final ObjectProperty<Region> currentMainPanel = new SimpleObjectProperty<>(null);
 
 	private AppStateManager() {
 		this.currentProject.addListener((obs, oldProj, newProj) -> {
@@ -44,8 +44,8 @@ public class AppStateManager {
 		final boolean missingImage = project.getFloors().stream()
 				.anyMatch(f -> f.getImgPath() == null || f.getImgPath().isEmpty());
 
-		if (missingImage) {
-			this.currentAppState.set(AppState.PROJECT_WITHOUT_IMAGES);
+		if (missingImage || project.getPlansScale() == 0) {
+			this.currentAppState.set(AppState.PROJECT_INCOMPLETE);
 		} else {
 			this.currentAppState.set(AppState.PROJECT_READY);
 		}
@@ -80,16 +80,16 @@ public class AppStateManager {
 		this.activeNetworkLayer.set(layer);
 	}
 
-	public ObjectProperty<EvacMode> currentEvacModeProperty() {
-		return this.currentEvacMode;
+	public ObjectProperty<Region> currentMainPanelProperty() {
+		return this.currentMainPanel;
 	}
 
-	public void setCurrentEvacMode(final EvacMode mode) {
-		this.currentEvacMode.set(mode);
+	public void setCurrentOpenedMainPanel(final Region panel) {
+		this.currentMainPanel.set(panel);
 	}
 
-	public EvacMode getCurrentEvacMode() {
-		return this.currentEvacMode.get();
+	public Region getCurrentOpenedMainPanel() {
+		return this.currentMainPanel.get();
 	}
 
 }

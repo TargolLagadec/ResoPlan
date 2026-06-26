@@ -3,9 +3,9 @@ package org.targol.resoplan.ui.components;
 import java.util.function.Supplier;
 
 import org.targol.resoplan.i18n.Messages;
-import org.targol.resoplan.ui.utils.AppActionEvent;
 import org.targol.resoplan.ui.utils.ThemesManager;
 import org.targol.resoplan.ui.utils.ThemesManager.Theme;
+import org.targol.resoplan.ui.utils.events.GenericActionEvent;
 import org.targol.resoplan.utils.IThemeChangeListener;
 
 import javafx.beans.property.DoubleProperty;
@@ -21,7 +21,7 @@ public class CustomButton extends Button implements IThemeChangeListener {
 	private final ObjectProperty<String> type = new SimpleObjectProperty<>(null);
 	private final DoubleProperty imgWidth = new SimpleDoubleProperty(25.0d);
 
-	public CustomButton(final String type, final Supplier<AppActionEvent> eventSupplier) {
+	public CustomButton(final String type, final Supplier<GenericActionEvent> eventSupplier) {
 		this();
 		setType(type);
 		this.setOnAction(e -> fireEvent(eventSupplier.get()));

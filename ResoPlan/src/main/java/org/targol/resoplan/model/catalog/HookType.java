@@ -21,7 +21,7 @@ public class HookType {
 	@Column(name = "Id")
 	private int id;
 
-	@Column(name = "hookKey")
+	@Column(name = "hookKey", nullable = false)
 	private String hookKey;
 
 	@Enumerated(EnumType.STRING)
