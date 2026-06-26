@@ -72,6 +72,23 @@ public class Project {
 		return Optional.empty();
 	}
 
+	public int getLowestFloorNumber() {
+		if (getFloorByNumber(-1).isEmpty()) {
+			return 0;
+		}
+		return -1;
+	}
+
+	public int getTopmostFloorNumber() {
+		int ret = 0;
+		for (final Floor floor : this.floors) {
+			if (floor.getNumber() > ret) {
+				ret = floor.getNumber();
+			}
+		}
+		return ret;
+	}
+
 	// getters and setters
 	public int getId() {
 		return this.id;

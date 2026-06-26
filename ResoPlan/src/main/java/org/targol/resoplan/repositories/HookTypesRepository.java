@@ -5,10 +5,10 @@ import java.util.Optional;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.targol.resoplan.model.LayerType;
-import org.targol.resoplan.model.catalog.enums.HookType;
+import org.targol.resoplan.model.catalog.HookType;
 
 public interface HookTypesRepository extends JpaRepository<HookType, Integer> {
-	List<HookType> findByLayer(LayerType layer);
+	List<HookType> findByLayerOrderByHookKeyAsc(LayerType layer);
 
-	Optional<HookType> findByLibKey(String libKey);
+	Optional<HookType> findByHookKey(String libKey);
 }

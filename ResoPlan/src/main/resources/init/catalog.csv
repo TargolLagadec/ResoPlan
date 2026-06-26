@@ -67,3 +67,5 @@ Module 10A,Module 10A de tableau électrique pour circuits d’éclairage,eclcom
 Module 16A,Module 16A de tableau électrique pour circuits de prises,prise,TABLEAU,NONE,NONE,
 Module RJ45,Module RJ45 pour tableau électrique,rj45,TABLEAU,NONE,NONE,
 Module télérupteur,Module Télérupteur de tableau électrique pour commander un ou des spot(s) encastré(s) ou plafonnier(s),eclcommand telrupt,TABLEAU,NONE,NONE,telerupt
+Sortie évacuations,Sortie générale des évacuations PVC 100mm,pvc100,JONCTIONS_PVC_100,ANY,NONE,sortie100
+Entrée alimentation eau,Alimentation en eau depuis le réseau public PER 20mm,per20 ,JONCTIONS_PER_20,COLD,NONE,

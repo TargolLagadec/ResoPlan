@@ -4,7 +4,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.targol.resoplan.model.catalog.enums.AlimConstraint;
-import org.targol.resoplan.model.catalog.enums.HookType;
 import org.targol.resoplan.model.catalog.enums.NodeCategory;
 import org.targol.resoplan.model.catalog.enums.NodeCross;
 
@@ -30,7 +29,7 @@ public class NodeModel {
 	@Column(name = "id")
 	private int id;
 
-	@Column(name = "name", nullable = false)
+	@Column(name = "name", nullable = false, unique = true)
 	private String name;
 
 	@Column(name = "description")

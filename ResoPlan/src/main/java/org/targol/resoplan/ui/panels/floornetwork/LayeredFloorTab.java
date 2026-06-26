@@ -98,8 +98,20 @@ public class LayeredFloorTab extends Tab {
 	}
 
 	private void initTabHeader() {
-		final Label titleLabel = new Label(Messages.getString("ProjectPane.floorname", this.floor.getNumber())); //$NON-NLS-1$
-		titleLabel.setStyle("-fx-font-weight: bold;"); //$NON-NLS-1$
+		Label titleLabel;
+		if (this.floor.getNumber() == -1 && this.floor.isVirtual()) {
+			final String title = Messages.getString("Dialog.project.generate.basement.label"); //$NON-NLS-1$
+			titleLabel = new Label(title);
+			titleLabel.setStyle("-fx-font-weight: bold; -fx-font-style: italic;"); //$NON-NLS-1$
+		} else if (this.floor.isVirtual()) {
+			final String title = Messages.getString("Dialog.project.generate.attic.label"); //$NON-NLS-1$
+			titleLabel = new Label(title);
+			titleLabel.setStyle("-fx-font-weight: bold; -fx-font-style: italic;"); //$NON-NLS-1$
+		} else {
+			final String title = Messages.getString("ProjectPane.floorname", this.floor.getNumber()); //$NON-NLS-1$
+			titleLabel = new Label(title);
+			titleLabel.setStyle("-fx-font-weight: bold;"); //$NON-NLS-1$
+		}
 		final HBox tabHeader = new HBox(20);
 		tabHeader.setAlignment(Pos.CENTER);
 		initLayerRadioButtons();
@@ -107,7 +119,8 @@ public class LayeredFloorTab extends Tab {
 		layersBox.getChildren().addAll(this.radioElec, this.radioAlim, this.radioEvac, this.radioNet);
 		tabHeader.getChildren().addAll(titleLabel, layersBox);
 		tabHeader.setPrefHeight(100);
-		tabHeader.setPrefWidth(250);
+		tabHeader.setPrefWidth(350);
+		tabHeader.setMinWidth(350);
 		this.setGraphic(tabHeader);
 		this.setText(""); //$NON-NLS-1$
 	}
@@ -120,10 +133,31 @@ public class LayeredFloorTab extends Tab {
 		this.radioNet.setToggleGroup(this.headerToggleGroup);
 		final AppStateManager state = AppStateManager.getInstance();
 		this.headerToggleGroup.selectedToggleProperty().addListener((obs, oldVal, newVal) -> {
-			final CustomLayerRadio rb = (CustomLayerRadio) newVal;
-			state.setActiveNetworkLayer(rb.getType());
+			if (newVal != null) {
+				final CustomLayerRadio rb = (CustomLayerRadio) newVal;
+				if (state.activeNetworkLayerProperty().get() != rb.getType()) {
+					state.setActiveNetworkLayer(rb.getType());
+				}
+			}
 		});
-
+		state.activeNetworkLayerProperty().addListener((obs, oldLayer, newLayer) -> {
+			if (newLayer == null) {
+				this.headerToggleGroup.selectToggle(null);
+				return;
+			}
+			final CustomLayerRadio targetRadio = switch (newLayer) {
+			case ELEC -> this.radioElec;
+			case WATER_ALIM -> this.radioAlim;
+			case WATER_EVAC -> this.radioEvac;
+			case NET -> this.radioNet;
+			};
+			if (this.headerToggleGroup.getSelectedToggle() != targetRadio) {
+				this.headerToggleGroup.selectToggle(targetRadio);
+			}
+		});
+		if (state.activeNetworkLayerProperty().get() != null) {
+			state.activeNetworkLayerProperty().setValue(state.activeNetworkLayerProperty().get());
+		}
 		PreferencesManager.getInstance().addThemeChangeListener(this.radioElec);
 		PreferencesManager.getInstance().addThemeChangeListener(this.radioAlim);
 		PreferencesManager.getInstance().addThemeChangeListener(this.radioEvac);

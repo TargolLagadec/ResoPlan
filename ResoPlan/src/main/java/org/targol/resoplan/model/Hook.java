@@ -1,6 +1,6 @@
 package org.targol.resoplan.model;
 
-import org.targol.resoplan.model.catalog.enums.HookType;
+import org.targol.resoplan.model.catalog.HookType;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;

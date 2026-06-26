@@ -17,7 +17,7 @@ import javafx.scene.image.ImageView;
 public class CustomLayerRadio extends RadioButton implements IThemeChangeListener {
 
 	private final ObjectProperty<LayerType> type = new SimpleObjectProperty<>(null);
-	private final DoubleProperty imgWidth = new SimpleDoubleProperty(20.0d);
+	private final DoubleProperty imgWidth = new SimpleDoubleProperty(25.0d);
 
 	public CustomLayerRadio(final LayerType type) {
 		this.type.addListener((obs, oldValue, newValue) -> {

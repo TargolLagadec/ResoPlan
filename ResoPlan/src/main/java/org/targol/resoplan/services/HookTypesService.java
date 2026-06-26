@@ -7,7 +7,7 @@ import org.hibernate.service.spi.ServiceException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.targol.resoplan.model.LayerType;
-import org.targol.resoplan.model.catalog.enums.HookType;
+import org.targol.resoplan.model.catalog.HookType;
 import org.targol.resoplan.repositories.HookTypesRepository;
 
 @Service
@@ -25,15 +25,15 @@ public class HookTypesService {
 	}
 
 	public List<HookType> getAllFromLayer(final LayerType layer) {
-		return this.repo.findByLayer(layer);
+		return this.repo.findByLayerOrderByHookKeyAsc(layer);
 	}
 
 	public List<HookType> getAll() {
 		return this.repo.findAll();
 	}
 
-	Optional<HookType> getByLibKey(final String libKey) {
-		return this.repo.findByLibKey(libKey);
+	Optional<HookType> getByHookKey(final String libKey) {
+		return this.repo.findByHookKey(libKey);
 	}
 
 	public void deleteHookType(final int id) {

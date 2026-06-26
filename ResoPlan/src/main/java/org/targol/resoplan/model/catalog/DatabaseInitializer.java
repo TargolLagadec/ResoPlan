@@ -14,7 +14,6 @@ import org.springframework.core.io.ResourceLoader;
 import org.springframework.stereotype.Component;
 import org.targol.resoplan.model.LayerType;
 import org.targol.resoplan.model.catalog.enums.AlimConstraint;
-import org.targol.resoplan.model.catalog.enums.HookType;
 import org.targol.resoplan.model.catalog.enums.NodeCategory;
 import org.targol.resoplan.model.catalog.enums.NodeCross;
 import org.targol.resoplan.services.HookTypesService;

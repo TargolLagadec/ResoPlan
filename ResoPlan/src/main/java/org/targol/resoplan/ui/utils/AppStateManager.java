@@ -85,7 +85,6 @@ public class AppStateManager {
 	}
 
 	public void setCurrentEvacMode(final EvacMode mode) {
-		System.err.println("Dans AppStateManager, l'EvacMode est set à " + mode);
 		this.currentEvacMode.set(mode);
 	}
 

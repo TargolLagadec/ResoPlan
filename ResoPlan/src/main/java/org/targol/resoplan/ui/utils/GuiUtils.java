@@ -1,25 +1,31 @@
 package org.targol.resoplan.ui.utils;
 
-import java.util.List;
 import java.util.Optional;
 
 import org.targol.resoplan.i18n.Messages;
+import org.targol.resoplan.model.LayerType;
+import org.targol.resoplan.model.catalog.HookType;
 import org.targol.resoplan.model.catalog.NodeModel;
 import org.targol.resoplan.model.catalog.enums.NodeCategory;
+import org.targol.resoplan.model.catalog.enums.NodeCross;
+import org.targol.resoplan.services.HookTypesService;
 import org.targol.resoplan.services.NodeModelsService;
 import org.targol.resoplan.ui.components.CatalogButton;
+import org.targol.resoplan.ui.components.LayerLinkButton;
+import org.targol.resoplan.utils.MiscUtils;
 import org.targol.resoplan.utils.PreferencesManager;
+import org.targol.resoplan.utils.SpringContextHelper;
 
+import javafx.beans.binding.BooleanBinding;
 import javafx.event.EventType;
 import javafx.geometry.Pos;
+import javafx.scene.Node;
 import javafx.scene.control.Alert;
-import javafx.scene.control.ChoiceBox;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
 import javafx.scene.control.TextFormatter;
 import javafx.scene.control.TextInputDialog;
 import javafx.scene.control.ToggleGroup;
-import javafx.scene.control.Tooltip;
 import javafx.scene.effect.ColorAdjust;
 import javafx.scene.effect.Effect;
 import javafx.scene.image.Image;
@@ -27,8 +33,8 @@ import javafx.scene.image.PixelReader;
 import javafx.scene.image.PixelWriter;
 import javafx.scene.image.WritableImage;
 import javafx.scene.layout.HBox;
+import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
-import javafx.util.StringConverter;
 
 public class GuiUtils {
 
@@ -132,7 +138,6 @@ public class GuiUtils {
 
 	public static Optional<String> getTextFromInputDialog(final String title, final String msg,
 			final String initialValue, final String regExp) {
-		final String ret = null;
 		final TextInputDialog prompt;
 		if (initialValue == null) {
 			prompt = new TextInputDialog();
@@ -161,57 +166,101 @@ public class GuiUtils {
 		alert.showAndWait();
 	}
 
-	public static HBox buildCategorizeNodeModelsToolbar(final NodeCategory cat, final NodeModelsService modelsService,
-			final ToggleGroup placementGroup) {
-		final HBox ret = new HBox(5);
+	private static BooleanBinding buildNewDisabledBinding(final LayerType layer, final NodeCross direction) {
+		switch (direction) {
+		case NONE:
+			return BindingBuilder.createDefaultBuilderFor(layer).build();
+		case GOES_DOWN:
+			return BindingBuilder.createDefaultBuilderFor(layer).activeFloorAndProjectMatch((floor, project) -> {
+				if (floor == null || project == null) {
+					return true;
+				}
+				return floor.getNumber() == project.getLowestFloorNumber();
+			}).build();
+		case GOES_UP:
+			return BindingBuilder.createDefaultBuilderFor(layer).activeFloorAndProjectMatch((floor, project) -> {
+				if (floor == null || project == null) {
+					return true;
+				}
+				return floor.getNumber() == project.getTopmostFloorNumber();
+			}).build();
+		default:
+			return null;
+		}
+	}
+
+	public static VBox buildCategorizedNodeModelsToolbar(final LayerType layer, final NodeCategory cat,
+			final NodeModelsService modelsService, final ToggleGroup placementGroup) {
+		final VBox ret = new VBox(5);
+		ret.getStyleClass().add("toolgroup"); //$NON-NLS-1$
 		ret.setAlignment(Pos.CENTER_LEFT);
-		final Label catLab = new Label(cat.getLabel() + " : ");
-		catLab.setStyle("-fx-font-weight: bold;");
+		final Label catLab = new Label(cat.getLabel());
 		ret.getChildren().add(catLab);
-		final List<NodeModel> models = modelsService.getAllByCategory(cat);
+		final HBox buttons = new HBox(5);
 		for (final NodeModel model : modelsService.getAllByCategory(cat)) {
 			final CatalogButton btn = new CatalogButton(model,
 					() -> new AppActionEvent(new EventType<>(AppActionEvent.ANY, model.getName())));
+			btn.disableProperty().bind(buildNewDisabledBinding(layer, model.getNodeCross()));
 			btn.setToggleGroup(placementGroup); // Partagé pour qu'un seul outil soit actif à la fois
 			btn.setUserData(model);
-			ret.getChildren().add(btn);
+			buttons.getChildren().add(btn);
 		}
-		ret.getChildren().stream().filter(node -> node instanceof CatalogButton)
+		buttons.getChildren().stream().filter(node -> node instanceof CatalogButton)
 				.forEach(node -> PreferencesManager.getInstance().addThemeChangeListener((CatalogButton) node));
-
+		ret.getChildren().add(buttons);
 		return ret;
 	}
 
-	// TODO à supprimer ?
-	public static HBox buildCategorizeNodeModelsChoiceBox(final NodeCategory cat,
-			final NodeModelsService modelsService) {
-		final HBox ret = new HBox(10);
+	public static VBox buildMiscNodeModelsToolbarFilteredByHookTypes(final LayerType layer,
+			final NodeModelsService modelsService, final ToggleGroup placementGroup) {
+		final VBox ret = new VBox(10);
+		ret.getStyleClass().add("toolgroup"); //$NON-NLS-1$
+		ret.setAlignment(Pos.CENTER_LEFT);
+		final NodeCategory cat = NodeCategory.DIVERS;
 		final Label catLab = new Label(cat.getLabel());
-		final String desc = cat.getDescription();
-		catLab.setTooltip(new Tooltip(desc));
 		ret.getChildren().add(catLab);
-		final List<NodeModel> models = modelsService.getAllByCategory(cat);
-		final ChoiceBox<NodeModel> choice = new ChoiceBox<>();
-		choice.setPrefWidth(100);
-		choice.getItems().setAll(models);
-		choice.setConverter(new StringConverter<NodeModel>() {
-			@Override
-			public String toString(final NodeModel model) {
-				if (model != null) {
-					return model.getName();
-				}
-				return "";
+		final HBox buttons = new HBox(5);
+		for (final NodeModel model : modelsService.getAllByCategory(cat)) {
+			final Optional<NodeModel> optMod = modelsService.getByIdWithallowedHooks(model.getId());
+			if (optMod.isEmpty()) {
+				continue;
 			}
-
-			@Override
-			// not used...
-			public NodeModel fromString(final String s) {
-				return null;
+			final NodeModel fullmodel = optMod.get();
+			final HookTypesService hooksService = SpringContextHelper.getBean(HookTypesService.class);
+			if (MiscUtils.containsAny(fullmodel.getAllowedHooks(), hooksService.getAllFromLayer(layer))) {
+				final CatalogButton btn = new CatalogButton(fullmodel,
+						() -> new AppActionEvent(new EventType<>(AppActionEvent.ANY, model.getName())));
+				btn.setToggleGroup(placementGroup); // Partagé pour qu'un seul outil soit actif à la fois
+				btn.disableProperty().bind(buildNewDisabledBinding(layer, fullmodel.getNodeCross()));
+				btn.setUserData(model);
+				buttons.getChildren().add(btn);
 			}
-		});
-		choice.setTooltip(new Tooltip(desc));
-		ret.getChildren().add(choice);
+		}
+		buttons.getChildren().stream().filter(node -> node instanceof CatalogButton)
+				.forEach(node -> PreferencesManager.getInstance().addThemeChangeListener((CatalogButton) node));
+		ret.getChildren().add(buttons);
+		return ret;
+	}
 
+	public static Node buildLinksToolbar(final LayerType layer, final ToggleGroup placementGroup) {
+		final VBox ret = new VBox(10);
+		ret.getStyleClass().add("toolgroup"); //$NON-NLS-1$
+		ret.setAlignment(Pos.CENTER_LEFT);
+		final Label catLab = new Label(Messages.getString("ToolBar.links.label")); //$NON-NLS-1$
+		ret.getChildren().add(catLab);
+		final HBox buttons = new HBox(5);
+		final HookTypesService hooksService = SpringContextHelper.getBean(HookTypesService.class);
+		for (final HookType hook : hooksService.getAllFromLayer(layer)) {
+			final LayerLinkButton btn = new LayerLinkButton(hook,
+					() -> new AppActionEvent(new EventType<>(AppActionEvent.ANY, hook.getHookKey())));
+			btn.setToggleGroup(placementGroup); // Partagé pour qu'un seul outil soit actif à la fois
+			btn.disableProperty().bind(buildNewDisabledBinding(layer, NodeCross.NONE));
+			btn.setUserData(hook);
+			buttons.getChildren().add(btn);
+		}
+		buttons.getChildren().stream().filter(node -> node instanceof CatalogButton)
+				.forEach(node -> PreferencesManager.getInstance().addThemeChangeListener((CatalogButton) node));
+		ret.getChildren().add(buttons);
 		return ret;
 	}
 

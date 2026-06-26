@@ -1,6 +1,7 @@
 package org.targol.resoplan.services;
 
 import java.util.List;
+import java.util.Optional;
 
 import org.hibernate.service.spi.ServiceException;
 import org.springframework.stereotype.Service;
@@ -29,6 +30,10 @@ public class NodeModelsService {
 
 	public List<NodeModel> getAllByCategory(final NodeCategory category) {
 		return this.repo.findByCategory(category);
+	}
+
+	public Optional<NodeModel> getByIdWithallowedHooks(final int id) {
+		return this.repo.findByIdWithallowedHooks(id);
 	}
 
 	public void delete(final int id) {
