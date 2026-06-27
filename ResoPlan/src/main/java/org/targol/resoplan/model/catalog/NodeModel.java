@@ -134,4 +134,10 @@ public class NodeModel {
 	public void removeAllowedHook(final HookType allowedHook) {
 		this.allowedHooks.remove(allowedHook);
 	}
+
+	@Override
+	public String toString() {
+		return this.name;
+	}
+
 }

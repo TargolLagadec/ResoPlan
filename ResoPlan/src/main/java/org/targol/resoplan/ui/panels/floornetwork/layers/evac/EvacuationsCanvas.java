@@ -38,21 +38,19 @@ public class EvacuationsCanvas extends Canvas {
 			if (activeFloor != null && activeFloor.equals(this.floor)) {
 				final NodeModel newTool = evt.getModel();
 				if (newTool != null) {
-					System.err.println(
-							"Dans le listener EvacuationsCanvas, l'outil actuel est set à " + newTool.getName());
+					System.err.println("Dans le listener EvacuationsCanvas, on dessine le node " + newTool.getName());
 					this.setCurrentNodeModel(newTool);
 				}
 			}
 			evt.consume();
 		});
-
 		addEventHandler(LinkTracingEvent.WATER_EVAC, evt -> {
 			final Floor activeFloor = AppStateManager.getInstance().activeFloorProperty().get();
 			if (activeFloor != null && activeFloor.equals(this.floor)) {
 				final HookType newTool = evt.getHook();
 				if (newTool != null) {
 					System.err.println(
-							"Dans le listener EvacuationsCanvas, l'outil actuel est set à " + newTool.getHookKey());
+							"Dans le listener EvacuationsCanvas, on trace un lien de type " + newTool.getHookKey());
 					this.setCurrentHookType(newTool);
 				}
 			}
@@ -103,11 +101,13 @@ public class EvacuationsCanvas extends Canvas {
 
 	public void setCurrentNodeModel(final NodeModel tool) {
 		this.currentNodeModel = tool;
+		this.currentHookType = null;
 		this.isDrawingTube = false;
 	}
 
 	public void setCurrentHookType(final HookType currentHookType) {
 		this.currentHookType = currentHookType;
+		this.currentNodeModel = null;
 		this.isDrawingTube = false;
 	}
 

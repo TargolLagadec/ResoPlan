@@ -6,6 +6,7 @@ import java.util.ResourceBundle;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.builder.SpringApplicationBuilder;
 import org.springframework.context.ConfigurableApplicationContext;
+import org.targol.resoplan.i18n.Messages;
 import org.targol.resoplan.ui.utils.ThemesManager.Theme;
 import org.targol.resoplan.utils.PreferencesManager;
 
@@ -35,7 +36,7 @@ public class ResoPlanJavaFxApplication extends Application {
 		final FXMLLoader loader = new FXMLLoader(getClass().getResource("/gui/MainWindow.fxml"), bundle); //$NON-NLS-1$
 		loader.setControllerFactory(this.context::getBean);
 		final Parent root = loader.load();
-		stage.setTitle("ResoPlan"); //$NON-NLS-1$
+		stage.setTitle(Messages.getString("MainWindow.title")); //$NON-NLS-1$
 		stage.setScene(new Scene(root));
 		final Theme theme = PreferencesManager.getInstance().getCurrentTheme();
 		stage.getScene().getStylesheets().clear();

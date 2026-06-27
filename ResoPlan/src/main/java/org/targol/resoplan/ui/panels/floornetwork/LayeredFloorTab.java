@@ -8,8 +8,12 @@ import org.targol.resoplan.model.LayerType;
 import org.targol.resoplan.ui.components.CustomLayerRadio;
 import org.targol.resoplan.ui.panels.floornetwork.layers.evac.EvacuationsCanvas;
 import org.targol.resoplan.ui.utils.AppStateManager;
+import org.targol.resoplan.ui.utils.events.GenericActionEvent;
+import org.targol.resoplan.ui.utils.events.LinkTracingEvent;
+import org.targol.resoplan.ui.utils.events.NodePlacementEvent;
 import org.targol.resoplan.utils.PreferencesManager;
 
+import javafx.event.EventType;
 import javafx.geometry.Pos;
 import javafx.scene.Group;
 import javafx.scene.control.Label;
@@ -49,6 +53,21 @@ public class LayeredFloorTab extends Tab {
 		setdisableHeaderRadioButtons(!active);
 	}
 
+	@SuppressWarnings("unchecked")
+	public void handleEvent(final GenericActionEvent event) {
+		final EventType<GenericActionEvent> type = (EventType<GenericActionEvent>) event.getEventType();
+		if (NodePlacementEvent.ELEC.equals(type) || LinkTracingEvent.ELEC.equals(type)) {
+			// Transmettre au Canvas Elec
+		} else if (NodePlacementEvent.WATER_ALIM.equals(type) || LinkTracingEvent.WATER_ALIM.equals(type)) {
+			// Transmettre au Canvas alim
+		} else if (NodePlacementEvent.WATER_EVAC.equals(type) || LinkTracingEvent.WATER_EVAC.equals(type)) {
+			this.evacCanvas.fireEvent(event);
+		} else if (NodePlacementEvent.NET.equals(type) || LinkTracingEvent.NET.equals(type)) {
+			// Transmettre au Canvas Net
+		}
+		event.consume();
+	}
+
 	private void initContent() {
 		this.centerScrollPane = new ScrollPane();
 		this.setContent(this.centerScrollPane);
@@ -69,7 +88,6 @@ public class LayeredFloorTab extends Tab {
 			}
 		});
 		this.centerScrollPane.setContent(zoomGroup);
-//		this.centerScrollPane.setContent(this.mainNetworkPane);
 
 		final ImageView layerImageView = new ImageView();
 		final File imgFile = new File(this.floor.getImgPath());

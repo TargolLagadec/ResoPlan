@@ -91,4 +91,9 @@ public class HookType {
 		// de place dans un HashSet si son ID est généré après la sauvegarde.
 		return getClass().hashCode();
 	}
+
+	@Override
+	public String toString() {
+		return getLabel();
+	}
 }

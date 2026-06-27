@@ -71,18 +71,18 @@ public class MainWindowController {
 	private void initialize() {
 		refreshRecentProjectsMenu();
 		displayWelcomePanel();
+		manageEvents();
 		manageAccesses();
 		manageDynamicToolbar();
 	}
 
-	private void manageDynamicToolbar() {
-		final AppStateManager stateMgr = AppStateManager.getInstance();
+	private void manageEvents() {
 		// Listen toolbarEvents that are for me
 		this.toolbarContainer.addEventHandler(GenericActionEvent.TRIGGER_CATALOG, e -> displayCatalogPanel());
 		this.toolbarContainer.addEventHandler(GenericActionEvent.TRIGGER_NETWORKS, e -> displayNetworksPanel());
 		this.toolbarContainer.addEventHandler(GenericActionEvent.TRIGGER_ALIGN, e -> displayAdjustPanel());
 		this.toolbarContainer.addEventHandler(GenericActionEvent.TRIGGER_DEBIT, e -> displayDebitPanel());
-		// listen for toolbar events that change appState
+		// listen for toolbar events for inner panels
 		this.toolbarContainer.addEventHandler(NodePlacementEvent.PLACEMENT_ANY, event -> {
 			AppStateManager.getInstance().getCurrentOpenedMainPanel().fireEvent(event);
 			event.consume();
@@ -95,11 +95,18 @@ public class MainWindowController {
 			AppStateManager.getInstance().getCurrentOpenedMainPanel().fireEvent(event);
 			event.consume();
 		});
+	}
+
+	private void manageDynamicToolbar() {
+		final AppStateManager stateMgr = AppStateManager.getInstance();
 		this.toolbarContainer.getChildren().clear();
 		final DefaultToolBar defBar = new DefaultToolBar();
 		this.toolbarContainer.getChildren().setAll(defBar);
 		stateMgr.currentMainPanelProperty().addListener((obs, oldPane, newPane) -> {
-			if (newPane != null && newPane instanceof FloorsAdjustmentPanel) {
+			if (newPane == null) {
+				return;
+			}
+			if (newPane instanceof FloorsAdjustmentPanel) {
 				final Project currentProject = stateMgr.currentProjectProperty().get();
 				this.toolbarContainer.getChildren().clear();
 				final AjustToolBar tBar = new AjustToolBar(currentProject);
@@ -263,7 +270,7 @@ public class MainWindowController {
 			this.mnuRecentProjects.getItems().add(item);
 		}
 		if (projects.isEmpty()) {
-			final MenuItem emptyItem = new MenuItem("(aucun projet récent)");
+			final MenuItem emptyItem = new MenuItem(Messages.getString("MainWindow.mnu_proj.itm_recent.none")); //$NON-NLS-1$
 			emptyItem.setDisable(true);
 			this.mnuRecentProjects.getItems().add(emptyItem);
 		}

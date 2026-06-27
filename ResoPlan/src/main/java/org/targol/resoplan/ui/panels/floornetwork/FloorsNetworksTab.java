@@ -7,9 +7,12 @@ import java.util.List;
 import org.targol.resoplan.model.Floor;
 import org.targol.resoplan.model.Project;
 import org.targol.resoplan.ui.utils.AppStateManager;
+import org.targol.resoplan.ui.utils.events.LinkTracingEvent;
+import org.targol.resoplan.ui.utils.events.NodePlacementEvent;
 
 import javafx.application.Platform;
 import javafx.scene.control.ScrollPane;
+import javafx.scene.control.Tab;
 import javafx.scene.control.TabPane;
 import javafx.scene.layout.Pane;
 
@@ -19,6 +22,25 @@ public class FloorsNetworksTab extends TabPane {
 	private boolean isSyncing = false;
 
 	public FloorsNetworksTab(final Project proj) {
+		this.addEventHandler(NodePlacementEvent.PLACEMENT_ANY, event -> {
+			System.out.println(
+					"Dans FloorsNetworksTab, réception d'un event de type NodePlacementEvent : " + event.getModel());
+			final Tab activeTab = this.getSelectionModel().getSelectedItem();
+			if (activeTab instanceof final LayeredFloorTab layeredTab) {
+				layeredTab.handleEvent(event);
+			}
+			event.consume();
+		});
+		this.addEventHandler(LinkTracingEvent.HOOK_ANY, event -> {
+			System.out.println("Dans FloorsNetworksTab, réception d'un event de type LinkTracingEvent.HOOK_ANY : "
+					+ event.getHook());
+			final Tab activeTab = this.getSelectionModel().getSelectedItem();
+			if (activeTab instanceof final LayeredFloorTab layeredTab) {
+				layeredTab.handleEvent(event);
+			}
+			event.consume();
+		});
+
 		this.setTabClosingPolicy(TabClosingPolicy.UNAVAILABLE);
 		final AppStateManager state = AppStateManager.getInstance();
 		this.getSelectionModel().selectedItemProperty().addListener((obs, oldTab, newTab) -> {
