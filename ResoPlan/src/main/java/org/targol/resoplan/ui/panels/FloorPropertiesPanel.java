@@ -15,6 +15,7 @@ import org.targol.resoplan.services.FloorsService;
 import org.targol.resoplan.services.ProjectsService;
 import org.targol.resoplan.ui.utils.AppStateManager;
 import org.targol.resoplan.ui.utils.events.AjustEvent;
+import org.targol.resoplan.ui.utils.events.UiEventBus;
 import org.targol.resoplan.utils.IoHelper;
 import org.targol.resoplan.utils.SpringContextHelper;
 
@@ -27,6 +28,7 @@ import javafx.scene.control.Slider;
 import javafx.scene.control.Spinner;
 import javafx.scene.control.SpinnerValueFactory;
 import javafx.scene.control.TextField;
+import javafx.scene.image.Image;
 import javafx.scene.layout.GridPane;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Rectangle;
@@ -137,7 +139,7 @@ public class FloorPropertiesPanel extends GridPane {
 			this.floor.setShiftY(this.shiftYSpinner.getValueFactory().getValue());
 			this.floorsService.update(this.floor);
 			checkVirtualAboveOrBellowFloor();
-			this.fireEvent(AjustEvent.fireFloorUpdated(this.floor));
+			UiEventBus.send(AjustEvent.fireFloorUpdated(this.floor));
 			informStateManager();
 		});
 		this.zoomSpinner.getValueFactory().valueProperty()
@@ -157,7 +159,7 @@ public class FloorPropertiesPanel extends GridPane {
 			final double opacity = this.transparencySlider.getValue();
 			final boolean visible = this.visibleCheck.isSelected();
 			final Color paint = colors.get((int) this.teintSlider.getValue());
-			this.fireEvent(AjustEvent.fireVisualChanged(this.floor, opacity, visible, paint));
+			UiEventBus.send(AjustEvent.fireVisualChanged(this.floor, opacity, visible, paint));
 		});
 		this.visibleCheck.selectedProperty().addListener((obs, old, newVal) -> this.autoRedrawTimer.playFromStart());
 		this.transparencySlider.valueProperty().addListener((obs, old, newVal) -> this.autoRedrawTimer.playFromStart());
@@ -185,10 +187,14 @@ public class FloorPropertiesPanel extends GridPane {
 		final File result = IoHelper.copyFile(file, newFileName);
 		this.fileNameTextField.setText(result.getAbsolutePath());
 		this.floor.setImgPath(result.getAbsolutePath());
+		// On instancie une image temporaire pour récupérer ses dimensions.
+		final Image img = new Image(result.toURI().toString());
+		this.floor.setImgWidth(img.getWidth());
+		this.floor.setImgHeight(img.getHeight());
 		this.floorsService.update(this.floor);
 		checkVirtualAboveOrBellowFloor();
 		informStateManager();
-		this.fireEvent(AjustEvent.fireFloorUpdated(this.floor));
+		UiEventBus.send(AjustEvent.fireFloorUpdated(this.floor));
 	}
 
 	/**
@@ -208,6 +214,8 @@ public class FloorPropertiesPanel extends GridPane {
 					basement.setImgPath(this.floor.getImgPath());
 					basement.setShiftX(this.floor.getShiftX());
 					basement.setShiftY(this.floor.getShiftY());
+					basement.setImgWidth(this.floor.getImgWidth());
+					basement.setImgHeight(this.floor.getImgHeight());
 					basement.setZoomFactor(this.floor.getZoomFactor());
 					this.floorsService.update(basement);
 				}
@@ -220,6 +228,8 @@ public class FloorPropertiesPanel extends GridPane {
 					attic.setImgPath(this.floor.getImgPath());
 					attic.setShiftX(this.floor.getShiftX());
 					attic.setShiftY(this.floor.getShiftY());
+					attic.setImgWidth(this.floor.getImgWidth());
+					attic.setImgHeight(this.floor.getImgHeight());
 					attic.setZoomFactor(this.floor.getZoomFactor());
 					this.floorsService.update(attic);
 				}

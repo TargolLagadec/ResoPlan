@@ -22,10 +22,8 @@ import org.targol.resoplan.ui.utils.AppStateManager;
 import org.targol.resoplan.ui.utils.BindingBuilder;
 import org.targol.resoplan.ui.utils.DialogsHelper;
 import org.targol.resoplan.ui.utils.GuiUtils;
-import org.targol.resoplan.ui.utils.events.AjustEvent;
 import org.targol.resoplan.ui.utils.events.GenericActionEvent;
-import org.targol.resoplan.ui.utils.events.LinkTracingEvent;
-import org.targol.resoplan.ui.utils.events.NodePlacementEvent;
+import org.targol.resoplan.ui.utils.events.UiEventBus;
 import org.targol.resoplan.utils.ProjectParams;
 
 import javafx.beans.binding.BooleanBinding;
@@ -77,24 +75,10 @@ public class MainWindowController {
 	}
 
 	private void manageEvents() {
-		// Listen toolbarEvents that are for me
-		this.toolbarContainer.addEventHandler(GenericActionEvent.TRIGGER_CATALOG, e -> displayCatalogPanel());
-		this.toolbarContainer.addEventHandler(GenericActionEvent.TRIGGER_NETWORKS, e -> displayNetworksPanel());
-		this.toolbarContainer.addEventHandler(GenericActionEvent.TRIGGER_ALIGN, e -> displayAdjustPanel());
-		this.toolbarContainer.addEventHandler(GenericActionEvent.TRIGGER_DEBIT, e -> displayDebitPanel());
-		// listen for toolbar events for inner panels
-		this.toolbarContainer.addEventHandler(NodePlacementEvent.PLACEMENT_ANY, event -> {
-			AppStateManager.getInstance().getCurrentOpenedMainPanel().fireEvent(event);
-			event.consume();
-		});
-		this.toolbarContainer.addEventHandler(LinkTracingEvent.HOOK_ANY, event -> {
-			AppStateManager.getInstance().getCurrentOpenedMainPanel().fireEvent(event);
-			event.consume();
-		});
-		this.toolbarContainer.addEventHandler(AjustEvent.SCALE_LINE_START_REQUIRED, event -> {
-			AppStateManager.getInstance().getCurrentOpenedMainPanel().fireEvent(event);
-			event.consume();
-		});
+		UiEventBus.register(GenericActionEvent.TRIGGER_CATALOG, e -> displayCatalogPanel());
+		UiEventBus.register(GenericActionEvent.TRIGGER_NETWORKS, e -> displayNetworksPanel());
+		UiEventBus.register(GenericActionEvent.TRIGGER_ALIGN, e -> displayAdjustPanel());
+		UiEventBus.register(GenericActionEvent.TRIGGER_DEBIT, e -> displayDebitPanel());
 	}
 
 	private void manageDynamicToolbar() {

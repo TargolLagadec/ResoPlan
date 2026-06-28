@@ -26,10 +26,22 @@ public class Hook {
 	private HookType hookType;
 
 	@Column(name = "posX", nullable = false)
-	private int posX;
+	private double posX;
 
 	@Column(name = "posY", nullable = false)
-	private int posY;
+	private double posY;
+
+	/**
+	 * DO NOT USE, FOR JPA ONLY
+	 */
+	public Hook() {
+	}
+
+	public Hook(final HookType hookType, final double posX, final double posY) {
+		this.hookType = hookType;
+		this.posX = posX;
+		this.posY = posY;
+	}
 
 	public int getId() {
 		return this.id;
@@ -47,19 +59,19 @@ public class Hook {
 		this.hookType = hookType;
 	}
 
-	public int getPosX() {
+	public double getPosX() {
 		return this.posX;
 	}
 
-	public void setPosX(final int posX) {
+	public void setPosX(final double posX) {
 		this.posX = posX;
 	}
 
-	public int getPosY() {
+	public double getPosY() {
 		return this.posY;
 	}
 
-	public void setPosY(final int posY) {
+	public void setPosY(final double posY) {
 		this.posY = posY;
 	}
 }

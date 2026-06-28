@@ -7,12 +7,10 @@ import java.util.List;
 import org.targol.resoplan.model.Floor;
 import org.targol.resoplan.model.Project;
 import org.targol.resoplan.ui.utils.AppStateManager;
-import org.targol.resoplan.ui.utils.events.LinkTracingEvent;
-import org.targol.resoplan.ui.utils.events.NodePlacementEvent;
 
-import javafx.application.Platform;
+import javafx.geometry.Bounds;
+import javafx.scene.Group;
 import javafx.scene.control.ScrollPane;
-import javafx.scene.control.Tab;
 import javafx.scene.control.TabPane;
 import javafx.scene.layout.Pane;
 
@@ -22,25 +20,6 @@ public class FloorsNetworksTab extends TabPane {
 	private boolean isSyncing = false;
 
 	public FloorsNetworksTab(final Project proj) {
-		this.addEventHandler(NodePlacementEvent.PLACEMENT_ANY, event -> {
-			System.out.println(
-					"Dans FloorsNetworksTab, réception d'un event de type NodePlacementEvent : " + event.getModel());
-			final Tab activeTab = this.getSelectionModel().getSelectedItem();
-			if (activeTab instanceof final LayeredFloorTab layeredTab) {
-				layeredTab.handleEvent(event);
-			}
-			event.consume();
-		});
-		this.addEventHandler(LinkTracingEvent.HOOK_ANY, event -> {
-			System.out.println("Dans FloorsNetworksTab, réception d'un event de type LinkTracingEvent.HOOK_ANY : "
-					+ event.getHook());
-			final Tab activeTab = this.getSelectionModel().getSelectedItem();
-			if (activeTab instanceof final LayeredFloorTab layeredTab) {
-				layeredTab.handleEvent(event);
-			}
-			event.consume();
-		});
-
 		this.setTabClosingPolicy(TabClosingPolicy.UNAVAILABLE);
 		final AppStateManager state = AppStateManager.getInstance();
 		this.getSelectionModel().selectedItemProperty().addListener((obs, oldTab, newTab) -> {
@@ -68,6 +47,7 @@ public class FloorsNetworksTab extends TabPane {
 			sp.hvalueProperty().addListener((obs, oldVal, newVal) -> syncScrollHorizontal(tab, newVal.doubleValue()));
 			sp.vvalueProperty().addListener((obs, oldVal, newVal) -> syncScrollVertical(tab, newVal.doubleValue()));
 		}
+		this.getSelectionModel().select(0);
 	}
 
 	/**
@@ -84,25 +64,38 @@ public class FloorsNetworksTab extends TabPane {
 			for (final LayeredFloorTab tab : this.floorTabs) {
 				final ScrollPane scrollPane = tab.getCenterScrollPane();
 				final Pane mainPane = tab.getMainNetworkPane();
-				// Position de la souris au moment du zoom poue centrer dessus.
-				final double hBoundsWidth = scrollPane.getContent().getBoundsInLocal().getWidth();
-				final double vBoundsHeight = scrollPane.getContent().getBoundsInLocal().getHeight();
-				if (hBoundsWidth == 0 || vBoundsHeight == 0) {
+
+				// 1. Récupérer les dimensions du contenu (Group) AVANT le zoom
+				final Bounds boundsBefore = scrollPane.getContent().getBoundsInLocal();
+				final double widthBefore = boundsBefore.getWidth();
+				final double heightBefore = boundsBefore.getHeight();
+
+				if (widthBefore == 0 || heightBefore == 0) {
 					continue;
 				}
+
+				// 2. Appliquer le zoom de manière strictement identique sur tous les onglets
 				mainPane.setScaleX(mainPane.getScaleX() * zoomFactor);
 				mainPane.setScaleY(mainPane.getScaleY() * zoomFactor);
-				tab.getCenterScrollPane().requestLayout();
-				Platform.runLater(() -> {
-					final double hValue = scrollPane.getHvalue();
-					final double vValue = scrollPane.getVvalue();
-					final double newH = hValue + mouseX / hBoundsWidth * (zoomFactor - 1)
-							* (scrollPane.getViewportBounds().getWidth() / hBoundsWidth);
-					final double newV = vValue + mouseY / vBoundsHeight * (zoomFactor - 1)
-							* (scrollPane.getViewportBounds().getHeight() / vBoundsHeight);
-					scrollPane.setHvalue(Math.max(0, Math.min(1, newH)));
-					scrollPane.setVvalue(Math.max(0, Math.min(1, newV)));
-				});
+
+				// Forcer JavaFX à recalculer la nouvelle géométrie du Group immédiatement
+				((Group) scrollPane.getContent()).layout();
+
+				// 3. Calculer le décalage parfait pour maintenir le point sous la souris
+				final double hValue = scrollPane.getHvalue();
+				final double vValue = scrollPane.getVvalue();
+
+				// Proportions de la fenêtre visible (viewport) par rapport au contenu
+				final double viewportWidth = scrollPane.getViewportBounds().getWidth();
+				final double viewportHeight = scrollPane.getViewportBounds().getHeight();
+
+				// Formule magique de repositionnement du ScrollPane
+				final double newH = hValue + mouseX * (zoomFactor - 1) / (widthBefore - viewportWidth);
+				final double newV = vValue + mouseY * (zoomFactor - 1) / (heightBefore - viewportHeight);
+
+				// Appliquer les nouvelles valeurs bornées entre 0.0 et 1.0
+				scrollPane.setHvalue(Math.max(0, Math.min(1, newH)));
+				scrollPane.setVvalue(Math.max(0, Math.min(1, newV)));
 			}
 		} finally {
 			this.isSyncing = false;

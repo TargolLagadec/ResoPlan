@@ -1,71 +1,60 @@
-name,description,allowedHooks,Category,AlimConstraint,NodeCross,imgName
-Descente 3P+T,"Traversée verticale descendante de faisceau d’alimentation Prise 3x2,5mm² associée à un jumeau montant à l'étage du dessous",prise,DIVERS,NONE,GOES_DOWN,
-Descente de niveau télérupteur,"Traversée verticale descendante pilotage télérupteur 2x1,5mm² associée à un jumeau montant à l'étage du dessous",telrupt,DIVERS,NONE,GOES_DOWN,
-Descente de niveau va-et-vient,"Traversée verticale descendante va-et-vient 2x1,5mm² associée à un jumeau montant à l'étage du dessous",vaetvien,DIVERS,NONE,GOES_DOWN,
-"Descente neutre+terre 1,5mm²","Traversée verticale descendante de faisceau commun pour éclairage 2x1,5mm² (neutre et terre) associée à un jumeau montant à l'étage du dessous",eclcommun,DIVERS,NONE,GOES_DOWN,
-"Descente phase  1,5mm²","Traversée verticale descendante de phase 1,5mm² de pilotage d’éclairage associée à un jumeau montant à l'étage du dessous",eclcommand ,DIVERS,NONE,GOES_DOWN,
-Descente de niveau 12mm,Traversée verticale PER 12mm descendante associée à un jumeau montant à l'étage du dessus,per12 ,JONCTIONS_PER_12,ANY,GOES_DOWN,
-Descente de niveau 16mm,Traversée verticale PER 16mm descendante associée à un jumeau montant à l'étage du dessus,per16,JONCTIONS_PER_16,ANY,GOES_DOWN,
-Descente de niveau 20mm,Traversée verticale PER 20mm descendante associée à un jumeau montant à l'étage du dessus,per20 ,JONCTIONS_PER_20,ANY,GOES_DOWN,
-Descente de niveau 100mm,Traversée verticale PVC 100mm descendante associée à un jumeau montant à l'étage du dessus,pvc100,JONCTIONS_PVC_100,ANY,GOES_DOWN,descente100
-Descente de niveau 32mm,Traversée verticale PVC 32mm descendante associée à un jumeau montant à l'étage du dessus,pvc32 ,JONCTIONS_PVC_32,ANY,GOES_DOWN,descente32
-Descente de niveau 40mm,Traversée verticale PVC 40mm descendante associée à un jumeau montant à l'étage du dessus,pvc40,JONCTIONS_PVC_40,ANY,GOES_DOWN,descente40
-Montée 3P+T,"Traversée verticale montante de faisceau d’alimentation Prise 3x2,5mm² associée à un jumeau descendant à l'étage du dessus",prise,DIVERS,NONE,GOES_UP,
-Montée de niveau télérupteur,"Traversée verticale montante de pilotage télérupteur 2x1,5mm² associée à un jumeau descendant à l'étage du dessus",telrupt,DIVERS,NONE,GOES_UP,
-Montée de niveau va-et-vient,"Traversée verticale montante de va-et-vient 2x1,5mm² associée à un jumeau descendant à l'étage du dessus",vaetvien,DIVERS,NONE,GOES_UP,
-"Montée neutre+terre 1,5mm²","Traversée verticale montante de faisceau commun pour éclairage 2x1,5mm² (neutre et terre) associée à un jumeau descendant à l'étage du dessus",eclcommun,DIVERS,NONE,GOES_UP,
-"Montée phase  1,5mm²","Traversée verticale montante de phase 1,5mm² de pilotage d’éclairage associée à un jumeau descendant à l'étage du dessus",eclcommand ,DIVERS,NONE,GOES_UP,
-Montée de niveau 12mm,Traversée verticale PER 12mm montante associée à un jumeau descendant à l'étage du dessus,per12 ,JONCTIONS_PER_12,ANY,GOES_UP,
-Montée de niveau 16mm,Traversée verticale PER 16mm montante associée à un jumeau descendant à l'étage du dessus,per16,JONCTIONS_PER_16,ANY,GOES_UP,
-Montée de niveau 20mm,Traversée verticale PER 20mm montante associée à un jumeau descendant à l'étage du dessus,per20 ,JONCTIONS_PER_20,ANY,GOES_UP,
-Montée de niveau 100mm,Traversée verticale PVC 100mm montante associée à un jumeau descendant à l'étage du dessus,pvc100,JONCTIONS_PVC_100,ANY,GOES_UP,montee100
-Montée de niveau 32mm,Traversée verticale PVC 32mm montante associée à un jumeau descendant à l'étage du dessus,pvc32 ,JONCTIONS_PVC_32,ANY,GOES_UP,montee32
-Montée de niveau 40mm,Traversée verticale PVC 40mm montante associée à un jumeau descendant à l'étage du dessus,pvc40,JONCTIONS_PVC_40,ANY,GOES_UP,montee40
-Chauffe-eau,Chauffe-eau électrique à ballon intégré,pvc32 per20 per20 prise,DIVERS,BOTH,NONE,chauffeEau
-Gros débit d'eau,"Point d'eau à gros débit (douche, baignoire, évier, ...)",pvc40 per16 per16,DIVERS,BOTH,NONE,grosDebit
-Gros débit eau froide,Point d'eau à gros débit avec eau froide seule,pvc40 per16,DIVERS,COLD,NONE,grosDebitFroid
-Petit débit d'eau,"Point d'eau à petit débit (lavabo, bidet, ...)",pvc32 per12 per12,DIVERS,BOTH,NONE,petitDebit
-Petit débit d'eau froide,Point d'eau à petit débit avec eau froide seule,pvc32 per12,DIVERS,COLD,NONE,petitDebitFroid
-W.C,W.C standard,pvc100 per12,DIVERS,COLD,NONE,wc
-Nourrice 2 sorties,Nourrice Avec 2 entrées 20x27 et 2 sorties 15x21,vis2027 vis2027 vis1521 vis1521,JONCTIONS_PER,SAME,NONE,
-Nourrice 3 sorties,Nourrice Avec 2 entrées 20x27 et 3 sorties 15x21,vis2027 vis2027 vis1521 vis1521 vis1521,JONCTIONS_PER,SAME,NONE,
-Nourrice 4 sorties,Nourrice Avec 2 entrées 20x27 et 4 sorties 15x21,vis2027 vis2027 vis1521 vis1521 vis1521 vis1521,JONCTIONS_PER,SAME,NONE,
-Raccord 12mm / 15x21,Raccord pour tuyau PER 12 mm – écrou tournant 15x21,per12 vis1521,JONCTIONS_PER,ANY,NONE,
-Raccord 16mm / 15x21,Raccord pour tuyau PER 16 mm – écrou tournant 15x21,per16 vis1521,JONCTIONS_PER,ANY,NONE,
-Raccord 16mm / 20x27,Raccord pour tuyau PER 16 mm – écrou tournant 20x27,per16 vis2027,JONCTIONS_PER,ANY,NONE,
-Raccord 20mm / 20x27,Raccord pour tuyau PER 20 mm – écrou tournant 20x27,per20 vis2027,JONCTIONS_PER,ANY,NONE,
-Té inégal 16 mm / 12mm,Té inégal pour tuyau PER 2 x 16 mm / 1 x 12mm,per16 per16 per12,JONCTIONS_PER,SAME,NONE,
-Té inégal 20 mm / 16mm,Té inégal pour tuyau PER 2 x 20 mm / 1 x 16mm,per16 per20 per20,JONCTIONS_PER,SAME,NONE,
-Coude 90° 12mm,Coude pour tuyau PER 90° 12 mm,per12 per12,JONCTIONS_PER_12,SAME,NONE,
-Té 12mm,Té pour tuyau PER 12 mm ,per12 per12 per12,JONCTIONS_PER_12,SAME,NONE,
-Coude 90° 16mm,Coude pour tuyau PER 90° 16 mm,per16 per16,JONCTIONS_PER_16,SAME,NONE,90_40
-Té 16mm,Té pour tuyau PER 16 mm ,per16 per16 per16,JONCTIONS_PER_16,SAME,NONE,
-Té 20mm,Té pour tuyau PER 20 mm ,per20 per20 per20,JONCTIONS_PER_16,SAME,NONE,te100
-Coude 90° 20mm,Coude pour tuyau PER 90° 20 mm,per20 per20,JONCTIONS_PER_20,SAME,NONE,90_100
-Té réduit Ø100/40 mm,Té réduit PVC 87.3° Ø100/40 mm,pvc100 pvc100 pvc40,JONCTIONS_PVC,NONE,NONE,te10040
-Té réduit Ø40/32 mm,Té réduit PVC 87.3° Ø40/32 mm,pvc40 pvc40 pvc32,JONCTIONS_PVC,NONE,NONE,te4032
-Coude 45° Ø100 mm,Coude 45° en PVC à coller Ø100 mm,pvc100 pvc100,JONCTIONS_PVC_100,NONE,NONE,45_100
-Coude 90° Ø100 mm,Coude 87.3° en PVC à coller Ø100 mm,pvc100 pvc100,JONCTIONS_PVC_100,NONE,NONE,90_100
-Culotte 45° Ø100 mm,Culotte 45° en PVC à coller Ø100 mm ,pvc100 pvc100 pvc100,JONCTIONS_PVC_100,NONE,NONE,culotte100
-Té 90° Ø100 mm,Té 87.3° en PVC à coller Ø100 mm ,pvc100 pvc100 pvc100,JONCTIONS_PVC_100,NONE,NONE,te100
-Coude 45° Ø32 mm,Coude 45° en PVC à coller Ø32 mm,pvc32 pvc32,JONCTIONS_PVC_32,NONE,NONE,45_32
-Coude 90° Ø32 mm,Coude 87.3° en PVC à coller Ø32 mm,pvc32 pvc32,JONCTIONS_PVC_32,NONE,NONE,90_32
-Culotte 45° Ø32 mm,Culotte 45° en PVC à coller Ø32 mm ,pvc32 pvc32 pvc32,JONCTIONS_PVC_32,NONE,NONE,culotte32
-Té 90° Ø32 mm,Té 87.3° en PVC à coller Ø32 mm ,pvc32 pvc32 pvc32,JONCTIONS_PVC_32,NONE,NONE,te32
-Coude 45° Ø40 mm,Coude 45° en PVC à coller Ø40 mm,pvc40 pvc40,JONCTIONS_PVC_40,NONE,NONE,45_40
-Coude 90° Ø40 mm,Coude 87.3° en PVC à coller Ø40 mm,pvc40 pvc40,JONCTIONS_PVC_40,NONE,NONE,90_40
-Culotte 45° Ø40 mm,Culotte 45° en PVC à coller Ø40 mm ,pvc40 pvc40 pvc40,JONCTIONS_PVC_40,NONE,NONE,culotte40
-Té 90° Ø40 mm,Té 87.3° en PVC à coller Ø40 mm ,pvc40 pvc40 pvc40,JONCTIONS_PVC_40,NONE,NONE,te40
-Interrupteur,Interrupteur unique pour commander un ou des spot(s) encastré(s) ou plafonnier(s),eclcommand eclcommand,MURALES,NONE,NONE,inter
-Poussoir télérupteur,"Poussoir pour commander, via un télérupteur, un ou des spot(s) encastré(s) ou plafonnier(s)",telrupt,MURALES,NONE,NONE,poussoir
-Prise 2P+T,Prise murale 2 pôles + terre,prise prise,MURALES,NONE,NONE,
-Prise RJ45,Prise RJ45 pour brancher les câbles Ethernet,rj45,MURALES,NONE,NONE,rj45
-Va-et-vient,Va-et-vient utilisable par paire pour commander un ou des spot(s) encastré(s) ou plafonnier(s),eclcommand vaetvien,MURALES,NONE,NONE,vv
-Boîtier DCL,Boîtier encastré à la norm DCL pour plafonnier commandé via va-et-vient ou télérupteur,eclcommun eclcommand,PLAFOND,NONE,NONE,spot
-Spot encastré,Spot encastré commandé via va-et-vient ou télérupteur,eclcommun eclcommand,PLAFOND,NONE,NONE,spot
-Module 10A,Module 10A de tableau électrique pour circuits d’éclairage,eclcommand eclcommun,TABLEAU,NONE,NONE,
-Module 16A,Module 16A de tableau électrique pour circuits de prises,prise,TABLEAU,NONE,NONE,
-Module RJ45,Module RJ45 pour tableau électrique,rj45,TABLEAU,NONE,NONE,
-Module télérupteur,Module Télérupteur de tableau électrique pour commander un ou des spot(s) encastré(s) ou plafonnier(s),eclcommand telrupt,TABLEAU,NONE,NONE,telerupt
-Sortie évacuations,Sortie générale des évacuations PVC 100mm,pvc100,JONCTIONS_PVC_100,ANY,NONE,sortie100
-Entrée alimentation eau,Alimentation en eau depuis le réseau public PER 20mm,per20 ,JONCTIONS_PER_20,COLD,NONE,
+name,description,allowedHooks,Category,AlimConstraint,CrossesFloor,imgName
+Traversée 3P+T,"Traversée verticale de faisceau d’alimentation Prise 3x2,5mm² associée à un jumeau dans l’autre sens à l'étage atteint",prise,DIVERS,NONE,YES,
+Traversée de niveau télérupteur,"Traversée verticale pilotage télérupteur 2x1,5mm² associée à un jumeau dans l’autre sens à l'étage atteint",telrupt,DIVERS,NONE,YES,
+Traversée de niveau va-et-vient,"Traversée verticale va-et-vient 2x1,5mm² associée à un jumeau dans l’autre sens à l'étage atteint",vaetvien,DIVERS,NONE,YES,
+"Traversée neutre+terre 1,5mm²","Traversée verticale de faisceau commun pour éclairage 2x1,5mm² (neutre et terre) associée à un jumeau dans l’autre sens à l'étage atteint",eclcommun,DIVERS,NONE,YES,
+"Traversée phase  1,5mm²","Traversée verticale de phase 1,5mm² de pilotage d’éclairage associée à un jumeau dans l’autre sens à l'étage atteint",eclcommand ,DIVERS,NONE,YES,
+Traversée de niveau 12mm,Traversée verticale PER 12mm associée à un jumeau dans l’autre sens à l'étage atteint,per12 ,JONCTIONS_PER_12,ANY,YES,
+Traversée de niveau 16mm,Traversée verticale PER 16mm associée à un jumeau dans l’autre sens à l'étage atteint,per16,JONCTIONS_PER_16,ANY,YES,
+Traversée de niveau 20mm,Traversée verticale PER 20mm associée à un jumeau dans l’autre sens à l'étage atteint,per20 ,JONCTIONS_PER_20,ANY,YES,
+Traversée de niveau 100mm,Traversée verticale PVC 100mm associée à un jumeau dans l’autre sens à l'étage atteint,pvc100,JONCTIONS_PVC_100,ANY,YES,descente100
+Traversée de niveau 32mm,Traversée verticale PVC 32mm associée à un jumeau dans l’autre sens à l'étage atteint,pvc32 ,JONCTIONS_PVC_32,ANY,YES,descente32
+Traversée de niveau 40mm,Traversée verticale PVC 40mm associée à un jumeau dans l’autre sens à l'étage atteint,pvc40,JONCTIONS_PVC_40,ANY,YES,descente40
+Chauffe-eau,Chauffe-eau électrique à ballon intégré,pvc32 per20 per20 prise,DIVERS,BOTH,NO,chauffeEau
+Gros débit d'eau,"Point d'eau à gros débit (douche, baignoire, évier, ...)",pvc40 per16 per16,DIVERS,BOTH,NO,grosDebit
+Gros débit eau froide,Point d'eau à gros débit avec eau froide seule,pvc40 per16,DIVERS,COLD,NO,grosDebitFroid
+Petit débit d'eau,"Point d'eau à petit débit (lavabo, bidet, ...)",pvc32 per12 per12,DIVERS,BOTH,NO,petitDebit
+Petit débit d'eau froide,Point d'eau à petit débit avec eau froide seule,pvc32 per12,DIVERS,COLD,NO,petitDebitFroid
+W.C,W.C standard,pvc100 per12,DIVERS,COLD,NO,wc
+Nourrice 2 sorties,Nourrice Avec 2 entrées 20x27 et 2 sorties 15x21,vis2027 vis2027 vis1521 vis1521,JONCTIONS_PER,SAME,NO,
+Nourrice 3 sorties,Nourrice Avec 2 entrées 20x27 et 3 sorties 15x21,vis2027 vis2027 vis1521 vis1521 vis1521,JONCTIONS_PER,SAME,NO,
+Nourrice 4 sorties,Nourrice Avec 2 entrées 20x27 et 4 sorties 15x21,vis2027 vis2027 vis1521 vis1521 vis1521 vis1521,JONCTIONS_PER,SAME,NO,
+Raccord 12mm / 15x21,Raccord pour tuyau PER 12 mm – écrou tournant 15x21,per12 vis1521,JONCTIONS_PER,ANY,NO,
+Raccord 16mm / 15x21,Raccord pour tuyau PER 16 mm – écrou tournant 15x21,per16 vis1521,JONCTIONS_PER,ANY,NO,
+Raccord 16mm / 20x27,Raccord pour tuyau PER 16 mm – écrou tournant 20x27,per16 vis2027,JONCTIONS_PER,ANY,NO,
+Raccord 20mm / 20x27,Raccord pour tuyau PER 20 mm – écrou tournant 20x27,per20 vis2027,JONCTIONS_PER,ANY,NO,
+Té inégal 16 mm / 12mm,Té inégal pour tuyau PER 2 x 16 mm / 1 x 12mm,per16 per16 per12,JONCTIONS_PER,SAME,NO,
+Té inégal 20 mm / 16mm,Té inégal pour tuyau PER 2 x 20 mm / 1 x 16mm,per16 per20 per20,JONCTIONS_PER,SAME,NO,
+Coude 90° 12mm,Coude pour tuyau PER 90° 12 mm,per12 per12,JONCTIONS_PER_12,SAME,NO,
+Té 12mm,Té pour tuyau PER 12 mm ,per12 per12 per12,JONCTIONS_PER_12,SAME,NO,
+Coude 90° 16mm,Coude pour tuyau PER 90° 16 mm,per16 per16,JONCTIONS_PER_16,SAME,NO,90_40
+Té 16mm,Té pour tuyau PER 16 mm ,per16 per16 per16,JONCTIONS_PER_16,SAME,NO,
+Té 20mm,Té pour tuyau PER 20 mm ,per20 per20 per20,JONCTIONS_PER_16,SAME,NO,te100
+Coude 90° 20mm,Coude pour tuyau PER 90° 20 mm,per20 per20,JONCTIONS_PER_20,SAME,NO,90_100
+Té réduit Ø100/40 mm,Té réduit PVC 87.3° Ø100/40 mm,pvc100 pvc100 pvc40,JONCTIONS_PVC,NONE,NO,te10040
+Té réduit Ø40/32 mm,Té réduit PVC 87.3° Ø40/32 mm,pvc40 pvc40 pvc32,JONCTIONS_PVC,NONE,NO,te4032
+Coude 45° Ø100 mm,Coude 45° en PVC à coller Ø100 mm,pvc100 pvc100,JONCTIONS_PVC_100,NONE,NO,45_100
+Coude 90° Ø100 mm,Coude 87.3° en PVC à coller Ø100 mm,pvc100 pvc100,JONCTIONS_PVC_100,NONE,NO,90_100
+Culotte 45° Ø100 mm,Culotte 45° en PVC à coller Ø100 mm ,pvc100 pvc100 pvc100,JONCTIONS_PVC_100,NONE,NO,culotte100
+Té 90° Ø100 mm,Té 87.3° en PVC à coller Ø100 mm ,pvc100 pvc100 pvc100,JONCTIONS_PVC_100,NONE,NO,te100
+Coude 45° Ø32 mm,Coude 45° en PVC à coller Ø32 mm,pvc32 pvc32,JONCTIONS_PVC_32,NONE,NO,45_32
+Coude 90° Ø32 mm,Coude 87.3° en PVC à coller Ø32 mm,pvc32 pvc32,JONCTIONS_PVC_32,NONE,NO,90_32
+Culotte 45° Ø32 mm,Culotte 45° en PVC à coller Ø32 mm ,pvc32 pvc32 pvc32,JONCTIONS_PVC_32,NONE,NO,culotte32
+Té 90° Ø32 mm,Té 87.3° en PVC à coller Ø32 mm ,pvc32 pvc32 pvc32,JONCTIONS_PVC_32,NONE,NO,te32
+Coude 45° Ø40 mm,Coude 45° en PVC à coller Ø40 mm,pvc40 pvc40,JONCTIONS_PVC_40,NONE,NO,45_40
+Coude 90° Ø40 mm,Coude 87.3° en PVC à coller Ø40 mm,pvc40 pvc40,JONCTIONS_PVC_40,NONE,NO,90_40
+Culotte 45° Ø40 mm,Culotte 45° en PVC à coller Ø40 mm ,pvc40 pvc40 pvc40,JONCTIONS_PVC_40,NONE,NO,culotte40
+Té 90° Ø40 mm,Té 87.3° en PVC à coller Ø40 mm ,pvc40 pvc40 pvc40,JONCTIONS_PVC_40,NONE,NO,te40
+Interrupteur,Interrupteur unique pour commander un ou des spot(s) encastré(s) ou plafonnier(s),eclcommand eclcommand,MURALES,NONE,NO,inter
+Poussoir télérupteur,"Poussoir pour commander, via un télérupteur, un ou des spot(s) encastré(s) ou plafonnier(s)",telrupt,MURALES,NONE,NO,poussoir
+Prise 2P+T,Prise murale 2 pôles + terre,prise prise,MURALES,NONE,NO,
+Prise RJ45,Prise RJ45 pour brancher les câbles Ethernet,rj45,MURALES,NONE,NO,rj45
+Va-et-vient,Va-et-vient utilisable par paire pour commander un ou des spot(s) encastré(s) ou plafonnier(s),eclcommand vaetvien,MURALES,NONE,NO,vv
+Boîtier DCL,Boîtier encastré à la norm DCL pour plafonnier commandé via va-et-vient ou télérupteur,eclcommun eclcommand,PLAFOND,NONE,NO,spot
+Spot encastré,Spot encastré commandé via va-et-vient ou télérupteur,eclcommun eclcommand,PLAFOND,NONE,NO,spot
+Module 10A,Module 10A de tableau électrique pour circuits d’éclairage,eclcommand eclcommun,TABLEAU,NONE,NO,
+Module 16A,Module 16A de tableau électrique pour circuits de prises,prise,TABLEAU,NONE,NO,
+Module RJ45,Module RJ45 pour tableau électrique,rj45,TABLEAU,NONE,NO,
+Module télérupteur,Module Télérupteur de tableau électrique pour commander un ou des spot(s) encastré(s) ou plafonnier(s),eclcommand telrupt,TABLEAU,NONE,NO,telerupt
+Sortie évacuations,Sortie générale des évacuations PVC 100mm,pvc100,JONCTIONS_PVC_100,ANY,NO,sortie100
+Entrée alimentation eau,Alimentation en eau depuis le réseau public PER 20mm,per20 ,JONCTIONS_PER_20,COLD,NO,

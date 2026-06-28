@@ -6,6 +6,7 @@ import org.targol.resoplan.model.catalog.NodeModel;
 import org.targol.resoplan.ui.utils.ThemesManager;
 import org.targol.resoplan.ui.utils.ThemesManager.Theme;
 import org.targol.resoplan.ui.utils.events.GenericActionEvent;
+import org.targol.resoplan.ui.utils.events.UiEventBus;
 import org.targol.resoplan.utils.IThemeChangeListener;
 
 import javafx.beans.property.DoubleProperty;
@@ -33,7 +34,7 @@ public class CatalogButton extends ToggleButton implements IThemeChangeListener 
 		this.imgWidth.addListener((obs, oldValue, newValue) -> {
 			updateAppearance();
 		});
-		this.setOnAction(e -> fireEvent(eventSupplier.get()));
+		this.setOnAction(e -> UiEventBus.send(eventSupplier.get()));
 		updateAppearance();
 	}
 

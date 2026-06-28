@@ -17,6 +17,7 @@ import org.targol.resoplan.services.ProjectsService;
 import org.targol.resoplan.ui.utils.AppStateManager;
 import org.targol.resoplan.ui.utils.GuiUtils;
 import org.targol.resoplan.ui.utils.events.AjustEvent;
+import org.targol.resoplan.ui.utils.events.UiEventBus;
 import org.targol.resoplan.utils.SpringContextHelper;
 
 import javafx.fxml.FXML;
@@ -53,12 +54,13 @@ public class FloorsAdjustmentPanel extends BorderPane {
 	private boolean tracingScale = false;
 	private Canvas scaleTracingCanvas;
 	private double startX, startY;
+	private Color paintColor = Color.BLACK;
 
 	public FloorsAdjustmentPanel(final Project proj) {
 		this.project = proj;
-		addEventHandler(AjustEvent.FLOOR_UPDATED, evt -> onFloorChangeEvent(evt));
-		addEventHandler(AjustEvent.VISUAL_CHANGED, evt -> onVisualChangeEvent(evt));
-		addEventHandler(AjustEvent.SCALE_LINE_START_REQUIRED, evt -> onScaleStart(evt));
+		UiEventBus.register(AjustEvent.FLOOR_UPDATED, evt -> onFloorChangeEvent(evt));
+		UiEventBus.register(AjustEvent.VISUAL_CHANGED, evt -> onVisualChangeEvent(evt));
+		UiEventBus.register(AjustEvent.SCALE_LINE_START_REQUIRED, evt -> onScaleStart(evt));
 
 		final FXMLLoader loader = new FXMLLoader(getClass().getResource("/gui/panels/FloorsAdjustmentPanel.fxml"), //$NON-NLS-1$
 				this.bundle);
@@ -109,12 +111,12 @@ public class FloorsAdjustmentPanel extends BorderPane {
 		imgView.setVisible(event.isVisible());
 		imgView.setOpacity(event.getOpacity());
 		final Image originalImage = (Image) imgView.getUserData();
-		imgView.setImage(GuiUtils.colorizeImage(originalImage, event.getPaintColor()));
+		this.paintColor = event.getPaintColor();
+		updateImageView(floor, imgView);
 		this.stackPaneCalques.requestLayout();
 	}
 
 	private void onScaleStart(final AjustEvent evt) {
-		System.out.println("On va tracer l'échelle ! la teuf !");
 		double maxHeight = 0.0d;
 		double maxWidth = 0.0d;
 		for (final ImageView img : this.layerImages.values()) {
@@ -135,7 +137,7 @@ public class FloorsAdjustmentPanel extends BorderPane {
 			this.startY = y;
 			this.tracingScale = true;
 		} else {
-			final int length = (int) Point2D.distance(this.startX, this.startY, y, y);
+			final int length = (int) Point2D.distance(this.startX, this.startY, x, y);
 			this.project.setPlansScale(length);
 			final ProjectsService service = SpringContextHelper.getBean(ProjectsService.class);
 			service.updateProject(this.project);
@@ -198,6 +200,9 @@ public class FloorsAdjustmentPanel extends BorderPane {
 		if (floor == null || floor.getImgPath() == null) {
 			return null;
 		}
-		return new Image(new File(floor.getImgPath()).toURI().toString());
+		if (Color.BLACK.equals(this.paintColor)) {
+			return new Image(new File(floor.getImgPath()).toURI().toString());
+		}
+		return GuiUtils.colorizeImage(new Image(new File(floor.getImgPath()).toURI().toString()), this.paintColor);
 	}
 }

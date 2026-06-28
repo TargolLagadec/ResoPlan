@@ -4,7 +4,9 @@ import java.util.Objects;
 import java.util.Optional;
 
 import org.targol.resoplan.i18n.Messages;
+import org.targol.resoplan.model.Floor;
 import org.targol.resoplan.model.LayerType;
+import org.targol.resoplan.model.Project;
 import org.targol.resoplan.model.catalog.HookType;
 import org.targol.resoplan.model.catalog.NodeModel;
 import org.targol.resoplan.model.catalog.enums.NodeCategory;
@@ -12,6 +14,7 @@ import org.targol.resoplan.model.catalog.enums.NodeCross;
 import org.targol.resoplan.services.HookTypesService;
 import org.targol.resoplan.services.NodeModelsService;
 import org.targol.resoplan.ui.components.CatalogButton;
+import org.targol.resoplan.ui.components.CatalogButtonUpOrDown;
 import org.targol.resoplan.ui.components.LayerLinkButton;
 import org.targol.resoplan.ui.utils.events.LinkTracingEvent;
 import org.targol.resoplan.ui.utils.events.NodePlacementEvent;
@@ -20,6 +23,9 @@ import org.targol.resoplan.utils.PreferencesManager;
 import org.targol.resoplan.utils.SpringContextHelper;
 
 import javafx.beans.binding.BooleanBinding;
+import javafx.geometry.BoundingBox;
+import javafx.geometry.Bounds;
+import javafx.geometry.Point2D;
 import javafx.geometry.Pos;
 import javafx.scene.Node;
 import javafx.scene.control.Alert;
@@ -37,6 +43,48 @@ import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
 
 public class GuiUtils {
+
+	/*
+	 * marge de 200px pour ne pas coller aux bords du ScrollPane
+	 */
+	public static final double NETWORK_PLANS_MARGIN = 0;
+
+	/**
+	 * Convertit une position IHM (local au Pane) en coordonnées absolues Terrain
+	 * (BDD)
+	 */
+	public static Point2D ihmToAbsolute(final Floor floor, final double ioX, final double ioY) {
+		final double absX = ioX - NETWORK_PLANS_MARGIN - floor.getShiftX();
+		final double absY = ioY - NETWORK_PLANS_MARGIN - floor.getShiftY();
+		return new Point2D(absX, absY);
+	}
+
+	/**
+	 * Convertit une coordonnée absolue Terrain (BDD) en position de pixel IHM pour
+	 * le rendu
+	 */
+	public static Point2D absoluteToIo(final Floor floor, final double absX, final double absY) {
+		final double ioX = absX + NETWORK_PLANS_MARGIN + floor.getShiftX();
+		final double ioY = absY + NETWORK_PLANS_MARGIN + floor.getShiftY();
+		return new Point2D(ioX, ioY);
+	}
+
+	public static Bounds calculateUniversalProjectBounds(final Project project) {
+		double maxWidth = 0;
+		double maxHeight = 0;
+
+		for (final Floor f : project.getFloors()) {
+			final double footprintX = f.getImgWidth() * f.getZoomFactor() + Math.abs(f.getShiftX());
+			final double footprintY = f.getImgHeight() * f.getZoomFactor() + Math.abs(f.getShiftY());
+			if (footprintX > maxWidth) {
+				maxWidth = footprintX;
+			}
+			if (footprintY > maxHeight) {
+				maxHeight = footprintY;
+			}
+		}
+		return new BoundingBox(0, 0, maxWidth + NETWORK_PLANS_MARGIN * 2, maxHeight + NETWORK_PLANS_MARGIN * 2);
+	}
 
 	public static Image getCatalogIcon(final String name, final Color replacmentColor) {
 		final String path = "/images/catalog/".concat(name).concat(".png"); //$NON-NLS-1$ //$NON-NLS-2$
@@ -191,15 +239,35 @@ public class GuiUtils {
 		ret.getChildren().add(catLab);
 		final HBox buttons = new HBox(5);
 		for (final NodeModel model : modelsService.getAllByCategory(cat)) {
-			final CatalogButton btn = new CatalogButton(model, () -> NodePlacementEvent.of(layer, model));
-			btn.disableProperty().bind(buildNewDisabledBinding(layer, model.getNodeCross()));
-			btn.setToggleGroup(placementGroup); // Partagé pour qu'un seul outil soit actif à la fois
-			btn.setUserData(model);
-			buttons.getChildren().add(btn);
+			if (model.isCrossesFloor()) {
+				final CatalogButtonUpOrDown btnUp = buildUpDownButton(layer, model, NodeCross.GOES_UP);
+				btnUp.setToggleGroup(placementGroup); // Partagé pour qu'un seul outil soit actif à la fois
+				btnUp.setUserData(model);
+				buttons.getChildren().add(btnUp);
+				final CatalogButtonUpOrDown btnDown = buildUpDownButton(layer, model, NodeCross.GOES_DOWN);
+				btnDown.setToggleGroup(placementGroup); // Partagé pour qu'un seul outil soit actif à la fois
+				btnDown.setUserData(model);
+				buttons.getChildren().add(btnDown);
+			} else {
+				final CatalogButton btn = new CatalogButton(model, () -> NodePlacementEvent.of(layer,
+						AppStateManager.getInstance().activeFloorProperty().get(), model));
+				btn.disableProperty().bind(BindingBuilder.createDefaultBuilderFor(layer).build());
+				btn.setToggleGroup(placementGroup); // Partagé pour qu'un seul outil soit actif à la fois
+				btn.setUserData(model);
+				buttons.getChildren().add(btn);
+			}
 		}
 		buttons.getChildren().stream().filter(node -> node instanceof CatalogButton)
 				.forEach(node -> PreferencesManager.getInstance().addThemeChangeListener((CatalogButton) node));
 		ret.getChildren().add(buttons);
+		return ret;
+	}
+
+	private static CatalogButtonUpOrDown buildUpDownButton(final LayerType layer, final NodeModel model,
+			final NodeCross nodeCross) {
+		final CatalogButtonUpOrDown ret = new CatalogButtonUpOrDown(model, nodeCross, () -> NodePlacementEvent.of(layer,
+				AppStateManager.getInstance().activeFloorProperty().get(), model, nodeCross));
+		ret.disableProperty().bind(buildNewDisabledBinding(layer, nodeCross));
 		return ret;
 	}
 
@@ -220,11 +288,24 @@ public class GuiUtils {
 			final NodeModel fullmodel = optMod.get();
 			final HookTypesService hooksService = SpringContextHelper.getBean(HookTypesService.class);
 			if (MiscUtils.containsAny(fullmodel.getAllowedHooks(), hooksService.getAllFromLayer(layer))) {
-				final CatalogButton btn = new CatalogButton(fullmodel, () -> NodePlacementEvent.of(layer, model));
-				btn.setToggleGroup(placementGroup); // Partagé pour qu'un seul outil soit actif à la fois
-				btn.disableProperty().bind(buildNewDisabledBinding(layer, fullmodel.getNodeCross()));
-				btn.setUserData(model);
-				buttons.getChildren().add(btn);
+				if (model.isCrossesFloor()) {
+					final CatalogButtonUpOrDown btnUp = buildUpDownButton(layer, fullmodel, NodeCross.GOES_UP);
+					btnUp.setToggleGroup(placementGroup); // Partagé pour qu'un seul outil soit actif à la fois
+					btnUp.setUserData(fullmodel);
+					buttons.getChildren().add(btnUp);
+					final CatalogButtonUpOrDown btnDown = buildUpDownButton(layer, fullmodel, NodeCross.GOES_DOWN);
+					btnDown.setToggleGroup(placementGroup); // Partagé pour qu'un seul outil soit actif à la fois
+					btnDown.setUserData(fullmodel);
+					buttons.getChildren().add(btnDown);
+				} else {
+
+					final CatalogButton btn = new CatalogButton(fullmodel, () -> NodePlacementEvent.of(layer,
+							AppStateManager.getInstance().activeFloorProperty().get(), fullmodel));
+					btn.setToggleGroup(placementGroup); // Partagé pour qu'un seul outil soit actif à la fois
+					btn.disableProperty().bind(BindingBuilder.createDefaultBuilderFor(layer).build());
+					btn.setUserData(fullmodel);
+					buttons.getChildren().add(btn);
+				}
 			}
 		}
 		buttons.getChildren().stream().filter(node -> node instanceof CatalogButton)
@@ -242,7 +323,8 @@ public class GuiUtils {
 		final HBox buttons = new HBox(5);
 		final HookTypesService hooksService = SpringContextHelper.getBean(HookTypesService.class);
 		for (final HookType hook : hooksService.getAllFromLayer(layer)) {
-			final LayerLinkButton btn = new LayerLinkButton(hook, () -> LinkTracingEvent.of(layer, hook));
+			final LayerLinkButton btn = new LayerLinkButton(hook,
+					() -> LinkTracingEvent.of(layer, AppStateManager.getInstance().activeFloorProperty().get(), hook));
 			btn.setToggleGroup(placementGroup); // Partagé pour qu'un seul outil soit actif à la fois
 			btn.disableProperty().bind(buildNewDisabledBinding(layer, NodeCross.NONE));
 			btn.setUserData(hook);

@@ -29,6 +29,12 @@ public class Floor {
 	@Column(name = "imgPath")
 	private String imgPath;
 
+	@Column(name = "imgWidth")
+	private double imgWidth;
+
+	@Column(name = "imgHeight")
+	private double imgHeight;
+
 	@Column(name = "shiftX")
 	private double shiftX;
 
@@ -83,6 +89,22 @@ public class Floor {
 		this.imgPath = imgPath;
 	}
 
+	public double getImgWidth() {
+		return this.imgWidth;
+	}
+
+	public void setImgWidth(final double imgWidth) {
+		this.imgWidth = imgWidth;
+	}
+
+	public double getImgHeight() {
+		return this.imgHeight;
+	}
+
+	public void setImgHeight(final double imgHeight) {
+		this.imgHeight = imgHeight;
+	}
+
 	public double getShiftX() {
 		return this.shiftX;
 	}
@@ -129,5 +151,34 @@ public class Floor {
 
 	public void removeLayer(final Layer r) {
 		this.layers.remove(r);
+	}
+
+	public List<Node> getNodes() {
+		return this.nodes;
+	}
+
+	public void addNode(final Node node) {
+		this.nodes.add(node);
+	}
+
+	public void removeNode(final Node node) {
+		this.nodes.remove(node);
+	}
+
+	@Override
+	public boolean equals(final Object o) {
+		if (this == o) {
+			return true;
+		}
+		if (o == null || getClass() != o.getClass()) {
+			return false; // Pas le même type -> pas égal
+		}
+		final Floor floor = (Floor) o;
+		return this.id == floor.id;
+	}
+
+	@Override
+	public int hashCode() {
+		return getClass().hashCode();
 	}
 }

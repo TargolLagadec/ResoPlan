@@ -5,7 +5,6 @@ import java.util.List;
 
 import org.targol.resoplan.model.catalog.enums.AlimConstraint;
 import org.targol.resoplan.model.catalog.enums.NodeCategory;
-import org.targol.resoplan.model.catalog.enums.NodeCross;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -43,9 +42,8 @@ public class NodeModel {
 	@Column(length = 5, name = "alimConstraint")
 	private AlimConstraint alimConstraint;
 
-	@Enumerated(EnumType.STRING)
-	@Column(length = 10, name = "nodeCross")
-	private NodeCross nodeCross;
+	@Column(name = "crossesFloor")
+	private boolean crossesFloor;
 
 	@Column(name = "imgName")
 	private String imgName;
@@ -103,12 +101,12 @@ public class NodeModel {
 		this.alimConstraint = alimConstraint;
 	}
 
-	public NodeCross getNodeCross() {
-		return this.nodeCross;
+	public boolean isCrossesFloor() {
+		return this.crossesFloor;
 	}
 
-	public void setNodeCross(final NodeCross nodeCross) {
-		this.nodeCross = nodeCross;
+	public void setCrossesFloor(final boolean crossesFloor) {
+		this.crossesFloor = crossesFloor;
 	}
 
 	public String getImgName() {

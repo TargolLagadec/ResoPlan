@@ -15,7 +15,6 @@ import org.springframework.stereotype.Component;
 import org.targol.resoplan.model.LayerType;
 import org.targol.resoplan.model.catalog.enums.AlimConstraint;
 import org.targol.resoplan.model.catalog.enums.NodeCategory;
-import org.targol.resoplan.model.catalog.enums.NodeCross;
 import org.targol.resoplan.services.HookTypesService;
 import org.targol.resoplan.services.NodeModelsService;
 
@@ -61,10 +60,6 @@ public class DatabaseInitializer implements CommandLineRunner {
 	@Override
 	public void run(final String... args) throws Exception {
 		// Si les HookTypes sont là, c'est que l'init est Ok (ils sont immuables)
-		// FIXME virer cet effacement total.
-		this.modelSvc.deleteAll();
-		this.typeSvc.deleteAll();
-
 		if (!this.typeSvc.getAll().isEmpty()) {
 			return;
 		}
@@ -133,20 +128,13 @@ public class DatabaseInitializer implements CommandLineRunner {
 					continue;
 				}
 				// CHECK NodeCross
-				final NodeCross cross;
-				try {
-					cross = NodeCross.valueOf(nodeCross);
-				} catch (final Exception e) {
-					this.readErrors.add("Ligne " + numLine //$NON-NLS-1$
-							+ " => Impossible de déterminer le type de changement de niveau du matériel."); //$NON-NLS-1$
-					continue;
-				}
+				final boolean cross = nodeCross == null || !nodeCross.equals("YES") ? false : true; //$NON-NLS-1$
 				final NodeModel nodeModel = new NodeModel(name);
 				nodeModel.setDescription(description);
 				nodeModel.setCategory(cat);
 				nodeModel.setAlimConstraint(constraint);
 				nodeModel.setAllowedHooks(hooks);
-				nodeModel.setNodeCross(cross);
+				nodeModel.setCrossesFloor(cross);
 				nodeModel.setImgName(imgName);
 				this.modelSvc.save(nodeModel);
 				numLine++;

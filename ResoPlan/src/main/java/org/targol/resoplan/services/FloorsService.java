@@ -1,5 +1,7 @@
 package org.targol.resoplan.services;
 
+import java.util.Optional;
+
 import org.hibernate.service.spi.ServiceException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -16,6 +18,10 @@ public class FloorsService {
 
 	public FloorsService(final FloorsRepository repo) {
 		this.repo = repo;
+	}
+
+	public Optional<Floor> reloadWithNodes(final Floor f) {
+		return this.repo.findByIdWithNodes(f.getId());
 	}
 
 	public Floor create(final Floor floor) throws ServiceException {

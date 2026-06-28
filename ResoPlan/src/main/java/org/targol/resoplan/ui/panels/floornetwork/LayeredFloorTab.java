@@ -5,15 +5,16 @@ import java.io.File;
 import org.targol.resoplan.i18n.Messages;
 import org.targol.resoplan.model.Floor;
 import org.targol.resoplan.model.LayerType;
+import org.targol.resoplan.model.Project;
+import org.targol.resoplan.services.FloorsService;
 import org.targol.resoplan.ui.components.CustomLayerRadio;
-import org.targol.resoplan.ui.panels.floornetwork.layers.evac.EvacuationsCanvas;
+import org.targol.resoplan.ui.panels.floornetwork.layers.evac.EvacuationsLayer;
 import org.targol.resoplan.ui.utils.AppStateManager;
-import org.targol.resoplan.ui.utils.events.GenericActionEvent;
-import org.targol.resoplan.ui.utils.events.LinkTracingEvent;
-import org.targol.resoplan.ui.utils.events.NodePlacementEvent;
+import org.targol.resoplan.ui.utils.GuiUtils;
 import org.targol.resoplan.utils.PreferencesManager;
+import org.targol.resoplan.utils.SpringContextHelper;
 
-import javafx.event.EventType;
+import javafx.geometry.Bounds;
 import javafx.geometry.Pos;
 import javafx.scene.Group;
 import javafx.scene.control.Label;
@@ -22,12 +23,15 @@ import javafx.scene.control.Tab;
 import javafx.scene.control.ToggleGroup;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
+import javafx.scene.input.ScrollEvent;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Pane;
+import javafx.scene.layout.StackPane;
 
 public class LayeredFloorTab extends Tab {
 
 	private static final double SCALE_FACTOR = 0.1;
+	private static final FloorsService SVC_FLOORS = SpringContextHelper.getBean(FloorsService.class);
 
 	// parent
 	private final FloorsNetworksTab parentController;
@@ -41,73 +45,92 @@ public class LayeredFloorTab extends Tab {
 	private ScrollPane centerScrollPane;
 	private Pane mainNetworkPane;
 	// Layers
-	private EvacuationsCanvas evacCanvas;
+	private EvacuationsLayer evacLayer;
 
 	private final Floor floor;
 
 	public LayeredFloorTab(final FloorsNetworksTab parentController, final Floor floor, final boolean active) {
 		this.parentController = parentController;
-		this.floor = floor;
+		// Attention, on remplace le floor lazy loadé avec celui contenant ses noeuds !
+		this.floor = SVC_FLOORS.reloadWithNodes(floor).get();
 		initTabHeader();
 		initContent();
 		setdisableHeaderRadioButtons(!active);
-	}
-
-	@SuppressWarnings("unchecked")
-	public void handleEvent(final GenericActionEvent event) {
-		final EventType<GenericActionEvent> type = (EventType<GenericActionEvent>) event.getEventType();
-		if (NodePlacementEvent.ELEC.equals(type) || LinkTracingEvent.ELEC.equals(type)) {
-			// Transmettre au Canvas Elec
-		} else if (NodePlacementEvent.WATER_ALIM.equals(type) || LinkTracingEvent.WATER_ALIM.equals(type)) {
-			// Transmettre au Canvas alim
-		} else if (NodePlacementEvent.WATER_EVAC.equals(type) || LinkTracingEvent.WATER_EVAC.equals(type)) {
-			this.evacCanvas.fireEvent(event);
-		} else if (NodePlacementEvent.NET.equals(type) || LinkTracingEvent.NET.equals(type)) {
-			// Transmettre au Canvas Net
-		}
-		event.consume();
 	}
 
 	private void initContent() {
 		this.centerScrollPane = new ScrollPane();
 		this.setContent(this.centerScrollPane);
 
-		this.mainNetworkPane = new Pane();
+		final Project currentProject = AppStateManager.getInstance().currentProjectProperty().get();
+		final Bounds projectBounds = GuiUtils.calculateUniversalProjectBounds(currentProject);
+
+		this.mainNetworkPane = new StackPane();
+		this.mainNetworkPane.setPrefSize(projectBounds.getWidth(), projectBounds.getHeight());
+		this.mainNetworkPane.setMinSize(projectBounds.getWidth(), projectBounds.getHeight());
+		this.mainNetworkPane.setMaxSize(projectBounds.getWidth(), projectBounds.getHeight());
+
 		final Group zoomGroup = new Group(this.mainNetworkPane);
-		// Zoom avec Ctrl + Molette
-		this.mainNetworkPane.setOnScroll(event -> {
-			if (event.isControlDown()) {
-				event.consume();
-				final double deltaY = event.getDeltaY();
-				if (Math.abs(deltaY) < 0.01) {
-					return;
-				}
-				final int direction = deltaY > 0 ? 1 : -1;
-				final double zoomFactor = direction > 0 ? 1 + SCALE_FACTOR : 1 - SCALE_FACTOR;
-				this.parentController.syncZoom(zoomFactor, event.getX(), event.getY());
-			}
-		});
 		this.centerScrollPane.setContent(zoomGroup);
 
+		this.centerScrollPane.addEventFilter(ScrollEvent.SCROLL, event -> onScrollEvent(event));
+
+		// Configuration de l'image (identique à ton outil d'ajustement)
 		final ImageView layerImageView = new ImageView();
 		final File imgFile = new File(this.floor.getImgPath());
 		final Image img = new Image(imgFile.toURI().toString());
 		layerImageView.setImage(img);
 		layerImageView.setPickOnBounds(true);
 		layerImageView.setPreserveRatio(true);
+
 		if (this.floor.isVirtual()) {
 			layerImageView.setOpacity(0.5d);
 		}
-		layerImageView.setTranslateX(0);
-		layerImageView.setTranslateY(0);
+
 		layerImageView.setScaleX(this.floor.getZoomFactor());
 		layerImageView.setScaleY(this.floor.getZoomFactor());
 		layerImageView.setTranslateX(this.floor.getShiftX());
 		layerImageView.setTranslateY(this.floor.getShiftY());
+
 		this.mainNetworkPane.getChildren().add(layerImageView);
-		this.evacCanvas = new EvacuationsCanvas(this.floor, img.getWidth(), img.getHeight());
-		this.mainNetworkPane.getChildren().add(this.evacCanvas);
-		this.evacCanvas.visibleProperty().bind(this.radioEvac.selectedProperty());
+
+		// Ajout du calque de dessin
+		this.evacLayer = new EvacuationsLayer(this.floor);
+		this.mainNetworkPane.getChildren().add(this.evacLayer);
+
+		this.evacLayer.setPrefSize(projectBounds.getWidth(), projectBounds.getHeight());
+		this.evacLayer.setMinSize(projectBounds.getWidth(), projectBounds.getHeight());
+		this.evacLayer.setMaxSize(projectBounds.getWidth(), projectBounds.getHeight());
+		this.evacLayer.visibleProperty().bind(this.radioEvac.selectedProperty());
+	}
+
+	private void onScrollEvent(final ScrollEvent event) {
+		if (event.isControlDown()) {
+			event.consume();
+			final double deltaY = event.getDeltaY();
+			if (Math.abs(deltaY) < 0.01) {
+				return;
+			}
+			final int direction = deltaY > 0 ? 1 : -1;
+			final double factor = direction > 0 ? 1 + SCALE_FACTOR : 1 - SCALE_FACTOR;
+
+			// Sécurité : On vérifie les limites théoriques sur le pane actuel avant de
+			// propager
+			final double nextScale = this.mainNetworkPane.getScaleX() * factor;
+			if (nextScale < 0.1 || nextScale > 10.0) {
+				return;
+			}
+
+			// 🔥 CRUCIAL : Récupérer la position de la souris RELATIVE au contenu du
+			// ScrollPane (le Group)
+			// et non pas à la fenêtre visible.
+			final javafx.geometry.Point2D mouseInContent = this.centerScrollPane.getContent()
+					.sceneToLocal(event.getSceneX(), event.getSceneY());
+
+			// On envoie l'ordre de zoom GLOBAL avec les bonnes coordonnées géométriques
+			this.parentController.syncZoom(factor, mouseInContent.getX(), mouseInContent.getY());
+		}
+
 	}
 
 	public ScrollPane getCenterScrollPane() {
