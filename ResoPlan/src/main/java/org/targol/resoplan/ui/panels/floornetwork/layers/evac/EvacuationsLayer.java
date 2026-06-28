@@ -1,7 +1,10 @@
 package org.targol.resoplan.ui.panels.floornetwork.layers.evac;
 
+import org.targol.resoplan.model.AbstractNode;
 import org.targol.resoplan.model.Floor;
+import org.targol.resoplan.model.INodeContainer;
 import org.targol.resoplan.model.LayerType;
+import org.targol.resoplan.model.MetaNode;
 import org.targol.resoplan.model.Node;
 import org.targol.resoplan.model.Project;
 import org.targol.resoplan.model.catalog.HookType;
@@ -37,11 +40,11 @@ public class EvacuationsLayer extends Pane {
 	private NodeModel currentNodeModel;
 	private HookType currentHookType;
 	private NodeCross direction;
-	private final Floor floor;
+	private Floor floor;
 
 	public EvacuationsLayer(final Floor floor) {
 		this.floor = floor;
-		for (final Node node : this.floor.getNodes()) {
+		for (final AbstractNode node : this.floor.getNodes()) {
 			if (node.getActiveLayers().contains(LayerType.WATER_EVAC)) {
 				drawGraphicalNode(node);
 			}
@@ -99,7 +102,7 @@ public class EvacuationsLayer extends Pane {
 			return;
 		}
 		if (this.currentNodeModel != null) {
-			createNode(x, y);
+			createNode(x, y, this.floor, true);
 			this.isDrawingTube = false;
 
 		} else if (this.currentHookType != null) {
@@ -117,21 +120,25 @@ public class EvacuationsLayer extends Pane {
 		event.consume();
 	}
 
-	private void createNode(final double x, final double y) {
+	private void createNode(final double x, final double y, final INodeContainer container, final boolean draw) {
 		if (this.direction == null || this.direction.equals(NodeCross.NONE)) {
 			Node newNode = new Node(this.currentNodeModel);
 			newNode.setPosX(x);
 			newNode.setPosY(y);
-			newNode = SVC_NODES.save(newNode);
-			this.floor.addNode(newNode);
-			SVC_FLOORS.update(this.floor);
-			drawGraphicalNode(newNode);
+			newNode = (Node) SVC_NODES.save(newNode);
+			container.addNode(newNode);
+			if (container instanceof Floor) {
+				SVC_FLOORS.update(this.floor);
+			}
+			if (draw) {
+				drawGraphicalNode(newNode);
+			}
 		} else {
-			createLinkedNodes(x, y);
+			createLinkedNodes(x, y, container, draw);
 		}
 	}
 
-	private void createLinkedNodes(final double x, final double y) {
+	private void createLinkedNodes(final double x, final double y, final INodeContainer container, final boolean draw) {
 		final int levelOffset = this.direction.equals(NodeCross.GOES_DOWN) ? -1 : 1;
 		final NodeCross twinDirection = this.direction.equals(NodeCross.GOES_DOWN) ? NodeCross.GOES_UP
 				: NodeCross.GOES_DOWN;
@@ -139,19 +146,19 @@ public class EvacuationsLayer extends Pane {
 		final Floor targetFloor = getFloorAtLevel(levelOffset);
 
 		if (targetFloor != null) {
-//			// Décalage x,y en fonction des zoom et décalage des 2 niveaux
-//			final Point2D absolute = GuiUtils.ihmToAbsolute(this.floor, x, y);
-
 			final Node curNode = buildAndSaveDirectionalNode(x, y, this.direction);
 			final Node linkedNode = buildAndSaveDirectionalNode(x, y, twinDirection);
 			associateNodes(curNode, linkedNode);
 
-			this.floor.addNode(curNode);
-			SVC_FLOORS.update(this.floor);
+			container.addNode(curNode);
+			if (container instanceof Floor) {
+				SVC_FLOORS.update(this.floor);
+			}
 			targetFloor.addNode(linkedNode);
 			SVC_FLOORS.update(targetFloor);
-
-			drawGraphicalNode(curNode);
+			if (draw) {
+				drawGraphicalNode(curNode);
+			}
 			// envoi d'un event à l'étage concerné pour qu'il déssine le node lié
 			UiEventBus.send(LinkedNodePlacementEvent.of(LayerType.WATER_EVAC, targetFloor, linkedNode));
 		}
@@ -162,7 +169,7 @@ public class EvacuationsLayer extends Pane {
 		curNode.setPosX(x);
 		curNode.setPosY(y);
 		curNode.setNodeCross(dir);
-		return SVC_NODES.save(curNode);
+		return (Node) SVC_NODES.save(curNode);
 	}
 
 	private void associateNodes(final Node n1, final Node n2) {
@@ -178,10 +185,56 @@ public class EvacuationsLayer extends Pane {
 		return SVC_FLOORS.reloadWithNodes(withNoNodes).get();
 	}
 
-	private void drawGraphicalNode(final Node node) {
-		final GraphicalNode gn = new GraphicalNode(node);
-		this.getChildren().add(gn);
-		this.requestLayout();
+	private void drawGraphicalNode(final AbstractNode node) {
+		if (node instanceof final Node realNode) {
+			final GraphicalNode gn = new GraphicalNode(realNode, (mouseEvent) -> onExistingNodeClick(mouseEvent));
+			this.getChildren().add(gn);
+			this.requestLayout();
+		}
+	}
+
+	private void onExistingNodeClick(final MouseEvent event) {
+		final GraphicalNode graphicNode = (GraphicalNode) event.getSource();
+		if (this.currentNodeModel != null) {
+			System.out.println("Création d'un MetaNode demandée par sur-clic !");
+			mutateToMetaNode(graphicNode);
+
+		} else if (this.currentHookType != null) {
+			System.out.println("Clic sur un noeud pour commencer un tracé de tuyau !");
+			startDrawingLinkFromGraphNode(graphicNode);
+		}
+	}
+
+	private void mutateToMetaNode(GraphicalNode graphicNode) {
+		Node oldNode = graphicNode.getNode();
+		this.floor.removeNode(oldNode);
+		this.floor = SVC_FLOORS.update(this.floor);
+		oldNode = (Node) SVC_NODES.save(oldNode);
+		SVC_NODES.detachNodeFromFloor(oldNode);
+		oldNode = (Node) SVC_NODES.save(oldNode);
+		final MetaNode meta = new MetaNode();
+		meta.setPosX(oldNode.getPosX());
+		meta.setPosY(oldNode.getPosY());
+		meta.addNode(oldNode);
+		createNode(oldNode.getPosX(), oldNode.getPosY(), meta, false);
+
+//		meta = (MetaNode) SVC_NODES.save(meta);
+		this.floor.addNode(meta);
+		SVC_FLOORS.update(this.floor);
+		graphicNode = null;
+		// FIXME ici effacer l'ancier graphical node et dessiner le Meta.
+		drawMetaNode(oldNode.getPosX(), oldNode.getPosY());
+		this.currentNodeModel = null;
+	}
+
+	private void drawMetaNode(final double posX, final double posX2) {
+		// TODO Auto-generated method stub
+
+	}
+
+	private void startDrawingLinkFromGraphNode(final GraphicalNode graphicNode) {
+		// TODO Auto-generated method stub
+
 	}
 
 	private void drawPipe(final double x1, final double y1, final double x2, final double y2) {

@@ -13,19 +13,19 @@ import jakarta.persistence.Id;
 import jakarta.persistence.Table;
 
 @Entity
-@Table(name = "HookType")
+@Table(name = "HOOK_TYPE")
 public class HookType {
 
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
-	@Column(name = "Id")
+	@Column(name = "ID")
 	private int id;
 
-	@Column(name = "hookKey", nullable = false)
+	@Column(name = "HOOK_KEY", nullable = false)
 	private String hookKey;
 
 	@Enumerated(EnumType.STRING)
-	@Column(length = 10, name = "layer")
+	@Column(length = 10, name = "LAYER")
 	private LayerType layer;
 
 	public HookType(final LayerType layer, final String hookKey) {

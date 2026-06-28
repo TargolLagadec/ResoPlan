@@ -1,5 +1,7 @@
 package org.targol.resoplan.ui.panels.floornetwork.layers;
 
+import java.util.function.Consumer;
+
 import org.targol.resoplan.model.Node;
 import org.targol.resoplan.model.catalog.enums.NodeCross;
 import org.targol.resoplan.services.NodesService;
@@ -10,6 +12,8 @@ import org.targol.resoplan.utils.SpringContextHelper;
 import javafx.scene.control.ContextMenu;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
+import javafx.scene.input.MouseButton;
+import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.StackPane;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Rectangle;
@@ -24,7 +28,7 @@ public class GraphicalNode extends StackPane {
 	private final Node node;
 	private final Color defaultColor = Color.CHOCOLATE;
 
-	public GraphicalNode(final Node node) {
+	public GraphicalNode(final Node node, final Consumer<MouseEvent> onMergeRequested) {
 		this.node = node;
 		final double nodeSize = getNodeSize();
 		setPrefSize(nodeSize, nodeSize);
@@ -42,14 +46,22 @@ public class GraphicalNode extends StackPane {
 		this.getChildren().add(view);
 		this.setTranslateX(node.getPosX() - nodeSize / 2);
 		this.setTranslateY(node.getPosY() - nodeSize / 2);
-		initEvents();
+		initEvents(onMergeRequested);
 	}
 
 	public static double getNodeSize() {
 		return SCALE * NODE_SIZE_IN_CM / 100;
 	}
 
-	private void initEvents() {
+	private void initEvents(final Consumer<MouseEvent> onMergeRequested) {
+		this.setOnMouseClicked(event -> {
+			if (event.getButton() == MouseButton.PRIMARY) {
+				event.consume();
+				// On notifie le calque que ce nœud précis a reçu un clic de souris
+				onMergeRequested.accept(event);
+			}
+		});
+
 		this.setOnContextMenuRequested(evt -> {
 			final ContextMenu menu = createContextMenu();
 			if (menu != null) {
@@ -89,6 +101,10 @@ public class GraphicalNode extends StackPane {
 	private ContextMenu createContextMenu() {
 		// TODO Auto-generated method stub
 		return null;
+	}
+
+	public Node getNode() {
+		return this.node;
 	}
 
 	// Classe interne utilitaire pour le drag

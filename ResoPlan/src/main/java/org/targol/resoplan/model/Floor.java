@@ -15,45 +15,45 @@ import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 
 @Entity
-@Table(name = "Floor")
-public class Floor {
+@Table(name = "FLOOR")
+public class Floor implements INodeContainer {
 
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
-	@Column(name = "id")
+	@Column(name = "ID")
 	private int id;
 
-	@Column(name = "number", nullable = false)
+	@Column(name = "NUMBER", nullable = false)
 	private int number;
 
-	@Column(name = "imgPath")
+	@Column(name = "IMAGE_PATH")
 	private String imgPath;
 
-	@Column(name = "imgWidth")
+	@Column(name = "IAMGE_WIDTH")
 	private double imgWidth;
 
-	@Column(name = "imgHeight")
+	@Column(name = "IMAGE_HEIGHT")
 	private double imgHeight;
 
-	@Column(name = "shiftX")
+	@Column(name = "SHIFT_X")
 	private double shiftX;
 
-	@Column(name = "shiftY")
+	@Column(name = "SHIFT_Y")
 	private double shiftY;
 
-	@Column(name = "zoomFactor")
+	@Column(name = "ZOOM_FACTOR")
 	private double zoomFactor = 1.0d;
 
-	@Column(name = "vitual")
+	@Column(name = "VIRTUAL")
 	private boolean virtual;
 
-	@OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
-	@JoinColumn(name = "FloorId", referencedColumnName = "id")
+	@OneToMany(fetch = FetchType.LAZY, cascade = { CascadeType.PERSIST, CascadeType.MERGE })
+	@JoinColumn(name = "FLOOR_ID", referencedColumnName = "ID")
 	private List<Layer> layers;
 
 	@OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
-	@JoinColumn(name = "FloorId", referencedColumnName = "id")
-	private final List<Node> nodes;
+	@JoinColumn(name = "FLOOR_ID", referencedColumnName = "ID")
+	private final List<AbstractNode> nodes;
 
 	public Floor() {
 		this.layers = new ArrayList<>();
@@ -153,15 +153,17 @@ public class Floor {
 		this.layers.remove(r);
 	}
 
-	public List<Node> getNodes() {
+	public List<AbstractNode> getNodes() {
 		return this.nodes;
 	}
 
-	public void addNode(final Node node) {
+	@Override
+	public void addNode(final AbstractNode node) {
 		this.nodes.add(node);
 	}
 
-	public void removeNode(final Node node) {
+	@Override
+	public void removeNode(final AbstractNode node) {
 		this.nodes.remove(node);
 	}
 

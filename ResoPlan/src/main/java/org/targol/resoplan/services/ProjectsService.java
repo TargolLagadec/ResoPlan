@@ -63,7 +63,6 @@ public class ProjectsService {
 		// On crée le projet et ses étages.
 		final Project proj = new Project(params.name());
 		proj.setHsp(params.hsp());
-		proj.setConsumptionMargin(params.margin());
 		for (int curFloorNum = 0; curFloorNum < params.nbFloors(); curFloorNum++) {
 			final Floor curFloor = new Floor(curFloorNum);
 			curFloor.setVirtual(false);

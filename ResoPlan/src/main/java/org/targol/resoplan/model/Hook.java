@@ -13,22 +13,22 @@ import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 
 @Entity
-@Table(name = "Hook")
+@Table(name = "HOOK")
 public class Hook {
 
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
-	@Column(name = "Id")
+	@Column(name = "ID")
 	private int id;
 
 	@ManyToOne(fetch = FetchType.LAZY)
-	@JoinColumn(name = "hookTypeId")
+	@JoinColumn(name = "HOOK_TYPE_ID")
 	private HookType hookType;
 
-	@Column(name = "posX", nullable = false)
+	@Column(name = "POS_X", nullable = false)
 	private double posX;
 
-	@Column(name = "posY", nullable = false)
+	@Column(name = "POS_Y", nullable = false)
 	private double posY;
 
 	/**

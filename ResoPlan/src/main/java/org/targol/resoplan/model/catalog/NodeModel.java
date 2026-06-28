@@ -20,36 +20,36 @@ import jakarta.persistence.ManyToMany;
 import jakarta.persistence.Table;
 
 @Entity
-@Table(name = "NodeModel")
+@Table(name = "NODE_MODEL")
 public class NodeModel {
 
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
-	@Column(name = "id")
+	@Column(name = "ID")
 	private int id;
 
-	@Column(name = "name", nullable = false, unique = true)
+	@Column(name = "NAME", nullable = false, unique = true)
 	private String name;
 
-	@Column(name = "description")
+	@Column(name = "DESCRIPTION")
 	private String description;
 
 	@Enumerated(EnumType.STRING)
-	@Column(length = 20, name = "category")
+	@Column(length = 20, name = "CATEGORY")
 	private NodeCategory category;
 
 	@Enumerated(EnumType.STRING)
-	@Column(length = 5, name = "alimConstraint")
+	@Column(length = 5, name = "ALIM_CONSTRAINT")
 	private AlimConstraint alimConstraint;
 
-	@Column(name = "crossesFloor")
+	@Column(name = "CROSSES_FLOOR")
 	private boolean crossesFloor;
 
-	@Column(name = "imgName")
+	@Column(name = "IMG_NAME")
 	private String imgName;
 
 	@ManyToMany(fetch = FetchType.LAZY)
-	@JoinTable(name = "ModelAllowedHooks", joinColumns = @JoinColumn(name = "ModelId"), inverseJoinColumns = @JoinColumn(name = "NodeHookId"))
+	@JoinTable(name = "MODEL_ALLOWED_HOOKS", joinColumns = @JoinColumn(name = "MODEL_ID"), inverseJoinColumns = @JoinColumn(name = "NODE_HOOK_ID"))
 	private List<HookType> allowedHooks;
 
 	public NodeModel() {

@@ -54,7 +54,7 @@
 			</tooltip>
 		</CheckBox>
 
-		<Label text="%Dialog.project.consumptionMargin.label" GridPane.rowIndex="5">
+<!-- 		<Label text="%Dialog.project.consumptionMargin.label" GridPane.rowIndex="5">
 			<tooltip>
 				<Tooltip text="%Dialog.project.consumptionMargin.tooltip" />
 			</tooltip>
@@ -65,7 +65,7 @@
 				<Tooltip text="%Dialog.project.consumptionMargin.tooltip" />
 			</tooltip>
 		</Slider>
-	</children>
+ -->	</children>
 	<columnConstraints>
 		<ColumnConstraints />
 		<ColumnConstraints hgrow="ALWAYS" />

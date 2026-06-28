@@ -3,41 +3,35 @@ package org.targol.resoplan.model;
 import org.targol.resoplan.model.catalog.HookType;
 
 import jakarta.persistence.Column;
-import jakarta.persistence.DiscriminatorColumn;
-import jakarta.persistence.DiscriminatorType;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
-import jakarta.persistence.Inheritance;
-import jakarta.persistence.InheritanceType;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
 
 @Entity
-@Table(name = "Link")
-@Inheritance(strategy = InheritanceType.SINGLE_TABLE)
-@DiscriminatorColumn(name = "layer", discriminatorType = DiscriminatorType.STRING, length = 10)
+@Table(name = "LINK")
 public class Link {
 
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
-	@Column(name = "Id")
+	@Column(name = "ID")
 	protected int id;
 
 	@ManyToOne(fetch = FetchType.LAZY)
-	@JoinColumn(name = "hookTypeId")
+	@JoinColumn(name = "HOOK_TYPE_ID")
 	private HookType hookType;
 
 	@OneToOne
-	@JoinColumn(name = "hook1Id")
+	@JoinColumn(name = "HOOK_1_ID")
 	protected Hook hook1;
 
 	@OneToOne
-	@JoinColumn(name = "hook2Id")
+	@JoinColumn(name = "HOOK_2_ID")
 	protected Hook hook2;
 
 	public int getId() {

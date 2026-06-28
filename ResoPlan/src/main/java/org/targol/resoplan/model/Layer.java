@@ -17,20 +17,20 @@ import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 
 @Entity
-@Table(name = "Layer")
+@Table(name = "LAYER")
 public class Layer {
 
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
-	@Column(name = "id")
+	@Column(name = "ID")
 	private int id;
 
 	@Enumerated(EnumType.STRING)
-	@Column(length = 10, name = "layerType")
+	@Column(length = 10, name = "LAYER_TYPE")
 	private LayerType layerType;
 
 	@OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
-	@JoinColumn(name = "LayerId", referencedColumnName = "id")
+	@JoinColumn(name = "LAYER_ID", referencedColumnName = "ID")
 	private List<Link> links;
 
 	public Layer() {

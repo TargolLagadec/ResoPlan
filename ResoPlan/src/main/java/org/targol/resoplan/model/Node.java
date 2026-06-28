@@ -1,56 +1,38 @@
 package org.targol.resoplan.model;
 
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 
 import org.targol.resoplan.model.catalog.HookType;
 import org.targol.resoplan.model.catalog.NodeModel;
 import org.targol.resoplan.model.catalog.enums.NodeCross;
 
 import jakarta.persistence.CascadeType;
-import jakarta.persistence.CollectionTable;
 import jakarta.persistence.Column;
-import jakarta.persistence.ElementCollection;
+import jakarta.persistence.DiscriminatorValue;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
 import jakarta.persistence.FetchType;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.OneToOne;
-import jakarta.persistence.Table;
 
 @Entity
-@Table(name = "Node")
-public class Node {
-
-	@Id
-	@GeneratedValue(strategy = GenerationType.IDENTITY)
-	@Column(name = "Id")
-	private int id;
+@DiscriminatorValue("SINGLE")
+public class Node extends AbstractNode {
 
 	@ManyToOne
-	@JoinColumn(name = "modelId")
+	@JoinColumn(name = "MODEL_ID")
 	private NodeModel model;
 
 	@OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
-	@JoinColumn(name = "NodeId", referencedColumnName = "id")
+	@JoinColumn(name = "NODE_ID", referencedColumnName = "ID")
 	private List<Hook> hooks;
 
-	@ElementCollection(fetch = FetchType.EAGER)
-	@CollectionTable(name = "Node_Layers", joinColumns = @JoinColumn(name = "nodeId"))
 	@Enumerated(EnumType.STRING)
-	@Column(name = "layerType")
-	private final Set<LayerType> activeLayers = new HashSet<>();
-
-	@Enumerated(EnumType.STRING)
-	@Column(length = 10, name = "nodeCross")
+	@Column(length = 10, name = "NODE_CROSS")
 	private NodeCross nodeCross = NodeCross.NONE;
 
 	/**
@@ -58,19 +40,14 @@ public class Node {
 	 * à l'autre étage.
 	 */
 	@OneToOne
-	@JoinColumn(name = "LinkedNodeId")
+	@JoinColumn(name = "LINKED_NODE_ID")
 	private Node linkedNode;
-
-	@Column(name = "posX", nullable = false)
-	private double posX;
-
-	@Column(name = "posY", nullable = false)
-	private double posY;
 
 	/**
 	 * DO NOT USE, FOR JPA ONLY
 	 */
 	public Node() {
+		super();
 		this.hooks = new ArrayList<>();
 	}
 
@@ -92,14 +69,6 @@ public class Node {
 	}
 
 	// GETTERS AND SETTERS
-	public int getId() {
-		return this.id;
-	}
-
-	public void setId(final int id) {
-		this.id = id;
-	}
-
 	public NodeModel getModel() {
 		return this.model;
 	}
@@ -115,10 +84,6 @@ public class Node {
 
 	public void setHooks(final List<Hook> hooks) {
 		this.hooks = hooks;
-	}
-
-	public Set<LayerType> getActiveLayers() {
-		return this.activeLayers;
 	}
 
 	public void addHook(final Hook hook) {
@@ -143,21 +108,5 @@ public class Node {
 
 	public void setLinkedNode(final Node linkedNode) {
 		this.linkedNode = linkedNode;
-	}
-
-	public double getPosX() {
-		return this.posX;
-	}
-
-	public void setPosX(final double posX) {
-		this.posX = posX;
-	}
-
-	public double getPosY() {
-		return this.posY;
-	}
-
-	public void setPosY(final double posY) {
-		this.posY = posY;
 	}
 }

@@ -17,41 +17,34 @@ import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 
 @Entity
-@Table(name = "Project")
+@Table(name = "PROJECT")
 public class Project {
 
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
-	@Column(name = "id")
+	@Column(name = "ID")
 	private int id;
 
-	@Column(name = "name", nullable = false)
+	@Column(name = "NAME", nullable = false)
 	private String name;
 
-	@Column(name = "lastOpened")
+	@Column(name = "LAST_OPENED")
 	private LocalDateTime lastOpened;
 
 	/**
 	 * Échelle des plans en pixels par metre
 	 */
-	@Column(name = "plansScale")
+	@Column(name = "PLANS_SCALE")
 	private int plansScale;
 
 	/**
 	 * hauteur sous plafond en centimetres
 	 */
-	@Column(name = "hsp")
+	@Column(name = "HSP")
 	private int hsp;
 
-	/**
-	 * Marge en % lors du calcul des débits. Ce pourcentage est ajouté aux quantités
-	 * calculées.
-	 */
-	@Column(name = "consumptionMargin")
-	private int consumptionMargin;
-
 	@OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
-	@JoinColumn(name = "ProjectId", referencedColumnName = "id")
+	@JoinColumn(name = "PROJECT_ID", referencedColumnName = "ID")
 	private List<Floor> floors;
 
 	public Project() {
@@ -128,14 +121,6 @@ public class Project {
 
 	public void setPlansScale(final int plansScale) {
 		this.plansScale = plansScale;
-	}
-
-	public int getConsumptionMargin() {
-		return this.consumptionMargin;
-	}
-
-	public void setConsumptionMargin(final int consumptionMargin) {
-		this.consumptionMargin = consumptionMargin;
 	}
 
 	public List<Floor> getFloors() {
