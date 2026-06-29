@@ -7,6 +7,7 @@ import org.hibernate.service.spi.ServiceException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.targol.resoplan.model.AbstractNode;
+import org.targol.resoplan.model.MetaNode;
 import org.targol.resoplan.model.Node;
 import org.targol.resoplan.repositories.NodesRepository;
 
@@ -22,6 +23,24 @@ public class NodesService {
 
 	public AbstractNode save(final AbstractNode node) throws ServiceException {
 		return this.repo.save(node);
+	}
+
+	@Transactional
+	public MetaNode updateMetaNodeCoordinates(MetaNode attachedMetaNode) {
+		MetaNode databaseMeta = (MetaNode) this.repo.findById(attachedMetaNode.getId()).orElseThrow();
+
+		databaseMeta.setPosX(attachedMetaNode.getPosX());
+		databaseMeta.setPosY(attachedMetaNode.getPosY());
+
+		for (Node child : databaseMeta.getNodes()) {
+			child.setPosX(attachedMetaNode.getPosX());
+			child.setPosY(attachedMetaNode.getPosY());
+			if (child.getLinkedNode() != null) {
+				// FIXME ici
+			}
+		}
+
+		return this.repo.saveAndFlush(databaseMeta);
 	}
 
 	public List<AbstractNode> getAll() {

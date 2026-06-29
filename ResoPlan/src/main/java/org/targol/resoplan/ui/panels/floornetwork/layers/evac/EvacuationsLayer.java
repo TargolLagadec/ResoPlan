@@ -14,6 +14,7 @@ import org.targol.resoplan.services.FloorsService;
 import org.targol.resoplan.services.NodeModelsService;
 import org.targol.resoplan.services.NodesService;
 import org.targol.resoplan.services.ProjectsService;
+import org.targol.resoplan.ui.panels.floornetwork.layers.GraphicalMetaNode;
 import org.targol.resoplan.ui.panels.floornetwork.layers.GraphicalNode;
 import org.targol.resoplan.ui.utils.AppStateManager;
 import org.targol.resoplan.ui.utils.events.LinkTracingEvent;
@@ -49,8 +50,8 @@ public class EvacuationsLayer extends Pane {
 				drawGraphicalNode(node);
 			}
 		}
-		this.setPickOnBounds(true);
-		this.setStyle("-fx-background-color: transparent;"); //$NON-NLS-1$
+		setPickOnBounds(true);
+		setStyle("-fx-background-color: transparent;"); //$NON-NLS-1$
 		addEventHandler(MouseEvent.MOUSE_CLICKED, this::handleCanvasClick);
 		UiEventBus.register(NodePlacementEvent.WATER_EVAC, evt -> onNodePlacementEvent(evt));
 		UiEventBus.register(LinkTracingEvent.WATER_EVAC, evt -> onLinkTracingEvent(evt));
@@ -72,7 +73,7 @@ public class EvacuationsLayer extends Pane {
 			final NodeModel newTool = evt.getModel();
 			if (newTool != null) {
 				System.err.println("Dans le listener EvacuationsLayer, on dessine le node " + newTool.getName());
-				this.setCurrentNodeModel(newTool, evt.getNodeCross());
+				setCurrentNodeModel(newTool, evt.getNodeCross());
 			}
 		}
 		evt.consume();
@@ -85,7 +86,7 @@ public class EvacuationsLayer extends Pane {
 			if (newTool != null) {
 				System.err
 						.println("Dans le listener EvacuationsLayer, on trace un lien de type " + newTool.getHookKey());
-				this.setCurrentHookType(newTool);
+				setCurrentHookType(newTool);
 			}
 		}
 		evt.consume();
@@ -187,9 +188,12 @@ public class EvacuationsLayer extends Pane {
 
 	private void drawGraphicalNode(final AbstractNode node) {
 		if (node instanceof final Node realNode) {
-			final GraphicalNode gn = new GraphicalNode(realNode, (mouseEvent) -> onExistingNodeClick(mouseEvent));
-			this.getChildren().add(gn);
-			this.requestLayout();
+			final GraphicalNode gn = new GraphicalNode(realNode, this.drawingColor,
+					(mouseEvent) -> onExistingNodeClick(mouseEvent));
+			getChildren().add(gn);
+			requestLayout();
+		} else {
+			drawMetaNode((MetaNode) node);
 		}
 	}
 
@@ -217,19 +221,18 @@ public class EvacuationsLayer extends Pane {
 		meta.setPosY(oldNode.getPosY());
 		meta.addNode(oldNode);
 		createNode(oldNode.getPosX(), oldNode.getPosY(), meta, false);
-
-//		meta = (MetaNode) SVC_NODES.save(meta);
 		this.floor.addNode(meta);
 		SVC_FLOORS.update(this.floor);
+		getChildren().remove(graphicNode);
 		graphicNode = null;
-		// FIXME ici effacer l'ancier graphical node et dessiner le Meta.
-		drawMetaNode(oldNode.getPosX(), oldNode.getPosY());
+		drawMetaNode(meta);
 		this.currentNodeModel = null;
 	}
 
-	private void drawMetaNode(final double posX, final double posX2) {
-		// TODO Auto-generated method stub
-
+	private void drawMetaNode(MetaNode meta) {
+		final GraphicalMetaNode gn = new GraphicalMetaNode(meta, this.drawingColor);
+		getChildren().add(gn);
+		requestLayout();
 	}
 
 	private void startDrawingLinkFromGraphNode(final GraphicalNode graphicNode) {

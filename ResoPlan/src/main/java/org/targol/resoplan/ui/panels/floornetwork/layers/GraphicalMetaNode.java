@@ -1,0 +1,46 @@
+package org.targol.resoplan.ui.panels.floornetwork.layers;
+
+import java.util.List;
+
+import org.targol.resoplan.model.AbstractNode;
+import org.targol.resoplan.model.MetaNode;
+import org.targol.resoplan.model.Node;
+import org.targol.resoplan.ui.utils.GuiUtils;
+
+import javafx.scene.control.ContextMenu;
+import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
+import javafx.scene.paint.Color;
+
+public class GraphicalMetaNode extends AbstractGraphicalNode {
+
+	public GraphicalMetaNode(final MetaNode node, Color defaultColor) {
+		super(node, defaultColor);
+	}
+
+	@Override
+	public MetaNode getNode() {
+		return (MetaNode) this.node;
+	}
+
+	public List<Node> getInerNodes() {
+		return getNode().getNodes();
+	}
+
+	@Override
+	protected AbstractNode saveNodeAfterDragnDrop() {
+		return SVC_NODES.updateMetaNodeCoordinates(getNode());
+	}
+
+	@Override
+	protected ContextMenu createContextMenu() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	protected ImageView getImageView() {
+		final Image img = GuiUtils.getCatalogIcon("meta", this.defaultColor); //$NON-NLS-1$
+		return new ImageView(img);
+	}
+}
