@@ -1,8 +1,14 @@
 package org.targol.resoplan.ui.panels.floornetwork.layers;
 
+import java.util.Set;
+
 import org.targol.resoplan.model.AbstractNode;
+import org.targol.resoplan.model.Floor;
+import org.targol.resoplan.model.LayerType;
 import org.targol.resoplan.services.NodesService;
 import org.targol.resoplan.services.ProjectsService;
+import org.targol.resoplan.ui.utils.events.RefreshFloorLayerEvent;
+import org.targol.resoplan.ui.utils.events.UiEventBus;
 import org.targol.resoplan.utils.SpringContextHelper;
 
 import javafx.scene.control.ContextMenu;
@@ -21,8 +27,11 @@ public abstract class AbstractGraphicalNode extends StackPane {
 
 	protected AbstractNode node;
 	protected final Color defaultColor;
+	private double dragEndX;
+	private double dragEndY;
+	boolean dragging = false;
 
-	public AbstractGraphicalNode(final AbstractNode node, Color defaultColor) {
+	public AbstractGraphicalNode(final AbstractNode node, final Color defaultColor) {
 		this.node = node;
 		this.defaultColor = defaultColor;
 		final double nodeSize = getNodeSize();
@@ -41,14 +50,12 @@ public abstract class AbstractGraphicalNode extends StackPane {
 	}
 
 	public static double getNodeSize() {
-		return SCALE * GraphicalNode.NODE_SIZE_IN_CM / 100;
+		return SCALE * AbstractGraphicalNode.NODE_SIZE_IN_CM / 100;
 	}
 
 	public AbstractNode getNode() {
 		return this.node;
 	}
-
-	protected abstract AbstractNode saveNodeAfterDragnDrop();
 
 	protected abstract ContextMenu createContextMenu();
 
@@ -77,20 +84,25 @@ public abstract class AbstractGraphicalNode extends StackPane {
 
 		setOnMouseDragged(evt -> {
 			if (evt.isPrimaryButtonDown()) {
+				this.dragging = true;
 				final double newX = evt.getSceneX() + dragDelta.x;
 				final double newY = evt.getSceneY() + dragDelta.y;
-
 				setTranslateX(newX);
 				setTranslateY(newY);
-
-				this.node.setPosX((int) (newX + halfSize));
-				this.node.setPosY((int) (newY + halfSize));
+				this.dragEndX = newX + halfSize;
+				this.dragEndY = newY + halfSize;
 				evt.consume();
 			}
 		});
 
 		setOnMouseReleased(evt -> {
-			this.node = saveNodeAfterDragnDrop();
+			if (this.dragging) {
+				final Set<Floor> impactedFloors = SVC_NODES.processLazyMove(this.node, this.dragEndX, this.dragEndY);
+				for (final Floor floor : impactedFloors) {
+					UiEventBus.send(RefreshFloorLayerEvent.of(LayerType.WATER_EVAC, floor));
+				}
+				this.dragging = false;
+			}
 			evt.consume();
 		});
 	}

@@ -14,12 +14,14 @@ import org.targol.resoplan.services.FloorsService;
 import org.targol.resoplan.services.NodeModelsService;
 import org.targol.resoplan.services.NodesService;
 import org.targol.resoplan.services.ProjectsService;
+import org.targol.resoplan.ui.panels.floornetwork.layers.AbstractGraphicalNode;
 import org.targol.resoplan.ui.panels.floornetwork.layers.GraphicalMetaNode;
 import org.targol.resoplan.ui.panels.floornetwork.layers.GraphicalNode;
 import org.targol.resoplan.ui.utils.AppStateManager;
 import org.targol.resoplan.ui.utils.events.LinkTracingEvent;
 import org.targol.resoplan.ui.utils.events.LinkedNodePlacementEvent;
 import org.targol.resoplan.ui.utils.events.NodePlacementEvent;
+import org.targol.resoplan.ui.utils.events.RefreshFloorLayerEvent;
 import org.targol.resoplan.ui.utils.events.UiEventBus;
 import org.targol.resoplan.utils.SpringContextHelper;
 
@@ -56,6 +58,36 @@ public class EvacuationsLayer extends Pane {
 		UiEventBus.register(NodePlacementEvent.WATER_EVAC, evt -> onNodePlacementEvent(evt));
 		UiEventBus.register(LinkTracingEvent.WATER_EVAC, evt -> onLinkTracingEvent(evt));
 		UiEventBus.register(LinkedNodePlacementEvent.WATER_EVAC, evt -> onLinkedNodePlacementEvent(evt));
+		UiEventBus.register(RefreshFloorLayerEvent.WATER_EVAC, evt -> refresh(evt));
+	}
+
+	private void refresh(final RefreshFloorLayerEvent evt) {
+		System.out.println("recu une event de refresh");
+		final Floor targetFloor = evt.getFloor();
+		if (!targetFloor.equals(this.floor)) {
+			System.out.println("... mais c'est pas pour moi");
+			evt.consume();
+			return;
+		}
+		System.out.println("... et je m'en occupe !");
+		for (final AbstractNode node : this.floor.getNodes()) {
+			if (!node.getActiveLayers().contains(LayerType.WATER_EVAC)) {
+				continue;
+			}
+			// On cherche si un composant graphique affiche déjà cet ID
+			final AbstractGraphicalNode graphicalNode = getChildren().stream()
+					.filter(child -> child instanceof AbstractGraphicalNode).map(child -> (AbstractGraphicalNode) child)
+					.filter(gn -> gn.getNode().getId() == node.getId()).findFirst().orElse(null);
+
+			if (graphicalNode != null) {
+				final double halfSize = AbstractGraphicalNode.getNodeSize() / 2;
+				graphicalNode.setTranslateX(node.getPosX() - halfSize);
+				graphicalNode.setTranslateY(node.getPosY() - halfSize);
+			} else {
+				drawGraphicalNode(node);
+			}
+		}
+		evt.consume();
 	}
 
 	private void onLinkedNodePlacementEvent(final LinkedNodePlacementEvent evt) {
@@ -103,7 +135,7 @@ public class EvacuationsLayer extends Pane {
 			return;
 		}
 		if (this.currentNodeModel != null) {
-			createNode(x, y, this.floor, true);
+			createNewNode(x, y, this.floor, true);
 			this.isDrawingTube = false;
 
 		} else if (this.currentHookType != null) {
@@ -121,7 +153,7 @@ public class EvacuationsLayer extends Pane {
 		event.consume();
 	}
 
-	private void createNode(final double x, final double y, final INodeContainer container, final boolean draw) {
+	private void createNewNode(final double x, final double y, final INodeContainer container, final boolean draw) {
 		if (this.direction == null || this.direction.equals(NodeCross.NONE)) {
 			Node newNode = new Node(this.currentNodeModel);
 			newNode.setPosX(x);
@@ -210,26 +242,31 @@ public class EvacuationsLayer extends Pane {
 	}
 
 	private void mutateToMetaNode(GraphicalNode graphicNode) {
-		Node oldNode = graphicNode.getNode();
-		this.floor.removeNode(oldNode);
-		this.floor = SVC_FLOORS.update(this.floor);
-		oldNode = (Node) SVC_NODES.save(oldNode);
+		final Node oldNode = graphicNode.getNode();
+		final double posX = oldNode.getPosX();
+		final double posY = oldNode.getPosY();
+		final int targetId = oldNode.getId();
+		this.floor.getNodes().removeIf(n -> n.getId() == targetId);
 		SVC_NODES.detachNodeFromFloor(oldNode);
-		oldNode = (Node) SVC_NODES.save(oldNode);
+		this.floor = SVC_FLOORS.update(this.floor);
 		final MetaNode meta = new MetaNode();
-		meta.setPosX(oldNode.getPosX());
-		meta.setPosY(oldNode.getPosY());
+		meta.setPosX(posX);
+		meta.setPosY(posY);
 		meta.addNode(oldNode);
-		createNode(oldNode.getPosX(), oldNode.getPosY(), meta, false);
+		createNewNode(posX, posY, meta, false);
 		this.floor.addNode(meta);
-		SVC_FLOORS.update(this.floor);
+		this.floor = SVC_FLOORS.update(this.floor);
+		// Récupération de l'instance pour l'IHM (avec id)
+		final MetaNode savedMeta = (MetaNode) this.floor.getNodes().stream()
+				.filter(n -> n instanceof MetaNode && n.getPosX() == posX && n.getPosY() == posY).findFirst()
+				.orElse(meta);
 		getChildren().remove(graphicNode);
 		graphicNode = null;
-		drawMetaNode(meta);
+		drawMetaNode(savedMeta);
 		this.currentNodeModel = null;
 	}
 
-	private void drawMetaNode(MetaNode meta) {
+	private void drawMetaNode(final MetaNode meta) {
 		final GraphicalMetaNode gn = new GraphicalMetaNode(meta, this.drawingColor);
 		getChildren().add(gn);
 		requestLayout();

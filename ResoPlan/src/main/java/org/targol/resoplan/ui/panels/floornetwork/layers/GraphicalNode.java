@@ -2,7 +2,6 @@ package org.targol.resoplan.ui.panels.floornetwork.layers;
 
 import java.util.function.Consumer;
 
-import org.targol.resoplan.model.AbstractNode;
 import org.targol.resoplan.model.Node;
 import org.targol.resoplan.model.catalog.enums.NodeCross;
 import org.targol.resoplan.ui.utils.GuiUtils;
@@ -16,7 +15,7 @@ import javafx.scene.paint.Color;
 
 public class GraphicalNode extends AbstractGraphicalNode {
 
-	public GraphicalNode(final Node node, Color defaultColor, final Consumer<MouseEvent> onMergeRequested) {
+	public GraphicalNode(final Node node, final Color defaultColor, final Consumer<MouseEvent> onMergeRequested) {
 		super(node, defaultColor);
 		initEvents(onMergeRequested);
 	}
@@ -37,11 +36,6 @@ public class GraphicalNode extends AbstractGraphicalNode {
 	}
 
 	@Override
-	protected AbstractNode saveNodeAfterDragnDrop() {
-		return SVC_NODES.save(this.node);
-	}
-
-	@Override
 	protected ContextMenu createContextMenu() {
 		// TODO Auto-generated method stub
 		return null;
@@ -49,8 +43,8 @@ public class GraphicalNode extends AbstractGraphicalNode {
 
 	@Override
 	protected ImageView getImageView() {
-		Node realNode = (Node) this.node;
-		Image img = GuiUtils.getCatalogIcon(realNode.getModel().getImgName(), this.defaultColor);
+		final Node realNode = (Node) this.node;
+		final Image img = GuiUtils.getCatalogIcon(realNode.getModel().getImgName(), this.defaultColor);
 		final ImageView view = new ImageView(img);
 		if (NodeCross.GOES_UP.equals(realNode.getNodeCross())) {
 			view.setScaleY(-1);

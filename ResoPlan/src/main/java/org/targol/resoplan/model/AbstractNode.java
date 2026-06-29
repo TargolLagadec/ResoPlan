@@ -34,7 +34,7 @@ public abstract class AbstractNode {
 	@ElementCollection(fetch = FetchType.EAGER)
 	@CollectionTable(name = "NODE_LAYERS", joinColumns = @JoinColumn(name = "NODE_ID"))
 	@Enumerated(EnumType.STRING)
-	@Column(name = "layerType")
+	@Column(name = "LAYER_TYPE")
 	protected final Set<LayerType> activeLayers = new HashSet<>();
 
 	@Column(name = "POS_X", nullable = false)

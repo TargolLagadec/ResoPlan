@@ -2,7 +2,6 @@ package org.targol.resoplan.ui.panels.floornetwork.layers;
 
 import java.util.List;
 
-import org.targol.resoplan.model.AbstractNode;
 import org.targol.resoplan.model.MetaNode;
 import org.targol.resoplan.model.Node;
 import org.targol.resoplan.ui.utils.GuiUtils;
@@ -14,7 +13,7 @@ import javafx.scene.paint.Color;
 
 public class GraphicalMetaNode extends AbstractGraphicalNode {
 
-	public GraphicalMetaNode(final MetaNode node, Color defaultColor) {
+	public GraphicalMetaNode(final MetaNode node, final Color defaultColor) {
 		super(node, defaultColor);
 	}
 
@@ -25,11 +24,6 @@ public class GraphicalMetaNode extends AbstractGraphicalNode {
 
 	public List<Node> getInerNodes() {
 		return getNode().getNodes();
-	}
-
-	@Override
-	protected AbstractNode saveNodeAfterDragnDrop() {
-		return SVC_NODES.updateMetaNodeCoordinates(getNode());
 	}
 
 	@Override
