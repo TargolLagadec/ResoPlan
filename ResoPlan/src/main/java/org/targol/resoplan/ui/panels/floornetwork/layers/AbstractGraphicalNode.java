@@ -11,6 +11,7 @@ import org.targol.resoplan.ui.utils.events.RefreshFloorLayerEvent;
 import org.targol.resoplan.ui.utils.events.UiEventBus;
 import org.targol.resoplan.utils.SpringContextHelper;
 
+import javafx.application.Platform;
 import javafx.scene.control.ContextMenu;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.StackPane;
@@ -97,10 +98,15 @@ public abstract class AbstractGraphicalNode extends StackPane {
 
 		setOnMouseReleased(evt -> {
 			if (this.dragging) {
+				System.err.println("À la fin du drag : position = (" + this.dragEndX + "," + this.dragEndY + ")");
+
 				final Set<Floor> impactedFloors = SVC_NODES.processLazyMove(this.node, this.dragEndX, this.dragEndY);
-				for (final Floor floor : impactedFloors) {
-					UiEventBus.send(RefreshFloorLayerEvent.of(LayerType.WATER_EVAC, floor));
-				}
+
+				Platform.runLater(() -> {
+					for (final Floor floor : impactedFloors) {
+						UiEventBus.send(RefreshFloorLayerEvent.of(LayerType.WATER_EVAC, floor));
+					}
+				});
 				this.dragging = false;
 			}
 			evt.consume();

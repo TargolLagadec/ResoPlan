@@ -13,7 +13,6 @@ import org.targol.resoplan.model.catalog.enums.NodeCross;
 import org.targol.resoplan.services.FloorsService;
 import org.targol.resoplan.services.NodeModelsService;
 import org.targol.resoplan.services.NodesService;
-import org.targol.resoplan.services.ProjectsService;
 import org.targol.resoplan.ui.panels.floornetwork.layers.AbstractGraphicalNode;
 import org.targol.resoplan.ui.panels.floornetwork.layers.GraphicalMetaNode;
 import org.targol.resoplan.ui.panels.floornetwork.layers.GraphicalNode;
@@ -31,7 +30,7 @@ import javafx.scene.paint.Color;
 
 public class EvacuationsLayer extends Pane {
 
-	private static final ProjectsService SVC_PROJECTS = SpringContextHelper.getBean(ProjectsService.class);
+//	private static final ProjectsService SVC_PROJECTS = SpringContextHelper.getBean(ProjectsService.class);
 	private static final FloorsService SVC_FLOORS = SpringContextHelper.getBean(FloorsService.class);
 	private static final NodesService SVC_NODES = SpringContextHelper.getBean(NodesService.class);
 	private static final NodeModelsService SVC_NODEMODELS = SpringContextHelper.getBean(NodeModelsService.class);
@@ -46,7 +45,8 @@ public class EvacuationsLayer extends Pane {
 	private Floor floor;
 
 	public EvacuationsLayer(final Floor floor) {
-		this.floor = floor;
+		// Attention, on remplace le floor lazy loadé (ou avec des floors osolètes) avec celui contenant ses noeuds !
+		this.floor = SVC_FLOORS.reloadWithNodes(floor).get();
 		for (final AbstractNode node : this.floor.getNodes()) {
 			if (node.getActiveLayers().contains(LayerType.WATER_EVAC)) {
 				drawGraphicalNode(node);
@@ -62,14 +62,12 @@ public class EvacuationsLayer extends Pane {
 	}
 
 	private void refresh(final RefreshFloorLayerEvent evt) {
-		System.out.println("recu une event de refresh");
-		final Floor targetFloor = evt.getFloor();
+		final Floor targetFloor = SVC_NODES.reloadWithNodes(evt.getFloor()).get();
 		if (!targetFloor.equals(this.floor)) {
-			System.out.println("... mais c'est pas pour moi");
 			evt.consume();
 			return;
 		}
-		System.out.println("... et je m'en occupe !");
+		this.floor = targetFloor;
 		for (final AbstractNode node : this.floor.getNodes()) {
 			if (!node.getActiveLayers().contains(LayerType.WATER_EVAC)) {
 				continue;
@@ -81,12 +79,16 @@ public class EvacuationsLayer extends Pane {
 
 			if (graphicalNode != null) {
 				final double halfSize = AbstractGraphicalNode.getNodeSize() / 2;
+				System.err.println(
+						"au refresh du EvacuationCanvas : position = (" + node.getPosX() + "," + node.getPosY() + ")");
+
 				graphicalNode.setTranslateX(node.getPosX() - halfSize);
 				graphicalNode.setTranslateY(node.getPosY() - halfSize);
 			} else {
 				drawGraphicalNode(node);
 			}
 		}
+		requestLayout();
 		evt.consume();
 	}
 
@@ -252,6 +254,7 @@ public class EvacuationsLayer extends Pane {
 		final MetaNode meta = new MetaNode();
 		meta.setPosX(posX);
 		meta.setPosY(posY);
+		meta.setActiveLayers(oldNode.getActiveLayers());
 		meta.addNode(oldNode);
 		createNewNode(posX, posY, meta, false);
 		this.floor.addNode(meta);

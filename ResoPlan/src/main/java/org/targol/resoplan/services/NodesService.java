@@ -14,9 +14,15 @@ import org.targol.resoplan.model.MetaNode;
 import org.targol.resoplan.model.Node;
 import org.targol.resoplan.repositories.NodesRepository;
 
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.PersistenceContext;
+
 @Service
 @Transactional
 public class NodesService {
+
+	@PersistenceContext
+	private EntityManager entityManager;
 
 	private final NodesRepository repo;
 
@@ -28,10 +34,22 @@ public class NodesService {
 		return this.repo.save(node);
 	}
 
+	@Transactional(readOnly = true)
+	public Optional<Floor> reloadWithNodes(Floor floor) {
+		Floor freshFloor = this.entityManager.find(Floor.class, floor.getId());
+		if (freshFloor != null) {
+			this.entityManager.refresh(freshFloor);
+			freshFloor.getNodes().size();
+		}
+		return Optional.ofNullable(freshFloor);
+	}
+
 	@Transactional
 	public Set<Floor> processLazyMove(final AbstractNode node, final double xFin, final double yFin) {
 		final Set<Floor> impactedFloorIds = new HashSet<>();
 		runRecursiveLazyMove(node, xFin, yFin, impactedFloorIds);
+		this.entityManager.flush();
+		this.entityManager.clear();
 		return impactedFloorIds;
 	}
 
@@ -57,28 +75,10 @@ public class NodesService {
 			node.setPosX(xFin);
 			node.setPosY(yFin);
 			this.repo.save(meta);
-			for (final Node child : meta.getNodes()) {
+			for (final Node child : this.repo.findMetaByIdWithAllowedChildren(meta.getId()).get().getNodes()) {
 				runRecursiveLazyMove(child, xFin, yFin, impactedFloorIds);
 			}
 		}
-	}
-
-	@Transactional
-	public MetaNode updateMetaNodeCoordinates(final MetaNode attachedMetaNode) {
-		final MetaNode databaseMeta = (MetaNode) this.repo.findById(attachedMetaNode.getId()).orElseThrow();
-
-		databaseMeta.setPosX(attachedMetaNode.getPosX());
-		databaseMeta.setPosY(attachedMetaNode.getPosY());
-
-		for (final Node child : databaseMeta.getNodes()) {
-			child.setPosX(attachedMetaNode.getPosX());
-			child.setPosY(attachedMetaNode.getPosY());
-			if (child.getLinkedNode() != null) {
-				// FIXME ici
-			}
-		}
-
-		return this.repo.saveAndFlush(databaseMeta);
 	}
 
 	public List<AbstractNode> getAll() {

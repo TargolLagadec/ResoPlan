@@ -35,7 +35,7 @@ public abstract class AbstractNode {
 	@CollectionTable(name = "NODE_LAYERS", joinColumns = @JoinColumn(name = "NODE_ID"))
 	@Enumerated(EnumType.STRING)
 	@Column(name = "LAYER_TYPE")
-	protected final Set<LayerType> activeLayers = new HashSet<>();
+	protected Set<LayerType> activeLayers = new HashSet<>();
 
 	@Column(name = "POS_X", nullable = false)
 	protected double posX;
@@ -53,6 +53,10 @@ public abstract class AbstractNode {
 
 	public void setId(final int id) {
 		this.id = id;
+	}
+
+	public void setActiveLayers(Set<LayerType> activeLayers) {
+		this.activeLayers = activeLayers;
 	}
 
 	public Set<LayerType> getActiveLayers() {
