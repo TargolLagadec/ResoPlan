@@ -23,6 +23,7 @@ import org.targol.resoplan.ui.utils.BindingBuilder;
 import org.targol.resoplan.ui.utils.DialogsHelper;
 import org.targol.resoplan.ui.utils.GuiUtils;
 import org.targol.resoplan.ui.utils.events.GenericActionEvent;
+import org.targol.resoplan.ui.utils.events.ProblemsUpdatedEvent;
 import org.targol.resoplan.ui.utils.events.UiEventBus;
 import org.targol.resoplan.utils.ProjectParams;
 
@@ -32,6 +33,7 @@ import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.control.Menu;
 import javafx.scene.control.MenuItem;
+import javafx.scene.control.TitledPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Region;
 import javafx.scene.layout.StackPane;
@@ -58,6 +60,8 @@ public class MainWindowController {
 	private HBox toolbarContainer;
 	@FXML
 	private StackPane contentPane;
+	@FXML
+	private TitledPane problemsTitledPane;
 
 	private final ResourceBundle bundle = ResourceBundle.getBundle("i18n.messages", Locale.getDefault()); //$NON-NLS-1$
 
@@ -72,6 +76,7 @@ public class MainWindowController {
 		manageEvents();
 		manageAccesses();
 		manageDynamicToolbar();
+		UiEventBus.send(ProblemsUpdatedEvent.fireCheck(null));
 	}
 
 	private void manageEvents() {
