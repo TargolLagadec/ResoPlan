@@ -11,8 +11,7 @@ import org.targol.resoplan.model.catalog.enums.NodeCategory;
 import org.targol.resoplan.repositories.NodeModelsRepository;
 
 @Service
-@Transactional
-public class NodeModelsService {
+public class NodeModelsService extends NoCacheService {
 
 	private final NodeModelsRepository repo;
 
@@ -21,19 +20,22 @@ public class NodeModelsService {
 	}
 
 	public NodeModel save(final NodeModel hook) throws ServiceException {
-		return this.repo.save(hook);
+		return saveAndClear(hook);
 	}
 
+	@Transactional(readOnly = true)
 	public List<NodeModel> getAll() {
-		return this.repo.findAll();
+		return detachAll(this.repo.findAll());
 	}
 
+	@Transactional(readOnly = true)
 	public List<NodeModel> getAllByCategory(final NodeCategory category) {
-		return this.repo.findByCategory(category);
+		return detachAll(this.repo.findByCategory(category));
 	}
 
+	@Transactional(readOnly = true)
 	public Optional<NodeModel> getByIdWithallowedHooks(final int id) {
-		return this.repo.findByIdWithallowedHooks(id);
+		return detachOptionalIfPresent(this.repo.findByIdWithallowedHooks(id));
 	}
 
 	public void delete(final int id) {

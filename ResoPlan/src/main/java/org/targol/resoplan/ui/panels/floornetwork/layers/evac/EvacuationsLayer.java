@@ -45,7 +45,8 @@ public class EvacuationsLayer extends Pane {
 	private Floor floor;
 
 	public EvacuationsLayer(final Floor floor) {
-		// Attention, on remplace le floor lazy loadé (ou avec des floors osolètes) avec celui contenant ses noeuds !
+		// Attention, on remplace le floor lazy loadé (ou avec des floors osolètes) avec
+		// celui contenant ses noeuds !
 		this.floor = SVC_FLOORS.reloadWithNodes(floor).get();
 		for (final AbstractNode node : this.floor.getNodes()) {
 			if (node.getActiveLayers().contains(LayerType.WATER_EVAC)) {
@@ -62,7 +63,7 @@ public class EvacuationsLayer extends Pane {
 	}
 
 	private void refresh(final RefreshFloorLayerEvent evt) {
-		final Floor targetFloor = SVC_NODES.reloadWithNodes(evt.getFloor()).get();
+		final Floor targetFloor = SVC_FLOORS.reloadWithNodes(evt.getFloor()).get();
 		if (!targetFloor.equals(this.floor)) {
 			evt.consume();
 			return;

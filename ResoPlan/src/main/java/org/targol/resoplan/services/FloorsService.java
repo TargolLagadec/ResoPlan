@@ -4,15 +4,13 @@ import java.util.Optional;
 
 import org.hibernate.service.spi.ServiceException;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 import org.targol.resoplan.model.Floor;
 import org.targol.resoplan.model.Layer;
 import org.targol.resoplan.model.LayerType;
 import org.targol.resoplan.repositories.FloorsRepository;
 
 @Service
-@Transactional
-public class FloorsService {
+public class FloorsService extends NoCacheService {
 
 	private final FloorsRepository repo;
 
@@ -21,7 +19,7 @@ public class FloorsService {
 	}
 
 	public Optional<Floor> reloadWithNodes(final Floor f) {
-		return this.repo.findByIdWithNodes(f.getId());
+		return detachOptionalIfPresent(this.repo.findByIdWithNodes(f.getId()));
 	}
 
 	public Floor create(final Floor floor) throws ServiceException {
@@ -30,11 +28,11 @@ public class FloorsService {
 			final Layer layer = new Layer(type);
 			floor.addLayer(layer);
 		}
-		return this.repo.save(floor);
+		return saveAndClear(floor);
 	}
 
 	public Floor update(final Floor floor) throws ServiceException {
-		return this.repo.save(floor);
+		return saveAndClear(floor);
 	}
 
 	public void deleteFloor(final int id) {

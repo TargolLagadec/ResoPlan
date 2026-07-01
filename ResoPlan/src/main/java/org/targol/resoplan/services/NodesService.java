@@ -1,7 +1,6 @@
 package org.targol.resoplan.services;
 
 import java.util.HashSet;
-import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 
@@ -14,15 +13,8 @@ import org.targol.resoplan.model.MetaNode;
 import org.targol.resoplan.model.Node;
 import org.targol.resoplan.repositories.NodesRepository;
 
-import jakarta.persistence.EntityManager;
-import jakarta.persistence.PersistenceContext;
-
 @Service
-@Transactional
-public class NodesService {
-
-	@PersistenceContext
-	private EntityManager entityManager;
+public class NodesService extends NoCacheService {
 
 	private final NodesRepository repo;
 
@@ -31,25 +23,12 @@ public class NodesService {
 	}
 
 	public AbstractNode save(final AbstractNode node) throws ServiceException {
-		return this.repo.save(node);
+		return saveAndClear(node);
 	}
 
-	@Transactional(readOnly = true)
-	public Optional<Floor> reloadWithNodes(Floor floor) {
-		Floor freshFloor = this.entityManager.find(Floor.class, floor.getId());
-		if (freshFloor != null) {
-			this.entityManager.refresh(freshFloor);
-			freshFloor.getNodes().size();
-		}
-		return Optional.ofNullable(freshFloor);
-	}
-
-	@Transactional
 	public Set<Floor> processLazyMove(final AbstractNode node, final double xFin, final double yFin) {
 		final Set<Floor> impactedFloorIds = new HashSet<>();
 		runRecursiveLazyMove(node, xFin, yFin, impactedFloorIds);
-		this.entityManager.flush();
-		this.entityManager.clear();
 		return impactedFloorIds;
 	}
 
@@ -65,7 +44,7 @@ public class NodesService {
 		if (node instanceof final Node realNode) {
 			node.setPosX(xFin);
 			node.setPosY(yFin);
-			this.repo.save(node);
+			saveAndClear(node);
 			if (realNode.getLinkedNode() != null) {
 				runRecursiveLazyMove(realNode.getLinkedNode(), xFin, yFin, impactedFloorIds);
 			}
@@ -74,19 +53,16 @@ public class NodesService {
 		} else if (node instanceof final MetaNode meta) {
 			node.setPosX(xFin);
 			node.setPosY(yFin);
-			this.repo.save(meta);
+			saveAndClear(meta);
 			for (final Node child : this.repo.findMetaByIdWithAllowedChildren(meta.getId()).get().getNodes()) {
 				runRecursiveLazyMove(child, xFin, yFin, impactedFloorIds);
 			}
 		}
 	}
 
-	public List<AbstractNode> getAll() {
-		return this.repo.findAll();
-	}
-
+	@Transactional(readOnly = true)
 	public Optional<Node> getByIdWithAllowedHooks(final int id) {
-		return this.repo.findByIdWithAllowedHooks(id);
+		return detachOptionalIfPresent(this.repo.findByIdWithAllowedHooks(id));
 	}
 
 	public void detachNodeFromFloor(final AbstractNode node) {

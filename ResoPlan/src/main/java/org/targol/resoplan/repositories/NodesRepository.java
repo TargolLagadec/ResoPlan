@@ -32,7 +32,11 @@ public interface NodesRepository extends JpaRepository<AbstractNode, Integer> {
 
 	@Modifying
 	@Transactional
-	@Query(value = "UPDATE NODE SET FLOOR_ID = NULL WHERE ID = :nodeId", nativeQuery = true)
+	@Query(value = """
+			UPDATE NODE
+			SET FLOOR_ID = NULL
+			WHERE ID = :nodeId
+			""", nativeQuery = true)
 	void detachFromFloor(@Param("nodeId") int nodeId);
 
 	/**
@@ -41,14 +45,19 @@ public interface NodesRepository extends JpaRepository<AbstractNode, Integer> {
 	 * @param id Id of the Node to find
 	 * @return Found Node as an {@link Optional} with all its {@link Hook}s loaded;
 	 */
-	@Query("SELECT n FROM Node n LEFT JOIN FETCH n.hooks WHERE n.id = :id")
+	@Query("""
+			SELECT n FROM Node n
+			LEFT JOIN FETCH n.hooks
+			WHERE n.id = :id
+			""")
 	Optional<Node> findByIdWithAllowedHooks(@Param("id") int id);
 
 	/**
 	 * Reads a MetaNode using its id and FORCES its children {@link Node}s reading.
 	 *
 	 * @param id Id of the MetaNode to find
-	 * @return Found Node as an {@link Optional} with all its its children {@link Node}s loaded;
+	 * @return Found Node as an {@link Optional} with all its its children
+	 *         {@link Node}s loaded;
 	 */
 	@Query("""
 			SELECT n FROM MetaNode n

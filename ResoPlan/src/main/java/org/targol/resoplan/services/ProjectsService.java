@@ -15,7 +15,7 @@ import org.targol.resoplan.utils.ProjectParams;
 
 @Service
 @Transactional
-public class ProjectsService {
+public class ProjectsService extends NoCacheService {
 
 	private final ProjectsRepository repo;
 	private final FloorsService floorsService;
@@ -36,7 +36,7 @@ public class ProjectsService {
 		final Project fullProject = this.repo.findByIdWithFloors(project.getId())
 				.orElseThrow(() -> new IllegalArgumentException("Projet introuvable en BDD"));
 		fullProject.setLastOpened(LocalDateTime.now());
-		this.repo.save(fullProject);
+		saveAndClear(fullProject);
 		this.openedProject = fullProject;
 	}
 
@@ -44,16 +44,12 @@ public class ProjectsService {
 		return this.openedProject;
 	}
 
-	public Optional<Project> getProject(final int id) {
-		return this.repo.findById(id);
-	}
-
 	public List<Project> getAllProjects() {
-		return this.repo.findAll();
+		return detachAll(this.repo.findAll());
 	}
 
 	public List<Project> getLastTenProjects() {
-		return this.repo.findTop10ByOrderByLastOpenedDesc();
+		return detachAll(this.repo.findTop10ByOrderByLastOpenedDesc());
 	}
 
 	public Project createProject(final ProjectParams params) throws ServiceException {
@@ -82,7 +78,7 @@ public class ProjectsService {
 			proj.addFloor(curFloor);
 		}
 		proj.setLastOpened(LocalDateTime.now());
-		return this.repo.save(proj);
+		return saveAndClear(proj);
 	}
 
 	public Project updateProject(final Project projectToUpdate) throws ServiceException {
@@ -94,7 +90,7 @@ public class ProjectsService {
 		if (test.isEmpty()) {
 			throw new ServiceException(Messages.getString("ProjectsService.UpdateError.DoesntExist")); //$NON-NLS-1$
 		}
-		return this.repo.save(projectToUpdate);
+		return saveAndClear(projectToUpdate);
 	}
 
 	public void deleteProject(final int id) {

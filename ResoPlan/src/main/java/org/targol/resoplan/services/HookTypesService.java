@@ -11,8 +11,7 @@ import org.targol.resoplan.model.catalog.HookType;
 import org.targol.resoplan.repositories.HookTypesRepository;
 
 @Service
-@Transactional
-public class HookTypesService {
+public class HookTypesService extends NoCacheService {
 
 	private final HookTypesRepository repo;
 
@@ -21,19 +20,22 @@ public class HookTypesService {
 	}
 
 	public HookType save(final HookType hook) throws ServiceException {
-		return this.repo.save(hook);
+		return saveAndClear(hook);
 	}
 
+	@Transactional(readOnly = true)
 	public List<HookType> getAllFromLayer(final LayerType layer) {
-		return this.repo.findByLayerOrderByHookKeyAsc(layer);
+		return detachAll(this.repo.findByLayerOrderByHookKeyAsc(layer));
 	}
 
+	@Transactional(readOnly = true)
 	public List<HookType> getAll() {
-		return this.repo.findAll();
+		return detachAll(this.repo.findAll());
 	}
 
+	@Transactional(readOnly = true)
 	Optional<HookType> getByHookKey(final String libKey) {
-		return this.repo.findByHookKey(libKey);
+		return detachOptionalIfPresent(this.repo.findByHookKey(libKey));
 	}
 
 	public void deleteHookType(final int id) {
