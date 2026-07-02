@@ -3,8 +3,8 @@ package org.targol.resoplan.ui.components;
 import org.targol.resoplan.i18n.Messages;
 import org.targol.resoplan.model.LayerType;
 import org.targol.resoplan.ui.utils.ThemesManager;
-import org.targol.resoplan.ui.utils.ThemesManager.Theme;
-import org.targol.resoplan.utils.IThemeChangeListener;
+import org.targol.resoplan.ui.utils.events.ThemeChangeEvent;
+import org.targol.resoplan.ui.utils.events.UiEventBus;
 
 import javafx.beans.property.DoubleProperty;
 import javafx.beans.property.ObjectProperty;
@@ -14,12 +14,14 @@ import javafx.scene.control.RadioButton;
 import javafx.scene.control.Tooltip;
 import javafx.scene.image.ImageView;
 
-public class CustomLayerRadio extends RadioButton implements IThemeChangeListener {
+public class CustomLayerRadio extends RadioButton {
 
 	private final ObjectProperty<LayerType> type = new SimpleObjectProperty<>(null);
 	private final DoubleProperty imgWidth = new SimpleDoubleProperty(25.0d);
 
 	public CustomLayerRadio(final LayerType type) {
+		UiEventBus.register(ThemeChangeEvent.THEME_CHANGE, (event) -> updateAppearance());
+
 		this.type.addListener((obs, oldValue, newValue) -> {
 			updateAppearance();
 		});
@@ -65,8 +67,4 @@ public class CustomLayerRadio extends RadioButton implements IThemeChangeListene
 		setTooltip(new Tooltip(Messages.getString("LayerCheck.".concat(buttonType.getKey())))); //$NON-NLS-1$
 	}
 
-	@Override
-	public void themeChanged(final Theme newTheme) {
-		updateAppearance();
-	}
 }

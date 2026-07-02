@@ -5,10 +5,9 @@ import java.util.function.Supplier;
 import org.targol.resoplan.model.catalog.NodeModel;
 import org.targol.resoplan.model.catalog.enums.NodeCross;
 import org.targol.resoplan.ui.utils.ThemesManager;
-import org.targol.resoplan.ui.utils.ThemesManager.Theme;
 import org.targol.resoplan.ui.utils.events.GenericActionEvent;
+import org.targol.resoplan.ui.utils.events.ThemeChangeEvent;
 import org.targol.resoplan.ui.utils.events.UiEventBus;
-import org.targol.resoplan.utils.IThemeChangeListener;
 
 import javafx.beans.property.DoubleProperty;
 import javafx.beans.property.SimpleDoubleProperty;
@@ -16,7 +15,7 @@ import javafx.scene.control.ToggleButton;
 import javafx.scene.control.Tooltip;
 import javafx.scene.image.ImageView;
 
-public class CatalogButtonUpOrDown extends ToggleButton implements IThemeChangeListener {
+public class CatalogButtonUpOrDown extends ToggleButton {
 	private static final double size = 30.0d;
 	private final DoubleProperty imgWidth = new SimpleDoubleProperty(25.0d);
 	private final NodeModel model;
@@ -26,24 +25,20 @@ public class CatalogButtonUpOrDown extends ToggleButton implements IThemeChangeL
 			final Supplier<GenericActionEvent> eventSupplier) {
 		this.model = model;
 		this.nodeCross = nodeCross;
-		this.setPrefHeight(size);
-		this.setPrefWidth(size);
-		this.setMinHeight(size);
-		this.setMinWidth(size);
-		this.setMaxHeight(size);
-		this.setMaxWidth(size);
+		setPrefHeight(size);
+		setPrefWidth(size);
+		setMinHeight(size);
+		setMinWidth(size);
+		setMaxHeight(size);
+		setMaxWidth(size);
 		final String desc = model.getDescription();
-		this.setTooltip(new Tooltip(desc));
+		setTooltip(new Tooltip(desc));
+		UiEventBus.register(ThemeChangeEvent.THEME_CHANGE, (event) -> updateAppearance());
 
 		this.imgWidth.addListener((obs, oldValue, newValue) -> {
 			updateAppearance();
 		});
-		this.setOnAction(e -> UiEventBus.send(eventSupplier.get()));
-		updateAppearance();
-	}
-
-	@Override
-	public void themeChanged(final Theme newTheme) {
+		setOnAction(e -> UiEventBus.send(eventSupplier.get()));
 		updateAppearance();
 	}
 

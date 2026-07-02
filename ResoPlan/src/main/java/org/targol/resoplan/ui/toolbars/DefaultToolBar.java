@@ -5,7 +5,6 @@ import org.targol.resoplan.ui.components.CustomButton;
 import org.targol.resoplan.ui.utils.AppState;
 import org.targol.resoplan.ui.utils.BindingBuilder;
 import org.targol.resoplan.ui.utils.events.GenericActionEvent;
-import org.targol.resoplan.utils.PreferencesManager;
 
 import javafx.beans.binding.BooleanBinding;
 import javafx.geometry.Pos;
@@ -35,11 +34,9 @@ public class DefaultToolBar extends ToolBar {
 		final Label label = new Label(Messages.getString("MainWindow.mnu_aff")); //$NON-NLS-1$
 		final HBox buttons = new HBox(5);
 		buttons.getChildren().addAll(this.toolCatalog, this.toolAlign, this.toolNetworks, this.toolDebit);
-		buttons.getChildren().stream().filter(node -> node instanceof CustomButton)
-				.forEach(node -> PreferencesManager.getInstance().addThemeChangeListener((CustomButton) node));
 		ret.getChildren().add(label);
 		ret.getChildren().add(buttons);
-		this.getItems().addAll(ret, new Separator());
+		getItems().addAll(ret, new Separator());
 		this.toolAlign.disableProperty().bind(BindingBuilder.disableWhen().stateIs(AppState.NO_PROJECT).build());
 		final BooleanBinding networkEtDebitDisable = BindingBuilder.disableWhen()
 				.stateIs(AppState.NO_PROJECT, AppState.PROJECT_INCOMPLETE).build();

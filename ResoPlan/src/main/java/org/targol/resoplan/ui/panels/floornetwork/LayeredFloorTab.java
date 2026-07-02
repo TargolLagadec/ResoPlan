@@ -11,10 +11,10 @@ import org.targol.resoplan.ui.components.CustomLayerRadio;
 import org.targol.resoplan.ui.panels.floornetwork.layers.evac.EvacuationsLayer;
 import org.targol.resoplan.ui.utils.AppStateManager;
 import org.targol.resoplan.ui.utils.GuiUtils;
-import org.targol.resoplan.utils.PreferencesManager;
 import org.targol.resoplan.utils.SpringContextHelper;
 
 import javafx.geometry.Bounds;
+import javafx.geometry.Point2D;
 import javafx.geometry.Pos;
 import javafx.scene.Group;
 import javafx.scene.control.Label;
@@ -60,7 +60,7 @@ public class LayeredFloorTab extends Tab {
 
 	private void initContent() {
 		this.centerScrollPane = new ScrollPane();
-		this.setContent(this.centerScrollPane);
+		setContent(this.centerScrollPane);
 
 		final Project currentProject = AppStateManager.getInstance().currentProjectProperty().get();
 		final Bounds projectBounds = GuiUtils.calculateUniversalProjectBounds(currentProject);
@@ -113,21 +113,12 @@ public class LayeredFloorTab extends Tab {
 			}
 			final int direction = deltaY > 0 ? 1 : -1;
 			final double factor = direction > 0 ? 1 + SCALE_FACTOR : 1 - SCALE_FACTOR;
-
-			// Sécurité : On vérifie les limites théoriques sur le pane actuel avant de
-			// propager
 			final double nextScale = this.mainNetworkPane.getScaleX() * factor;
 			if (nextScale < 0.1 || nextScale > 10.0) {
 				return;
 			}
-
-			// 🔥 CRUCIAL : Récupérer la position de la souris RELATIVE au contenu du
-			// ScrollPane (le Group)
-			// et non pas à la fenêtre visible.
-			final javafx.geometry.Point2D mouseInContent = this.centerScrollPane.getContent()
-					.sceneToLocal(event.getSceneX(), event.getSceneY());
-
-			// On envoie l'ordre de zoom GLOBAL avec les bonnes coordonnées géométriques
+			final Point2D mouseInContent = this.centerScrollPane.getContent().sceneToLocal(event.getSceneX(),
+					event.getSceneY());
 			this.parentController.syncZoom(factor, mouseInContent.getX(), mouseInContent.getY());
 		}
 
@@ -165,8 +156,8 @@ public class LayeredFloorTab extends Tab {
 		tabHeader.setPrefHeight(100);
 		tabHeader.setPrefWidth(350);
 		tabHeader.setMinWidth(350);
-		this.setGraphic(tabHeader);
-		this.setText(""); //$NON-NLS-1$
+		setGraphic(tabHeader);
+		setText(""); //$NON-NLS-1$
 	}
 
 	private void initLayerRadioButtons() {
@@ -202,10 +193,6 @@ public class LayeredFloorTab extends Tab {
 		if (state.activeNetworkLayerProperty().get() != null) {
 			state.activeNetworkLayerProperty().setValue(state.activeNetworkLayerProperty().get());
 		}
-		PreferencesManager.getInstance().addThemeChangeListener(this.radioElec);
-		PreferencesManager.getInstance().addThemeChangeListener(this.radioAlim);
-		PreferencesManager.getInstance().addThemeChangeListener(this.radioEvac);
-		PreferencesManager.getInstance().addThemeChangeListener(this.radioNet);
 	}
 
 	public void enableHeaderRadioButtons() {

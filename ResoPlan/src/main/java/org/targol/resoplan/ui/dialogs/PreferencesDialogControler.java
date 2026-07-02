@@ -7,7 +7,8 @@ import java.util.ResourceBundle;
 import org.targol.resoplan.i18n.Messages;
 import org.targol.resoplan.ui.utils.ThemesManager;
 import org.targol.resoplan.ui.utils.ThemesManager.Theme;
-import org.targol.resoplan.utils.IThemeChangeListener;
+import org.targol.resoplan.ui.utils.events.ThemeChangeEvent;
+import org.targol.resoplan.ui.utils.events.UiEventBus;
 import org.targol.resoplan.utils.PreferencesManager;
 
 import javafx.event.ActionEvent;
@@ -22,7 +23,7 @@ import javafx.stage.Modality;
 import javafx.stage.Window;
 import javafx.util.StringConverter;
 
-public class PreferencesDialogControler extends Dialog<Void> implements IThemeChangeListener {
+public class PreferencesDialogControler extends Dialog<Void> {
 
 	@FXML
 	private ButtonType okButtonType;
@@ -34,7 +35,7 @@ public class PreferencesDialogControler extends Dialog<Void> implements IThemeCh
 	private final ResourceBundle bundle = ResourceBundle.getBundle("i18n.messages", Locale.getDefault()); //$NON-NLS-1$
 
 	public PreferencesDialogControler(final Window owner) {
-		PreferencesManager.getInstance().addThemeChangeListener(this);
+		UiEventBus.register(ThemeChangeEvent.THEME_CHANGE, (event) -> themeChanged(event.getTheme()));
 		this.parentWindow = owner;
 		try {
 
@@ -100,7 +101,6 @@ public class PreferencesDialogControler extends Dialog<Void> implements IThemeCh
 		});
 	}
 
-	@Override
 	public void themeChanged(final Theme newTheme) {
 		final String styleSheet = getClass().getResource(newTheme.getCssfilePath()).toExternalForm();
 		getDialogPane().getStylesheets().clear();

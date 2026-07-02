@@ -1,10 +1,10 @@
 package org.targol.resoplan.utils;
 
-import java.util.ArrayList;
-import java.util.List;
 import java.util.prefs.Preferences;
 
 import org.targol.resoplan.ui.utils.ThemesManager.Theme;
+import org.targol.resoplan.ui.utils.events.ThemeChangeEvent;
+import org.targol.resoplan.ui.utils.events.UiEventBus;
 
 public class PreferencesManager {
 
@@ -14,7 +14,6 @@ public class PreferencesManager {
 
 	private static PreferencesManager instance;
 	private final Preferences prefs;
-	private final List<IThemeChangeListener> themeChangeListeners;
 
 	public static PreferencesManager getInstance() {
 		if (instance == null) {
@@ -25,7 +24,6 @@ public class PreferencesManager {
 
 	private PreferencesManager() {
 		this.prefs = Preferences.userNodeForPackage(PreferencesManager.class);
-		this.themeChangeListeners = new ArrayList<>();
 		initPrefsIfEmpty();
 	}
 
@@ -46,13 +44,7 @@ public class PreferencesManager {
 
 	public void setCurrentTheme(final Theme theme) {
 		this.prefs.put(PREF_THEME, theme.toString());
-		for (final IThemeChangeListener listener : this.themeChangeListeners) {
-			listener.themeChanged(theme);
-		}
-	}
-
-	public void addThemeChangeListener(final IThemeChangeListener l) {
-		this.themeChangeListeners.add(l);
+		UiEventBus.send(ThemeChangeEvent.change(theme));
 	}
 
 	public String getPreference(final String prefKey) {

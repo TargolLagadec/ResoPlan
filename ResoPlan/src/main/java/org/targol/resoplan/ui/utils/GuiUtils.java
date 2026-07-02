@@ -19,7 +19,6 @@ import org.targol.resoplan.ui.components.LayerLinkButton;
 import org.targol.resoplan.ui.utils.events.LinkTracingEvent;
 import org.targol.resoplan.ui.utils.events.NodePlacementEvent;
 import org.targol.resoplan.utils.MiscUtils;
-import org.targol.resoplan.utils.PreferencesManager;
 import org.targol.resoplan.utils.SpringContextHelper;
 
 import javafx.beans.binding.BooleanBinding;
@@ -251,8 +250,6 @@ public class GuiUtils {
 				buttons.getChildren().add(btn);
 			}
 		}
-		buttons.getChildren().stream().filter(node -> node instanceof CatalogButton)
-				.forEach(node -> PreferencesManager.getInstance().addThemeChangeListener((CatalogButton) node));
 		ret.getChildren().add(buttons);
 		return ret;
 	}
@@ -302,8 +299,6 @@ public class GuiUtils {
 				}
 			}
 		}
-		buttons.getChildren().stream().filter(node -> node instanceof CatalogButton)
-				.forEach(node -> PreferencesManager.getInstance().addThemeChangeListener((CatalogButton) node));
 		ret.getChildren().add(buttons);
 		return ret;
 	}
@@ -324,8 +319,6 @@ public class GuiUtils {
 			btn.setUserData(hook);
 			buttons.getChildren().add(btn);
 		}
-		buttons.getChildren().stream().filter(node -> node instanceof CatalogButton)
-				.forEach(node -> PreferencesManager.getInstance().addThemeChangeListener((CatalogButton) node));
 		ret.getChildren().add(buttons);
 		return ret;
 	}

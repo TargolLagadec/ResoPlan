@@ -7,6 +7,7 @@ import org.targol.resoplan.model.problems.Severity;
 import org.targol.resoplan.ui.components.CustomProblemLevelCheckBox;
 import org.targol.resoplan.ui.utils.ThemesManager;
 import org.targol.resoplan.ui.utils.events.ProblemsUpdatedEvent;
+import org.targol.resoplan.ui.utils.events.ThemeChangeEvent;
 import org.targol.resoplan.ui.utils.events.UiEventBus;
 import org.targol.resoplan.utils.SpringContextHelper;
 
@@ -61,6 +62,9 @@ public class ProblemsTitledPane extends TitledPane {
 		this.sortedProblems.comparatorProperty().bind(this.tableView.comparatorProperty());
 		setContent(this.tableView);
 		setupFilterLogic();
+		UiEventBus.register(ThemeChangeEvent.THEME_CHANGE, (event) -> {
+			Platform.runLater(() -> this.tableView.refresh());
+		});
 		UiEventBus.register(ProblemsUpdatedEvent.DISPLAY_PROBLEMS, (event) -> updateProblems());
 	}
 

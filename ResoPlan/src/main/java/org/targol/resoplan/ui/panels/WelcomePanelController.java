@@ -1,9 +1,10 @@
 package org.targol.resoplan.ui.panels;
 
 import java.util.List;
-import java.util.function.Consumer;
 
 import org.targol.resoplan.model.Project;
+import org.targol.resoplan.ui.utils.events.ProjectUpdatedEvent;
+import org.targol.resoplan.ui.utils.events.UiEventBus;
 
 import javafx.fxml.FXML;
 import javafx.scene.control.ListCell;
@@ -13,9 +14,6 @@ public class WelcomePanelController {
 
 	@FXML
 	private ListView<Project> lstProjects;
-
-	private Consumer<Project> projectOpenListener;
-	private Runnable newProjectListener;
 
 	@FXML
 	private void initialize() {
@@ -33,9 +31,7 @@ public class WelcomePanelController {
 			};
 			cell.setOnMouseClicked(event -> {
 				final Project project = cell.getItem();
-				if (project != null && this.projectOpenListener != null) {
-					this.projectOpenListener.accept(project);
-				}
+				UiEventBus.send(ProjectUpdatedEvent.firechange(project));
 			});
 			return cell;
 		});
@@ -43,20 +39,10 @@ public class WelcomePanelController {
 
 	@FXML
 	private void onNewProjectClick() {
-		if (this.newProjectListener != null) {
-			this.newProjectListener.run();
-		}
+		UiEventBus.send(ProjectUpdatedEvent.firechange(null));
 	}
 
 	public void setProjects(final List<Project> projects) {
 		this.lstProjects.getItems().setAll(projects);
-	}
-
-	public void setProjectOpenListener(final Consumer<Project> listener) {
-		this.projectOpenListener = listener;
-	}
-
-	public void setNewProjectListener(final Runnable listener) {
-		this.newProjectListener = listener;
 	}
 }

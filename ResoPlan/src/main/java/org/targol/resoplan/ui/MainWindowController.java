@@ -25,6 +25,7 @@ import org.targol.resoplan.ui.utils.DialogsHelper;
 import org.targol.resoplan.ui.utils.GuiUtils;
 import org.targol.resoplan.ui.utils.events.GenericActionEvent;
 import org.targol.resoplan.ui.utils.events.ProblemsUpdatedEvent;
+import org.targol.resoplan.ui.utils.events.ProjectUpdatedEvent;
 import org.targol.resoplan.ui.utils.events.UiEventBus;
 import org.targol.resoplan.utils.ProjectParams;
 
@@ -84,6 +85,15 @@ public class MainWindowController {
 		UiEventBus.register(GenericActionEvent.TRIGGER_NETWORKS, e -> displayNetworksPanel());
 		UiEventBus.register(GenericActionEvent.TRIGGER_ALIGN, e -> displayAdjustPanel());
 		UiEventBus.register(GenericActionEvent.TRIGGER_DEBIT, e -> displayDebitPanel());
+		UiEventBus.register(ProjectUpdatedEvent.PROJECT_UPDATE, e -> manageProjectChangeEvent(e));
+	}
+
+	private void manageProjectChangeEvent(ProjectUpdatedEvent e) {
+		if (e.getProject() == null) {
+			newProject();
+		} else {
+			openProject(e.getProject());
+		}
 	}
 
 	private void manageDynamicToolbar() {
@@ -196,8 +206,6 @@ public class MainWindowController {
 			this.contentPane.getChildren().setAll(root);
 			final WelcomePanelController controller = loader.getController();
 			controller.setProjects(this.service.getAllProjects());
-			controller.setProjectOpenListener(this::openProject);
-			controller.setNewProjectListener(this::newProject);
 			this.mnuClose.setDisable(true);
 		} catch (final IOException e) {
 			// TODO Auto-generated catch block

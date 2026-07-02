@@ -3,8 +3,8 @@ package org.targol.resoplan.ui.components;
 import org.targol.resoplan.i18n.Messages;
 import org.targol.resoplan.model.problems.Severity;
 import org.targol.resoplan.ui.utils.ThemesManager;
-import org.targol.resoplan.ui.utils.ThemesManager.Theme;
-import org.targol.resoplan.utils.IThemeChangeListener;
+import org.targol.resoplan.ui.utils.events.ThemeChangeEvent;
+import org.targol.resoplan.ui.utils.events.UiEventBus;
 
 import javafx.beans.property.DoubleProperty;
 import javafx.beans.property.ObjectProperty;
@@ -14,7 +14,7 @@ import javafx.scene.control.CheckBox;
 import javafx.scene.control.Tooltip;
 import javafx.scene.image.ImageView;
 
-public class CustomProblemLevelCheckBox extends CheckBox implements IThemeChangeListener {
+public class CustomProblemLevelCheckBox extends CheckBox {
 
 	private final ObjectProperty<Severity> type = new SimpleObjectProperty<>(null);
 	private final DoubleProperty imgWidth = new SimpleDoubleProperty(20.0d);
@@ -26,6 +26,8 @@ public class CustomProblemLevelCheckBox extends CheckBox implements IThemeChange
 		this.imgWidth.addListener((obs, oldValue, newValue) -> {
 			updateAppearance();
 		});
+		UiEventBus.register(ThemeChangeEvent.THEME_CHANGE, (event) -> updateAppearance());
+
 		setType(type);
 	}
 
@@ -63,10 +65,5 @@ public class CustomProblemLevelCheckBox extends CheckBox implements IThemeChange
 		view.fitWidthProperty().set(this.imgWidth.get());
 		setGraphic(view);
 		setTooltip(new Tooltip(Messages.getString("CustomProblemLevelCheckBox.".concat(buttonType.getKey())))); //$NON-NLS-1$
-	}
-
-	@Override
-	public void themeChanged(final Theme newTheme) {
-		updateAppearance();
 	}
 }
