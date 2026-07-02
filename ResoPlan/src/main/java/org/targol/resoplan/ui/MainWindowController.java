@@ -182,7 +182,9 @@ public class MainWindowController {
 		final AppStateManager stateMgr = AppStateManager.getInstance();
 		// Attention, bien passer par service.getOpenedProject() parce que
 		// service.setOpenedProject(project) charge les étages en plus dans le projet.
-		stateMgr.setOpenedProject(this.service.getOpenedProject());
+		Project prjWithFloors = this.service.getOpenedProject();
+		stateMgr.setOpenedProject(prjWithFloors);
+		UiEventBus.send(ProblemsUpdatedEvent.fireCheck(prjWithFloors));
 		if (newProj) {
 			displayAdjustPanel();
 		} else {

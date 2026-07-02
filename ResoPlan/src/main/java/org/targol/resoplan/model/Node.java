@@ -36,8 +36,7 @@ public class Node extends AbstractNode {
 	private NodeCross nodeCross = NodeCross.NONE;
 
 	/**
-	 * Dans le cas ou le Node est traversant un plancher ou un plafond, node associé
-	 * à l'autre étage.
+	 * Dans le cas ou le Node est traversant un plancher ou un plafond, node associé à l'autre étage.
 	 */
 	@OneToOne
 	@JoinColumn(name = "LINKED_NODE_ID")
@@ -55,6 +54,10 @@ public class Node extends AbstractNode {
 		this();
 		this.model = model;
 		buildUponModel();
+	}
+
+	public int getNbFreeHooks() {
+		return this.model.getAllowedHooks().size() - this.hooks.size();
 	}
 
 	private void buildUponModel() {
