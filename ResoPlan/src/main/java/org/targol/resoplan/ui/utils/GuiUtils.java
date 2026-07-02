@@ -50,8 +50,7 @@ public class GuiUtils {
 	public static final double NETWORK_PLANS_MARGIN = 0;
 
 	/**
-	 * Convertit une position IHM (local au Pane) en coordonnées absolues Terrain
-	 * (BDD)
+	 * Convertit une position IHM (local au Pane) en coordonnées absolues Terrain (BDD)
 	 */
 	public static Point2D ihmToAbsolute(final Floor floor, final double ioX, final double ioY) {
 		final double absX = ioX - NETWORK_PLANS_MARGIN - floor.getShiftX();
@@ -60,8 +59,7 @@ public class GuiUtils {
 	}
 
 	/**
-	 * Convertit une coordonnée absolue Terrain (BDD) en position de pixel IHM pour
-	 * le rendu
+	 * Convertit une coordonnée absolue Terrain (BDD) en position de pixel IHM pour le rendu
 	 */
 	public static Point2D absoluteToIo(final Floor floor, final double absX, final double absY) {
 		final double ioX = absX + NETWORK_PLANS_MARGIN + floor.getShiftX();
@@ -171,10 +169,6 @@ public class GuiUtils {
 
 	public static void infoAlert(final String msg) {
 		genericAlert(Messages.getString("Generic.info.title"), msg, Alert.AlertType.INFORMATION); //$NON-NLS-1$
-	}
-
-	public static void testAlert(final String msg) {
-		infoAlert(msg);
 	}
 
 	public static Optional<String> getTextFromInputDialog(final String title, final String msg,

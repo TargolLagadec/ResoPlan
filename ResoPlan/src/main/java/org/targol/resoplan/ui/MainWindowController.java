@@ -12,6 +12,7 @@ import org.targol.resoplan.model.Project;
 import org.targol.resoplan.services.ProjectsService;
 import org.targol.resoplan.ui.dialogs.PreferencesDialogControler;
 import org.targol.resoplan.ui.panels.FloorsAdjustmentPanel;
+import org.targol.resoplan.ui.panels.ProblemsTitledPane;
 import org.targol.resoplan.ui.panels.WelcomePanelController;
 import org.targol.resoplan.ui.panels.floornetwork.FloorsNetworksTab;
 import org.targol.resoplan.ui.toolbars.AjustToolBar;
@@ -33,7 +34,6 @@ import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.control.Menu;
 import javafx.scene.control.MenuItem;
-import javafx.scene.control.TitledPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Region;
 import javafx.scene.layout.StackPane;
@@ -61,7 +61,7 @@ public class MainWindowController {
 	@FXML
 	private StackPane contentPane;
 	@FXML
-	private TitledPane problemsTitledPane;
+	private ProblemsTitledPane problemsTitledPane;
 
 	private final ResourceBundle bundle = ResourceBundle.getBundle("i18n.messages", Locale.getDefault()); //$NON-NLS-1$
 

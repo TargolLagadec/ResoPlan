@@ -13,7 +13,8 @@ public class ValidationService {
 	public List<Problem> validateProject(final Project project) {
 		final List<Problem> problems = new ArrayList<>();
 		if (project == null) {
-			problems.add(Problem.noProject());
+			problems.add(Problem.noProjectError());
+			return problems;
 		}
 		// 1. Validation globale projet
 		if (project.getPlansScale() <= 0) {
