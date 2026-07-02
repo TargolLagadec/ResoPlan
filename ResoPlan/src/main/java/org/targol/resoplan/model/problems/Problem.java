@@ -24,6 +24,11 @@ public class Problem {
 		return new Problem(Severity.ERROR, message, false, projectId, floorId, null, null);
 	}
 
+	public static Problem nodeWarning(final Integer projectId, final Integer floorId, final LayerType layerType,
+			final Integer nodeId, final String message) {
+		return new Problem(Severity.WARNING, message, false, projectId, floorId, layerType, nodeId);
+	}
+
 	public Problem(final Severity severity, final String message, final boolean general, final Integer projectId,
 			final Integer floorId, final LayerType layerType, final Integer nodeId) {
 		this.general = general;
@@ -47,7 +52,7 @@ public class Problem {
 		return this.general;
 	}
 
-	public void setGeneral(boolean general) {
+	public void setGeneral(final boolean general) {
 		this.general = general;
 	}
 

@@ -1,7 +1,9 @@
 package org.targol.resoplan.model;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.targol.resoplan.model.catalog.HookType;
 import org.targol.resoplan.model.catalog.NodeModel;
@@ -36,7 +38,8 @@ public class Node extends AbstractNode {
 	private NodeCross nodeCross = NodeCross.NONE;
 
 	/**
-	 * Dans le cas ou le Node est traversant un plancher ou un plafond, node associé à l'autre étage.
+	 * Dans le cas ou le Node est traversant un plancher ou un plafond, node associé
+	 * à l'autre étage.
 	 */
 	@OneToOne
 	@JoinColumn(name = "LINKED_NODE_ID")
@@ -52,20 +55,32 @@ public class Node extends AbstractNode {
 
 	public Node(final NodeModel model) {
 		this();
-		this.model = model;
-		buildUponModel();
+		setModel(model);
 	}
 
-	public int getNbFreeHooks() {
-		return this.model.getAllowedHooks().size() - this.hooks.size();
+	public Map<LayerType, Integer> getNbFreeHooksPerLayer() {
+		final Map<LayerType, Integer> ret = new HashMap<LayerType, Integer>();
+		for (final Hook hook : this.getHooks()) {
+			if (hook.isLinked()) {
+				continue;
+			}
+			final LayerType layer = hook.getHookType().getLayer();
+			int nb = 0;
+			if (ret.containsKey(layer)) {
+				nb = ret.get(layer);
+			}
+			ret.put(layer, nb + 1);
+		}
+		return ret;
 	}
 
 	private void buildUponModel() {
+		this.hooks.clear();
 		if (this.model == null) {
 			return;
 		}
 		for (final HookType modelHook : this.model.getAllowedHooks()) {
-			final Hook hook = new Hook(modelHook, this.posX, this.posY);
+			final Hook hook = new Hook(modelHook, this.posX, this.posY, modelHook.getDefaultHeight());
 			this.activeLayers.add(modelHook.getLayer());
 			addHook(hook);
 		}

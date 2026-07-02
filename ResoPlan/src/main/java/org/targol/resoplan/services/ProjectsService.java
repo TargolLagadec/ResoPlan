@@ -40,6 +40,10 @@ public class ProjectsService extends NoCacheService {
 		this.openedProject = fullProject;
 	}
 
+	public Optional<Project> openProjectWithFloorsAndNodes(final Project p) {
+		return this.repo.findProjectWithFloorsAndNodes(p.getId());
+	}
+
 	public Project getOpenedProject() {
 		return this.openedProject;
 	}

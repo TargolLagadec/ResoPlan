@@ -50,7 +50,7 @@ Poussoir télérupteur,"Poussoir pour commander, via un télérupteur, un ou des
 Prise 2P+T,Prise murale 2 pôles + terre,prise prise,MURALES,NONE,NO,
 Prise RJ45,Prise RJ45 pour brancher les câbles Ethernet,rj45,MURALES,NONE,NO,rj45
 Va-et-vient,Va-et-vient utilisable par paire pour commander un ou des spot(s) encastré(s) ou plafonnier(s),eclcommand vaetvien,MURALES,NONE,NO,vv
-Boîtier DCL,Boîtier encastré à la norm DCL pour plafonnier commandé via va-et-vient ou télérupteur,eclcommun eclcommand,PLAFOND,NONE,NO,spot
+Boîtier DCL,Boîtier encastré à la norme DCL pour plafonnier commandé via va-et-vient ou télérupteur,eclcommun eclcommand,PLAFOND,NONE,NO,spot
 Spot encastré,Spot encastré commandé via va-et-vient ou télérupteur,eclcommun eclcommand,PLAFOND,NONE,NO,spot
 Module 10A,Module 10A de tableau électrique pour circuits d’éclairage,eclcommand eclcommun,TABLEAU,NONE,NO,
 Module 16A,Module 16A de tableau électrique pour circuits de prises,prise,TABLEAU,NONE,NO,
@@ -58,3 +58,4 @@ Module RJ45,Module RJ45 pour tableau électrique,rj45,TABLEAU,NONE,NO,
 Module télérupteur,Module Télérupteur de tableau électrique pour commander un ou des spot(s) encastré(s) ou plafonnier(s),eclcommand telrupt,TABLEAU,NONE,NO,telerupt
 Sortie évacuations,Sortie générale des évacuations PVC 100mm,pvc100,JONCTIONS_PVC_100,ANY,NO,sortie100
 Entrée alimentation eau,Alimentation en eau depuis le réseau public PER 20mm,per20 ,JONCTIONS_PER_20,COLD,NO,
+Tableau électrique,"Tableau éléctrique regroupant tous les modules (télérupteurs, modules 16A, …)",metaElec,MURALES,NONE,NO,

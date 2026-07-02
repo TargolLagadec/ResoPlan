@@ -61,8 +61,8 @@ public class NodesService extends NoCacheService {
 	}
 
 	@Transactional(readOnly = true)
-	public Optional<Node> getByIdWithAllowedHooks(final int id) {
-		return detachOptionalIfPresent(this.repo.findByIdWithAllowedHooks(id));
+	public Optional<Node> getByIdWithHooks(final int id) {
+		return detachOptionalIfPresent(this.repo.findByIdWithHooks(id));
 	}
 
 	public void detachNodeFromFloor(final AbstractNode node) {

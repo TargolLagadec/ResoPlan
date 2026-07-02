@@ -20,6 +20,7 @@ import org.targol.resoplan.ui.utils.AppStateManager;
 import org.targol.resoplan.ui.utils.events.LinkTracingEvent;
 import org.targol.resoplan.ui.utils.events.LinkedNodePlacementEvent;
 import org.targol.resoplan.ui.utils.events.NodePlacementEvent;
+import org.targol.resoplan.ui.utils.events.ProblemsUpdatedEvent;
 import org.targol.resoplan.ui.utils.events.RefreshFloorLayerEvent;
 import org.targol.resoplan.ui.utils.events.UiEventBus;
 import org.targol.resoplan.utils.SpringContextHelper;
@@ -30,7 +31,6 @@ import javafx.scene.paint.Color;
 
 public class EvacuationsLayer extends Pane {
 
-//	private static final ProjectsService SVC_PROJECTS = SpringContextHelper.getBean(ProjectsService.class);
 	private static final FloorsService SVC_FLOORS = SpringContextHelper.getBean(FloorsService.class);
 	private static final NodesService SVC_NODES = SpringContextHelper.getBean(NodesService.class);
 	private static final NodeModelsService SVC_NODEMODELS = SpringContextHelper.getBean(NodeModelsService.class);
@@ -172,6 +172,7 @@ public class EvacuationsLayer extends Pane {
 		} else {
 			createLinkedNodes(x, y, container, draw);
 		}
+		UiEventBus.send(ProblemsUpdatedEvent.fireCheck(AppStateManager.getInstance().currentProjectProperty().get()));
 	}
 
 	private void createLinkedNodes(final double x, final double y, final INodeContainer container, final boolean draw) {

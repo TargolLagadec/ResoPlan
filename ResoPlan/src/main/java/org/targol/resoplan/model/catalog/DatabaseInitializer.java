@@ -25,7 +25,7 @@ public class DatabaseInitializer implements CommandLineRunner {
 
 	private final static Map<String, LayerType> allHooks;
 	static {
-		allHooks = new HashMap<>(12);
+		allHooks = new HashMap<>(13);
 		allHooks.put("per12", LayerType.WATER_ALIM); //$NON-NLS-1$
 		allHooks.put("per16", LayerType.WATER_ALIM); //$NON-NLS-1$
 		allHooks.put("per20", LayerType.WATER_ALIM); //$NON-NLS-1$
@@ -40,6 +40,27 @@ public class DatabaseInitializer implements CommandLineRunner {
 		allHooks.put("eclcommand", LayerType.ELEC); //$NON-NLS-1$
 		allHooks.put("telrupt", LayerType.ELEC); //$NON-NLS-1$
 		allHooks.put("vaetvien", LayerType.ELEC); //$NON-NLS-1$
+		allHooks.put("metaElec", LayerType.ELEC); //$NON-NLS-1$
+	}
+
+	private final static Map<String, Double> hooksHeight;
+	static {
+		hooksHeight = new HashMap<>(13);
+		hooksHeight.put("per12", 25.0d); //$NON-NLS-1$
+		hooksHeight.put("per16", 25.0d); //$NON-NLS-1$
+		hooksHeight.put("per20", 25.0d); //$NON-NLS-1$
+		hooksHeight.put("vis2027", 25.0d); //$NON-NLS-1$
+		hooksHeight.put("vis1521", 25.0d); //$NON-NLS-1$
+		hooksHeight.put("pvc32", 25.0d); //$NON-NLS-1$
+		hooksHeight.put("pvc40", 25.0d); //$NON-NLS-1$
+		hooksHeight.put("pvc100", 25.0d); //$NON-NLS-1$
+		hooksHeight.put("rj45", 30.0d); //$NON-NLS-1$
+		hooksHeight.put("prise", 30.0d); //$NON-NLS-1$
+		hooksHeight.put("eclcommun", 0.0d); //$NON-NLS-1$
+		hooksHeight.put("eclcommand", 0.0d); //$NON-NLS-1$
+		hooksHeight.put("telrupt", 90.0d); //$NON-NLS-1$
+		hooksHeight.put("vaetvien", 90.0d); //$NON-NLS-1$
+		hooksHeight.put("metaElec", 150.0d); //$NON-NLS-1$
 	}
 
 	private final ResourceLoader resourceLoader;
@@ -77,7 +98,7 @@ public class DatabaseInitializer implements CommandLineRunner {
 
 	private void createAllHooksAndFillMap() {
 		for (final String key : allHooks.keySet()) {
-			HookType ht = new HookType(allHooks.get(key), key);
+			HookType ht = new HookType(allHooks.get(key), key, hooksHeight.get(key));
 			ht = this.typeSvc.save(ht);
 			this.hooksByNames.put(key, ht);
 		}

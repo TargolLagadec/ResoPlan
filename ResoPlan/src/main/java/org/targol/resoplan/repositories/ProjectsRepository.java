@@ -21,6 +21,14 @@ public interface ProjectsRepository extends JpaRepository<Project, Integer> {
 	@Query("SELECT p FROM Project p LEFT JOIN FETCH p.floors WHERE p.id = :id")
 	Optional<Project> findByIdWithFloors(@Param("id") int id);
 
+	@Query("""
+			SELECT DISTINCT p FROM Project p
+			      LEFT JOIN FETCH p.floors f
+			      LEFT JOIN FETCH f.nodes n
+			      WHERE p.id = :id
+			""")
+	Optional<Project> findProjectWithFloorsAndNodes(@Param("id") int id);
+
 	/**
 	 * Reads a project using its name.
 	 *

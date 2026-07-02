@@ -1,7 +1,9 @@
 package org.targol.resoplan.services;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 import org.hibernate.service.spi.ServiceException;
 import org.springframework.stereotype.Service;
@@ -34,8 +36,17 @@ public class NodeModelsService extends NoCacheService {
 	}
 
 	@Transactional(readOnly = true)
+	public Map<Integer, NodeModel> getAllWithAllowedHooks() {
+		final List<NodeModel> ret = detachAll(this.repo.findAllWithAllowedHooks());
+		if (ret.isEmpty()) {
+			return Map.of();
+		}
+		return ret.stream().collect(Collectors.toMap(NodeModel::getId, model -> model));
+	}
+
+	@Transactional(readOnly = true)
 	public Optional<NodeModel> getByIdWithallowedHooks(final int id) {
-		return detachOptionalIfPresent(this.repo.findByIdWithallowedHooks(id));
+		return detachOptionalIfPresent(this.repo.findByIdWithAllowedHooks(id));
 	}
 
 	public void delete(final int id) {

@@ -24,13 +24,17 @@ public class HookType {
 	@Column(name = "HOOK_KEY", nullable = false)
 	private String hookKey;
 
+	@Column(name = "DEFAULT_HEIGHT", nullable = false)
+	private double defaultHeight;
+
 	@Enumerated(EnumType.STRING)
 	@Column(length = 10, name = "LAYER")
 	private LayerType layer;
 
-	public HookType(final LayerType layer, final String hookKey) {
+	public HookType(final LayerType layer, final String hookKey, final double defaultHeight) {
 		this.hookKey = hookKey;
 		this.layer = layer;
+		this.defaultHeight = defaultHeight;
 	}
 
 	/**
@@ -71,6 +75,14 @@ public class HookType {
 		this.layer = layer;
 	}
 
+	public double getDefaultHeight() {
+		return this.defaultHeight;
+	}
+
+	public void setDefaultHeight(final double defaultHeight) {
+		this.defaultHeight = defaultHeight;
+	}
+
 	@Override
 	public boolean equals(final Object o) {
 		if (this == o) {
@@ -80,7 +92,10 @@ public class HookType {
 			return false; // Pas le même type -> pas égal
 		}
 		final HookType hookType = (HookType) o;
-		return this.id == hookType.id;
+		if (this.id != 0) {
+			return this.id == hookType.id;
+		}
+		return super.equals(o);
 	}
 
 	@Override

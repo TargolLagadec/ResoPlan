@@ -31,16 +31,23 @@ public class Hook {
 	@Column(name = "POS_Y", nullable = false)
 	private double posY;
 
+	@Column(name = "POS_Z", nullable = false)
+	private double posZ;
+
+	@Column(name = "LINKED", nullable = false)
+	private final boolean linked = false;
+
 	/**
 	 * DO NOT USE, FOR JPA ONLY
 	 */
 	public Hook() {
 	}
 
-	public Hook(final HookType hookType, final double posX, final double posY) {
+	public Hook(final HookType hookType, final double posX, final double posY, final double posZ) {
 		this.hookType = hookType;
 		this.posX = posX;
 		this.posY = posY;
+		this.posZ = posZ;
 	}
 
 	public int getId() {
@@ -73,5 +80,32 @@ public class Hook {
 
 	public void setPosY(final double posY) {
 		this.posY = posY;
+	}
+
+	public double getPosZ() {
+		return this.posZ;
+	}
+
+	public void setPosZ(final double posZ) {
+		this.posZ = posZ;
+	}
+
+	public boolean isLinked() {
+		return this.linked;
+	}
+
+	@Override
+	public boolean equals(final Object o) {
+		if (this == o) {
+			return true;
+		}
+		if (o == null || getClass() != o.getClass()) {
+			return false; // Pas le même type -> pas égal
+		}
+		final Hook hook = (Hook) o;
+		if (this.id != 0) {
+			return this.id == hook.id;
+		}
+		return super.equals(o);
 	}
 }

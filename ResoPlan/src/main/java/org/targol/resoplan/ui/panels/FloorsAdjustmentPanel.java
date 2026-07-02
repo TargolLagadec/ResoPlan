@@ -17,6 +17,7 @@ import org.targol.resoplan.services.ProjectsService;
 import org.targol.resoplan.ui.utils.AppStateManager;
 import org.targol.resoplan.ui.utils.GuiUtils;
 import org.targol.resoplan.ui.utils.events.AjustEvent;
+import org.targol.resoplan.ui.utils.events.ProblemsUpdatedEvent;
 import org.targol.resoplan.ui.utils.events.UiEventBus;
 import org.targol.resoplan.utils.SpringContextHelper;
 
@@ -69,7 +70,7 @@ public class FloorsAdjustmentPanel extends BorderPane {
 		try {
 			loader.load();
 		} catch (final IOException e) {
-			throw new RuntimeException("Impossible de charger le FXML de FloorPropertiesPanel", e); //$NON-NLS-1$
+			throw new RuntimeException("Impossible de charger le FXML de FloorsAdjustmentPanel", e); //$NON-NLS-1$
 		}
 	}
 
@@ -80,8 +81,12 @@ public class FloorsAdjustmentPanel extends BorderPane {
 		for (final Floor floor : sortedFloors) {
 			if (!floor.isVirtual()) {
 				final TitledPane titPane = new TitledPane();
+				titPane.setPrefHeight(200);
+				titPane.setMaxHeight(200);
 				titPane.setText(Messages.getString("ProjectPane.floorname", floor.getNumber())); //$NON-NLS-1$
 				final FloorPropertiesPanel propPanel = new FloorPropertiesPanel(floor);
+//				propPanel.setPrefHeight(200);
+//				propPanel.setMaxHeight(200);
 				titPane.setContent(propPanel);
 				this.accordion.getPanes().add(titPane);
 				if (floor.getNumber() == 0) {
@@ -143,6 +148,8 @@ public class FloorsAdjustmentPanel extends BorderPane {
 			service.updateProject(this.project);
 			AppStateManager.getInstance().currentProjectProperty().set(this.project);
 			AppStateManager.getInstance().updateProjectState(this.project);
+			UiEventBus.send(ProblemsUpdatedEvent.fireCheck(this.project));
+
 			this.tracingScale = false;
 			this.stackPaneCalques.getChildren().remove(this.scaleTracingCanvas);
 			this.scaleTracingCanvas = null;

@@ -1,9 +1,9 @@
 package org.targol.resoplan.model;
 
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.LinkedHashSet;
 import java.util.Optional;
+import java.util.Set;
 
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
@@ -45,10 +45,10 @@ public class Project {
 
 	@OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
 	@JoinColumn(name = "PROJECT_ID", referencedColumnName = "ID")
-	private List<Floor> floors;
+	private Set<Floor> floors;
 
 	public Project() {
-		this.floors = new ArrayList<>();
+		this.floors = new LinkedHashSet<>();
 	}
 
 	public Project(final String name) {
@@ -123,11 +123,11 @@ public class Project {
 		this.plansScale = plansScale;
 	}
 
-	public List<Floor> getFloors() {
+	public Set<Floor> getFloors() {
 		return this.floors;
 	}
 
-	public void setFloors(final List<Floor> floors) {
+	public void setFloors(final Set<Floor> floors) {
 		this.floors = floors;
 	}
 

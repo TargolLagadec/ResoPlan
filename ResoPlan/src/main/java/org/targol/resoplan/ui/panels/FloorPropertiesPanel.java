@@ -15,6 +15,7 @@ import org.targol.resoplan.services.FloorsService;
 import org.targol.resoplan.services.ProjectsService;
 import org.targol.resoplan.ui.utils.AppStateManager;
 import org.targol.resoplan.ui.utils.events.AjustEvent;
+import org.targol.resoplan.ui.utils.events.ProblemsUpdatedEvent;
 import org.targol.resoplan.ui.utils.events.UiEventBus;
 import org.targol.resoplan.utils.IoHelper;
 import org.targol.resoplan.utils.SpringContextHelper;
@@ -92,6 +93,8 @@ public class FloorPropertiesPanel extends GridPane {
 
 	@FXML
 	public void initialize() {
+//		setMaxHeight(200.0);
+//		setPrefHeight(200.0);
 		this.zoomSpinner
 				.setValueFactory(new SpinnerValueFactory.DoubleSpinnerValueFactory(10.0d, 200.0d, 100.0d, 5.0d));
 		this.shiftXSpinner
@@ -194,6 +197,7 @@ public class FloorPropertiesPanel extends GridPane {
 		this.floorsService.update(this.floor);
 		checkVirtualAboveOrBellowFloor();
 		informStateManager();
+		UiEventBus.send(ProblemsUpdatedEvent.fireCheck(this.projectsService.getOpenedProject()));
 		UiEventBus.send(AjustEvent.fireFloorUpdated(this.floor));
 	}
 

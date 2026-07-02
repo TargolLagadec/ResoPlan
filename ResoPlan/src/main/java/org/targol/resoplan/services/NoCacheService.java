@@ -2,6 +2,7 @@ package org.targol.resoplan.services;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 
 import org.springframework.transaction.annotation.Transactional;
 
@@ -29,6 +30,13 @@ public abstract class NoCacheService {
 	}
 
 	protected <T> List<T> detachAll(final List<T> entities) {
+		for (final T entity : entities) {
+			this.entityManager.detach(entity);
+		}
+		return entities;
+	}
+
+	protected <T> Set<T> detachAll(final Set<T> entities) {
 		for (final T entity : entities) {
 			this.entityManager.detach(entity);
 		}

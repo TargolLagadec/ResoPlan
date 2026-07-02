@@ -19,8 +19,18 @@ public interface NodeModelsRepository extends JpaRepository<NodeModel, Integer> 
 	 * @return Found NodeModel as an {@link Optional} with all its {@link HookType}s
 	 *         loaded;
 	 */
-	@Query("SELECT m FROM NodeModel m LEFT JOIN FETCH m.allowedHooks WHERE m.id = :id")
-	Optional<NodeModel> findByIdWithallowedHooks(@Param("id") int id);
+	@Query("""
+			SELECT m FROM NodeModel m
+			LEFT JOIN FETCH m.allowedHooks
+			WHERE m.id = :id
+			""")
+	Optional<NodeModel> findByIdWithAllowedHooks(@Param("id") int id);
+
+	@Query("""
+			SELECT m FROM NodeModel m
+			LEFT JOIN FETCH m.allowedHooks
+			""")
+	List<NodeModel> findAllWithAllowedHooks();
 
 	List<NodeModel> findByCategory(NodeCategory category);
 }

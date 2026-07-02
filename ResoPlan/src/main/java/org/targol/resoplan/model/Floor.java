@@ -1,7 +1,7 @@
 package org.targol.resoplan.model;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.LinkedHashSet;
+import java.util.Set;
 
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
@@ -49,15 +49,15 @@ public class Floor implements INodeContainer {
 
 	@OneToMany(fetch = FetchType.LAZY, cascade = { CascadeType.PERSIST, CascadeType.MERGE })
 	@JoinColumn(name = "FLOOR_ID", referencedColumnName = "ID")
-	private List<Layer> layers;
+	private Set<Layer> layers;
 
 	@OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
 	@JoinColumn(name = "FLOOR_ID", referencedColumnName = "ID")
-	private final List<AbstractNode> nodes;
+	private final Set<AbstractNode> nodes;
 
 	public Floor() {
-		this.layers = new ArrayList<>();
-		this.nodes = new ArrayList<>();
+		this.layers = new LinkedHashSet<>();
+		this.nodes = new LinkedHashSet<>();
 	}
 
 	public Floor(final int number) {
@@ -137,11 +137,11 @@ public class Floor implements INodeContainer {
 		this.virtual = virtual;
 	}
 
-	public List<Layer> getLayers() {
+	public Set<Layer> getLayers() {
 		return this.layers;
 	}
 
-	public void setLayers(final List<Layer> layers) {
+	public void setLayers(final Set<Layer> layers) {
 		this.layers = layers;
 	}
 
@@ -153,7 +153,7 @@ public class Floor implements INodeContainer {
 		this.layers.remove(r);
 	}
 
-	public List<AbstractNode> getNodes() {
+	public Set<AbstractNode> getNodes() {
 		return this.nodes;
 	}
 
@@ -176,7 +176,10 @@ public class Floor implements INodeContainer {
 			return false; // Pas le même type -> pas égal
 		}
 		final Floor floor = (Floor) o;
-		return this.id == floor.id;
+		if (this.id != 0) {
+			return this.id == floor.id;
+		}
+		return super.equals(o);
 	}
 
 	@Override
