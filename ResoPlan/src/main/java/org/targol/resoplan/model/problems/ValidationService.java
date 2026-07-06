@@ -9,6 +9,7 @@ import org.targol.resoplan.i18n.Messages;
 import org.targol.resoplan.model.AbstractNode;
 import org.targol.resoplan.model.Floor;
 import org.targol.resoplan.model.LayerType;
+import org.targol.resoplan.model.MetaNode;
 import org.targol.resoplan.model.Node;
 import org.targol.resoplan.model.Project;
 import org.targol.resoplan.model.catalog.NodeModel;
@@ -59,41 +60,48 @@ public class ValidationService {
 
 			// 3. Validation des Nodes / Hooks ...
 			for (final AbstractNode node : floor.getNodes()) {
-				if (node instanceof Node) {
-					final Node realNode = this.nodesSvc.getByIdWithHooks(node.getId()).get();
-					// Vérification qu'il n'y a pas plusieurs nodes au même endroit
-					List<NodeCollision> collisions = this.nodesSvc.checkCollisions(realNode);
-					if (collisions.size() > 0) {
-						for (NodeCollision col : collisions) {
-							if (Severity.ERROR.equals(col.severity())) {
-								problems.add(Problem.nodeError(project.getId(), floor.getId(), col.layer(),
-										node.getId(), Messages.getString("Problem.node.samePlace.error", //$NON-NLS-1$
-												realNode.getModel().getName(), realNode.getPosX(), realNode.getPosY(),
-												realNode.getPosZ(), floor.getNumber(), col.layer(),
-												col.other().getModel().getName())));
-							} else {
-								problems.add(Problem.nodeWarning(project.getId(), floor.getId(), col.layer(),
-										node.getId(), Messages.getString("Problem.node.samePlace.error", //$NON-NLS-1$
-												realNode.getModel().getName(), realNode.getPosX(), realNode.getPosY(),
-												realNode.getPosZ(), floor.getNumber(), col.layer(),
-												col.other().getModel().getName())));
-							}
-						}
-
-					}
-					// On charge les données des relations lazy Loadées.
-					realNode.setModel(modelsById.get(realNode.getModel().getId()));
-					final Map<LayerType, Integer> freeHooks = realNode.getNbFreeHooksPerLayer();
-					for (final LayerType layer : freeHooks.keySet()) {
-						problems.add(Problem.nodeWarning(project.getId(), floor.getId(), layer, node.getId(),
-								Messages.getString("Problem.node.unlinkedHook", realNode.getModel().getName(), //$NON-NLS-1$
-										realNode.getPosX(), realNode.getPosY(), realNode.getPosZ(), floor.getNumber(),
-										layer.getLabel(), freeHooks.get(layer))));
-
+				if (node instanceof Node realNode) {
+					validateNode(project, floor, realNode, problems);
+				} else {
+					MetaNode meta = this.nodesSvc.getfullMetaNodeWithChidrenNodes((MetaNode) node).get();
+					for (Node childNode : meta.getNodes()) {
+						validateNode(project, floor, childNode, problems);
 					}
 				}
 			}
 		}
 		return problems;
+	}
+
+	private void validateNode(Project project, Floor floor, Node node, List<Problem> problems) {
+		Node realNode = this.nodesSvc.getfullNodeWithHooks(node).get();
+		// Vérification qu'il n'y a pas plusieurs nodes au même endroit
+		List<NodeCollision> collisions = this.nodesSvc.checkCollisions(realNode);
+		if (collisions.size() > 0) {
+			for (NodeCollision col : collisions) {
+				if (Severity.ERROR.equals(col.severity())) {
+					problems.add(Problem.nodeError(project.getId(), floor.getId(), col.layer(), node.getId(),
+							Messages.getString("Problem.node.samePlace.error", //$NON-NLS-1$
+									realNode.getModel().getName(), realNode.getPosX(), realNode.getPosY(),
+									realNode.getPosZ(), floor.getNumber(), col.layer(),
+									col.other().getModel().getName())));
+				} else {
+					problems.add(Problem.nodeWarning(project.getId(), floor.getId(), col.layer(), node.getId(),
+							Messages.getString("Problem.node.samePlace.error", //$NON-NLS-1$
+									realNode.getModel().getName(), realNode.getPosX(), realNode.getPosY(),
+									realNode.getPosZ(), floor.getNumber(), col.layer(),
+									col.other().getModel().getName())));
+				}
+			}
+
+		}
+		final Map<LayerType, Integer> freeHooks = realNode.getNbFreeHooksPerLayer();
+		for (final LayerType layer : freeHooks.keySet()) {
+			problems.add(Problem.nodeWarning(project.getId(), floor.getId(), layer, node.getId(),
+					Messages.getString("Problem.node.unlinkedHook", realNode.getModel().getName(), //$NON-NLS-1$
+							realNode.getPosX(), realNode.getPosY(), realNode.getPosZ(), floor.getNumber(),
+							layer.getLabel(), freeHooks.get(layer))));
+
+		}
 	}
 }

@@ -57,6 +57,19 @@ public interface NodesRepository extends JpaRepository<AbstractNode, Integer> {
 	Optional<Node> findByIdWithHooks(@Param("id") int id);
 
 	/**
+	 * Reads a Node using its id and FORCES its {@link Hook}s reading.
+	 *
+	 * @param id Id of the Node to find
+	 * @return Found Node as an {@link Optional} with all its {@link Hook}s loaded;
+	 */
+	@Query("""
+			SELECT DISTINCT m FROM MetaNode m
+			LEFT JOIN FETCH m.nodes n
+			WHERE m.id = :id
+			""")
+	Optional<MetaNode> findMetaByIdWithChildrenNodes(@Param("id") int id);
+
+	/**
 	 * Reads a MetaNode using its id and FORCES its children {@link Node}s reading.
 	 *
 	 * @param id Id of the MetaNode to find

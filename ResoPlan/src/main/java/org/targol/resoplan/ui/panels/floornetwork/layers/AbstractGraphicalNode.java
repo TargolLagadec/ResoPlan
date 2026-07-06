@@ -1,6 +1,7 @@
 package org.targol.resoplan.ui.panels.floornetwork.layers;
 
 import java.util.Set;
+import java.util.function.Consumer;
 
 import org.targol.resoplan.model.AbstractNode;
 import org.targol.resoplan.model.Floor;
@@ -14,6 +15,8 @@ import org.targol.resoplan.utils.SpringContextHelper;
 import javafx.application.Platform;
 import javafx.scene.control.ContextMenu;
 import javafx.scene.image.ImageView;
+import javafx.scene.input.MouseButton;
+import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.StackPane;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Rectangle;
@@ -32,7 +35,8 @@ public abstract class AbstractGraphicalNode extends StackPane {
 	private double dragEndY;
 	boolean dragging = false;
 
-	public AbstractGraphicalNode(final AbstractNode node, final Color defaultColor) {
+	public AbstractGraphicalNode(final AbstractNode node, final Color defaultColor,
+			final Consumer<MouseEvent> onMergeRequested) {
 		this.node = node;
 		this.defaultColor = defaultColor;
 		final double nodeSize = getNodeSize();
@@ -47,7 +51,7 @@ public abstract class AbstractGraphicalNode extends StackPane {
 		getChildren().add(view);
 		setTranslateX(node.getPosX() - nodeSize / 2);
 		setTranslateY(node.getPosY() - nodeSize / 2);
-		initEvents();
+		initEvents(onMergeRequested);
 	}
 
 	public static double getNodeSize() {
@@ -62,7 +66,7 @@ public abstract class AbstractGraphicalNode extends StackPane {
 
 	protected abstract ImageView getImageView();
 
-	private void initEvents() {
+	private void initEvents(final Consumer<MouseEvent> onMergeRequested) {
 		setOnContextMenuRequested(evt -> {
 			final ContextMenu menu = createContextMenu();
 			if (menu != null) {
@@ -110,6 +114,13 @@ public abstract class AbstractGraphicalNode extends StackPane {
 				this.dragging = false;
 			}
 			evt.consume();
+		});
+		setOnMouseClicked(event -> {
+			if (event.getButton() == MouseButton.PRIMARY) {
+				event.consume();
+				// On notifie le calque que ce nœud précis a reçu un clic de souris
+				onMergeRequested.accept(event);
+			}
 		});
 	}
 

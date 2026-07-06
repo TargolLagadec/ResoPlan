@@ -96,19 +96,25 @@ public class NodesService extends NoCacheService {
 			}
 			this.repo.findParentMetanode(node.getId())
 					.ifPresent(parent -> runRecursiveLazyMove(parent, xFin, yFin, impactedFloorIds));
-		} else if (node instanceof final MetaNode meta) {
+		} else if (node instanceof MetaNode meta) {
 			node.setPosX(xFin);
 			node.setPosY(yFin);
 			saveAndClear(meta);
-			for (final Node child : this.repo.findMetaByIdWithAllowedChildren(meta.getId()).get().getNodes()) {
+			meta = this.repo.findMetaByIdWithChildrenNodes(meta.getId()).get();
+			for (final Node child : meta.getNodes()) {
 				runRecursiveLazyMove(child, xFin, yFin, impactedFloorIds);
 			}
 		}
 	}
 
 	@Transactional(readOnly = true)
-	public Optional<Node> getByIdWithHooks(final int id) {
-		return detachOptionalIfPresent(this.repo.findByIdWithHooks(id));
+	public Optional<Node> getfullNodeWithHooks(Node node) {
+		return detachOptionalIfPresent(this.repo.findByIdWithHooks(node.getId()));
+	}
+
+	@Transactional(readOnly = true)
+	public Optional<MetaNode> getfullMetaNodeWithChidrenNodes(MetaNode node) {
+		return detachOptionalIfPresent(this.repo.findMetaByIdWithAllowedChildren(node.getId()));
 	}
 
 	public void detachNodeFromFloor(final AbstractNode node) {

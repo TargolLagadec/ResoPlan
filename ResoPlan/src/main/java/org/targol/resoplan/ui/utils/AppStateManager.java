@@ -10,6 +10,7 @@ import org.targol.resoplan.model.MetaNode;
 import org.targol.resoplan.model.Node;
 import org.targol.resoplan.model.Project;
 import org.targol.resoplan.services.FloorsService;
+import org.targol.resoplan.services.NodesService;
 import org.targol.resoplan.utils.SpringContextHelper;
 
 import javafx.beans.property.ObjectProperty;
@@ -34,6 +35,7 @@ public class AppStateManager {
 	private final ObjectProperty<Region> currentMainPanel = new SimpleObjectProperty<>(null);
 
 	private final FloorsService floorsSvc = SpringContextHelper.getBean(FloorsService.class);
+	private final NodesService nodesSvc = SpringContextHelper.getBean(NodesService.class);
 
 	private AppStateManager() {
 		this.currentProject.addListener((obs, oldProj, newProj) -> {
@@ -83,7 +85,8 @@ public class AppStateManager {
 				nodeToFloorMap.put(node.getId(), floor.getId());
 				// Si c'est un MetaNode, on indexe aussi ses sous-nœuds manuellement
 				if (node instanceof MetaNode meta) {
-					for (Node subNode : meta.getNodes()) {
+					MetaNode fullMeta = this.nodesSvc.getfullMetaNodeWithChidrenNodes(meta).get();
+					for (Node subNode : fullMeta.getNodes()) {
 						nodeToFloorMap.put(subNode.getId(), floor.getId());
 					}
 				}

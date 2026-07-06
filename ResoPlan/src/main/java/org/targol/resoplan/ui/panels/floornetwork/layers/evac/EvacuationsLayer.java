@@ -146,8 +146,6 @@ public class EvacuationsLayer extends Pane {
 				this.startX = x;
 				this.startY = y;
 				this.isDrawingTube = true;
-//				this.gc.setFill(Color.BLUE);
-//				this.gc.fillOval(x - 2, y - 2, 4, 4);
 			} else {
 				drawPipe(this.startX, this.startY, x, y);
 				this.isDrawingTube = false;
@@ -239,50 +237,83 @@ public class EvacuationsLayer extends Pane {
 	}
 
 	private void onExistingNodeClick(final MouseEvent event) {
-		final GraphicalNode graphicNode = (GraphicalNode) event.getSource();
-		if (this.currentNodeModel != null) {
-			System.out.println("Création d'un MetaNode demandée par sur-clic !");
-			mutateToMetaNode(graphicNode);
 
-		} else if (this.currentHookType != null) {
-			System.out.println("Clic sur un noeud pour commencer un tracé de tuyau !");
-			startDrawingLinkFromGraphNode(graphicNode);
+		final AbstractGraphicalNode graphicNode = (AbstractGraphicalNode) event.getSource();
+		if (graphicNode instanceof GraphicalNode realNode) {
+			if (this.currentNodeModel != null) {
+				System.out.println("Création d'un MetaNode demandée par clic sur un node classique"); //$NON-NLS-1$
+				mutateToMetaNode(realNode);
+			} else if (this.currentHookType != null) {
+				System.out.println("Clic sur un noeud classique pour commencer un tracé de tuyau !"); //$NON-NLS-1$
+				startDrawingLinkFromGraphNode(realNode);
+			}
+		} else {
+			GraphicalMetaNode meta = (GraphicalMetaNode) graphicNode;
+			if (this.currentNodeModel != null) {
+				System.out.println("Ajout d'un nouveau node à un MetaNode demandée par clic sur un node metanode"); //$NON-NLS-1$
+				addNodeToMetaNode(meta);
+			} else if (this.currentHookType != null) {
+				System.out.println("Clic sur un noeud metaNode pour commencer un tracé de tuyau !"); //$NON-NLS-1$
+				startDrawingLinkFromGraphicalMetaNode(meta);
+			}
 		}
 	}
 
+	private void addNodeToMetaNode(GraphicalMetaNode meta) {
+		final MetaNode oldNode = SVC_NODES.getfullMetaNodeWithChidrenNodes(meta.getNode()).get();
+		final double posX = oldNode.getPosX();
+		final double posY = oldNode.getPosY();
+		final int targetId = oldNode.getId();
+		createNewNode(posX, posY, oldNode, false);
+		final MetaNode savedMeta = (MetaNode) this.floor.getNodes().stream()
+				.filter(n -> n instanceof MetaNode && n.getPosX() == posX && n.getPosY() == posY).findFirst()
+				.orElse(oldNode);
+		drawMetaNode(savedMeta);
+		this.currentNodeModel = null;
+	}
+
 	private void mutateToMetaNode(GraphicalNode graphicNode) {
-		final Node oldNode = SVC_NODES.getByIdWithHooks(graphicNode.getNode().getId()).get();
+		final Node oldNode = SVC_NODES.getfullNodeWithHooks(graphicNode.getNode()).get();
 		final double posX = oldNode.getPosX();
 		final double posY = oldNode.getPosY();
 		final int targetId = oldNode.getId();
 		this.floor.getNodes().removeIf(n -> n.getId() == targetId);
 		SVC_NODES.detachNodeFromFloor(oldNode);
-		this.floor = SVC_FLOORS.update(this.floor);
 		final MetaNode meta = new MetaNode();
 		meta.setPosX(posX);
 		meta.setPosY(posY);
 		meta.setActiveLayers(oldNode.getActiveLayers());
 		meta.addNode(oldNode);
 		createNewNode(posX, posY, meta, false);
+		for (Node child : meta.getNodes()) {
+			SVC_NODES.save(child);
+		}
 		this.floor.addNode(meta);
+//		SVC_NODES.save(meta);
 		this.floor = SVC_FLOORS.update(this.floor);
 		// Récupération de l'instance pour l'IHM (avec id)
-		final MetaNode savedMeta = (MetaNode) this.floor.getNodes().stream()
-				.filter(n -> n instanceof MetaNode && n.getPosX() == posX && n.getPosY() == posY).findFirst()
-				.orElse(meta);
+//		final MetaNode savedMeta = (MetaNode) this.floor.getNodes().stream()
+//				.filter(n -> n instanceof MetaNode && n.getPosX() == posX && n.getPosY() == posY).findFirst()
+//				.orElse(meta);
 		getChildren().remove(graphicNode);
 		graphicNode = null;
-		drawMetaNode(savedMeta);
+		drawMetaNode(meta);
 		this.currentNodeModel = null;
 	}
 
 	private void drawMetaNode(final MetaNode meta) {
-		final GraphicalMetaNode gn = new GraphicalMetaNode(meta, this.drawingColor);
+		final GraphicalMetaNode gn = new GraphicalMetaNode(meta, this.drawingColor,
+				(mouseEvent) -> onExistingNodeClick(mouseEvent));
 		getChildren().add(gn);
 		requestLayout();
 	}
 
 	private void startDrawingLinkFromGraphNode(final GraphicalNode graphicNode) {
+		// TODO Auto-generated method stub
+
+	}
+
+	private void startDrawingLinkFromGraphicalMetaNode(final GraphicalMetaNode graphicNode) {
 		// TODO Auto-generated method stub
 
 	}
