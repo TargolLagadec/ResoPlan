@@ -8,12 +8,12 @@ import org.targol.resoplan.model.Floor;
 import org.targol.resoplan.model.LayerType;
 import org.targol.resoplan.services.NodesService;
 import org.targol.resoplan.services.ProjectsService;
+import org.targol.resoplan.ui.utils.events.NodePropertiesAskedEvent;
 import org.targol.resoplan.ui.utils.events.RefreshFloorLayerEvent;
 import org.targol.resoplan.ui.utils.events.UiEventBus;
 import org.targol.resoplan.utils.SpringContextHelper;
 
 import javafx.application.Platform;
-import javafx.scene.control.ContextMenu;
 import javafx.scene.image.ImageView;
 import javafx.scene.input.MouseButton;
 import javafx.scene.input.MouseEvent;
@@ -30,14 +30,16 @@ public abstract class AbstractGraphicalNode extends StackPane {
 	protected static final int SCALE = SVC_PROJ.getOpenedProject().getPlansScale();
 
 	protected AbstractNode node;
+	protected final LayerType layer;
 	protected final Color defaultColor;
 	private double dragEndX;
 	private double dragEndY;
 	boolean dragging = false;
 
-	public AbstractGraphicalNode(final AbstractNode node, final Color defaultColor,
+	public AbstractGraphicalNode(final AbstractNode node, final LayerType layer, final Color defaultColor,
 			final Consumer<MouseEvent> onMergeRequested) {
 		this.node = node;
+		this.layer = layer;
 		this.defaultColor = defaultColor;
 		final double nodeSize = getNodeSize();
 		setPrefSize(nodeSize, nodeSize);
@@ -62,17 +64,16 @@ public abstract class AbstractGraphicalNode extends StackPane {
 		return this.node;
 	}
 
-	protected abstract ContextMenu createContextMenu();
-
 	protected abstract ImageView getImageView();
 
 	private void initEvents(final Consumer<MouseEvent> onMergeRequested) {
 		setOnContextMenuRequested(evt -> {
-			final ContextMenu menu = createContextMenu();
-			if (menu != null) {
-				menu.show(this, evt.getScreenX(), evt.getScreenY());
-			}
-			evt.consume();
+			UiEventBus.send(NodePropertiesAskedEvent.of(this.layer, this.node));
+			// final ContextMenu menu = createContextMenu();
+//			if (menu != null) {
+//				menu.show(this, evt.getScreenX(), evt.getScreenY());
+//			}
+//			evt.consume();
 		});
 
 		final Delta dragDelta = new Delta();
@@ -108,7 +109,7 @@ public abstract class AbstractGraphicalNode extends StackPane {
 
 				Platform.runLater(() -> {
 					for (final Floor floor : impactedFloors) {
-						UiEventBus.send(RefreshFloorLayerEvent.of(LayerType.WATER_EVAC, floor));
+						UiEventBus.send(RefreshFloorLayerEvent.of(this.layer, floor));
 					}
 				});
 				this.dragging = false;

@@ -14,7 +14,7 @@ import org.targol.resoplan.ui.dialogs.PreferencesDialogControler;
 import org.targol.resoplan.ui.panels.FloorsAdjustmentPanel;
 import org.targol.resoplan.ui.panels.ProblemsTitledPane;
 import org.targol.resoplan.ui.panels.WelcomePanelController;
-import org.targol.resoplan.ui.panels.floornetwork.FloorsNetworksTab;
+import org.targol.resoplan.ui.panels.floornetwork.FloorsNetworksSplitPane;
 import org.targol.resoplan.ui.toolbars.AjustToolBar;
 import org.targol.resoplan.ui.toolbars.DefaultToolBar;
 import org.targol.resoplan.ui.toolbars.EvacToolBar;
@@ -88,7 +88,7 @@ public class MainWindowController {
 		UiEventBus.register(ProjectUpdatedEvent.PROJECT_UPDATE, e -> manageProjectChangeEvent(e));
 	}
 
-	private void manageProjectChangeEvent(ProjectUpdatedEvent e) {
+	private void manageProjectChangeEvent(final ProjectUpdatedEvent e) {
 		if (e.getProject() == null) {
 			newProject();
 		} else {
@@ -182,7 +182,7 @@ public class MainWindowController {
 		final AppStateManager stateMgr = AppStateManager.getInstance();
 		// Attention, bien passer par service.getOpenedProject() parce que
 		// service.setOpenedProject(project) charge les étages en plus dans le projet.
-		Project prjWithFloors = this.service.getOpenedProject();
+		final Project prjWithFloors = this.service.getOpenedProject();
 		stateMgr.setOpenedProject(prjWithFloors);
 		UiEventBus.send(ProblemsUpdatedEvent.fireCheck(prjWithFloors));
 		if (newProj) {
@@ -208,7 +208,6 @@ public class MainWindowController {
 			this.contentPane.getChildren().setAll(root);
 			final WelcomePanelController controller = loader.getController();
 			controller.setProjects(this.service.getAllProjects());
-			this.mnuClose.setDisable(true);
 		} catch (final IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -231,7 +230,8 @@ public class MainWindowController {
 			displayAdjustPanel();
 			return;
 		}
-		final FloorsNetworksTab panel = new FloorsNetworksTab(this.service.getOpenedProject());
+		final FloorsNetworksSplitPane panel = new FloorsNetworksSplitPane(this.service.getOpenedProject());
+//		final FloorsNetworksTab panel = new FloorsNetworksTab(this.service.getOpenedProject());
 		AppStateManager.getInstance().setCurrentOpenedMainPanel(panel);
 		this.contentPane.getChildren().setAll(panel);
 	}

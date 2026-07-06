@@ -229,7 +229,7 @@ public class EvacuationsLayer extends Pane {
 
 	private void drawGraphicalNode(final AbstractNode node) {
 		if (node instanceof final Node realNode) {
-			final GraphicalNode gn = new GraphicalNode(realNode, this.drawingColor,
+			final GraphicalNode gn = new GraphicalNode(realNode, LayerType.WATER_EVAC, this.drawingColor,
 					(mouseEvent) -> onExistingNodeClick(mouseEvent));
 			getChildren().add(gn);
 			requestLayout();
@@ -241,7 +241,7 @@ public class EvacuationsLayer extends Pane {
 	private void onExistingNodeClick(final MouseEvent event) {
 
 		final AbstractGraphicalNode graphicNode = (AbstractGraphicalNode) event.getSource();
-		if (graphicNode instanceof GraphicalNode realNode) {
+		if (graphicNode instanceof final GraphicalNode realNode) {
 			if (this.currentNodeModel != null) {
 				if (!SVC_NODES.canPutInSameMetaNode(realNode.getNode(), this.direction)) {
 					GuiUtils.errorAlert(Messages.getString("Problem.node.multipleLinkedInMeta")); //$NON-NLS-1$
@@ -254,7 +254,7 @@ public class EvacuationsLayer extends Pane {
 				startDrawingLinkFromGraphNode(realNode);
 			}
 		} else {
-			GraphicalMetaNode meta = (GraphicalMetaNode) graphicNode;
+			final GraphicalMetaNode meta = (GraphicalMetaNode) graphicNode;
 			if (this.currentNodeModel != null) {
 				if (!SVC_NODES.canPutInSameMetaNode(meta.getNode(), this.direction)) {
 					GuiUtils.errorAlert(Messages.getString("Problem.node.multipleLinkedInMeta")); //$NON-NLS-1$
@@ -268,7 +268,7 @@ public class EvacuationsLayer extends Pane {
 		}
 	}
 
-	private void addNodeToMetaNode(GraphicalMetaNode meta) {
+	private void addNodeToMetaNode(final GraphicalMetaNode meta) {
 		final MetaNode oldNode = SVC_NODES.getfullMetaNodeWithChidrenNodes(meta.getNode()).get();
 		final double posX = oldNode.getPosX();
 		final double posY = oldNode.getPosY();
@@ -284,13 +284,13 @@ public class EvacuationsLayer extends Pane {
 		final int targetId = oldNode.getId();
 		this.floor.getNodes().removeIf(n -> n.getId() == targetId);
 		SVC_NODES.detachNodeFromFloor(oldNode);
-		MetaNode meta = new MetaNode();
+		final MetaNode meta = new MetaNode();
 		meta.setPosX(posX);
 		meta.setPosY(posY);
 		meta.setActiveLayers(oldNode.getActiveLayers());
 		meta.addNode(oldNode);
 		createNewNode(posX, posY, meta, false);
-		for (Node child : meta.getNodes()) {
+		for (final Node child : meta.getNodes()) {
 			SVC_NODES.save(child);
 		}
 		this.floor.addNode(meta);
@@ -305,7 +305,7 @@ public class EvacuationsLayer extends Pane {
 	}
 
 	private void drawMetaNode(final MetaNode meta) {
-		final GraphicalMetaNode gn = new GraphicalMetaNode(meta, this.drawingColor,
+		final GraphicalMetaNode gn = new GraphicalMetaNode(meta, LayerType.WATER_EVAC, this.drawingColor,
 				(mouseEvent) -> onExistingNodeClick(mouseEvent));
 		getChildren().add(gn);
 		requestLayout();

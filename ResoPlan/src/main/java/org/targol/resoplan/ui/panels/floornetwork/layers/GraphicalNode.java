@@ -2,11 +2,11 @@ package org.targol.resoplan.ui.panels.floornetwork.layers;
 
 import java.util.function.Consumer;
 
+import org.targol.resoplan.model.LayerType;
 import org.targol.resoplan.model.Node;
 import org.targol.resoplan.model.catalog.enums.NodeCross;
 import org.targol.resoplan.ui.utils.GuiUtils;
 
-import javafx.scene.control.ContextMenu;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.input.MouseEvent;
@@ -14,19 +14,14 @@ import javafx.scene.paint.Color;
 
 public class GraphicalNode extends AbstractGraphicalNode {
 
-	public GraphicalNode(final Node node, final Color defaultColor, final Consumer<MouseEvent> onMergeRequested) {
-		super(node, defaultColor, onMergeRequested);
+	public GraphicalNode(final Node node, final LayerType layer, final Color defaultColor,
+			final Consumer<MouseEvent> onMergeRequested) {
+		super(node, layer, defaultColor, onMergeRequested);
 	}
 
 	@Override
 	public Node getNode() {
 		return (Node) this.node;
-	}
-
-	@Override
-	protected ContextMenu createContextMenu() {
-		// TODO Auto-generated method stub
-		return null;
 	}
 
 	@Override
