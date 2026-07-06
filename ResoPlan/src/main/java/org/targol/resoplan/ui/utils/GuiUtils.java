@@ -234,18 +234,18 @@ public class GuiUtils {
 		for (final NodeModel model : modelsService.getAllByCategory(cat)) {
 			if (model.isCrossesFloor()) {
 				final CatalogButtonUpOrDown btnUp = buildUpDownButton(layer, model, NodeCross.GOES_UP);
-				btnUp.setToggleGroup(placementGroup); // Partagé pour qu'un seul outil soit actif à la fois
+				btnUp.setToggleGroup(placementGroup);
 				btnUp.setUserData(model);
 				buttons.getChildren().add(btnUp);
 				final CatalogButtonUpOrDown btnDown = buildUpDownButton(layer, model, NodeCross.GOES_DOWN);
-				btnDown.setToggleGroup(placementGroup); // Partagé pour qu'un seul outil soit actif à la fois
+				btnDown.setToggleGroup(placementGroup);
 				btnDown.setUserData(model);
 				buttons.getChildren().add(btnDown);
 			} else {
 				final CatalogButton btn = new CatalogButton(model, () -> NodePlacementEvent.of(layer,
 						AppStateManager.getInstance().activeFloorProperty().get(), model));
 				btn.disableProperty().bind(BindingBuilder.createDefaultBuilderFor(layer).build());
-				btn.setToggleGroup(placementGroup); // Partagé pour qu'un seul outil soit actif à la fois
+				btn.setToggleGroup(placementGroup);
 				btn.setUserData(model);
 				buttons.getChildren().add(btn);
 			}

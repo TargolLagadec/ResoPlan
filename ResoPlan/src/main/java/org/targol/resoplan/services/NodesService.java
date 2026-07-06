@@ -15,6 +15,7 @@ import org.targol.resoplan.model.Floor;
 import org.targol.resoplan.model.LayerType;
 import org.targol.resoplan.model.MetaNode;
 import org.targol.resoplan.model.Node;
+import org.targol.resoplan.model.catalog.enums.NodeCross;
 import org.targol.resoplan.model.problems.NodeCollision;
 import org.targol.resoplan.model.problems.Severity;
 import org.targol.resoplan.repositories.NodesRepository;
@@ -32,6 +33,23 @@ public class NodesService extends NoCacheService {
 
 	public AbstractNode save(final AbstractNode node) throws ServiceException {
 		return saveAndClear(node);
+	}
+
+	public boolean canPutInSameMetaNode(Node node, NodeCross newNodeDirection) {
+		if (node.getLinkedNode() == null) {
+			return true;
+		}
+		return !node.getNodeCross().equals(newNodeDirection);
+	}
+
+	public boolean canPutInSameMetaNode(MetaNode meta, NodeCross newNodeDirection) {
+		meta = getfullMetaNodeWithChidrenNodes(meta).get();
+		for (Node node : meta.getNodes()) {
+			if (!canPutInSameMetaNode(node, newNodeDirection)) {
+				return false;
+			}
+		}
+		return true;
 	}
 
 	public boolean areOnSameFloor(Node node1, Node node2) {

@@ -1,5 +1,6 @@
 package org.targol.resoplan.ui.panels.floornetwork.layers.evac;
 
+import org.targol.resoplan.i18n.Messages;
 import org.targol.resoplan.model.AbstractNode;
 import org.targol.resoplan.model.Floor;
 import org.targol.resoplan.model.INodeContainer;
@@ -17,6 +18,7 @@ import org.targol.resoplan.ui.panels.floornetwork.layers.AbstractGraphicalNode;
 import org.targol.resoplan.ui.panels.floornetwork.layers.GraphicalMetaNode;
 import org.targol.resoplan.ui.panels.floornetwork.layers.GraphicalNode;
 import org.targol.resoplan.ui.utils.AppStateManager;
+import org.targol.resoplan.ui.utils.GuiUtils;
 import org.targol.resoplan.ui.utils.events.LinkTracingEvent;
 import org.targol.resoplan.ui.utils.events.LinkedNodePlacementEvent;
 import org.targol.resoplan.ui.utils.events.NodePlacementEvent;
@@ -241,19 +243,26 @@ public class EvacuationsLayer extends Pane {
 		final AbstractGraphicalNode graphicNode = (AbstractGraphicalNode) event.getSource();
 		if (graphicNode instanceof GraphicalNode realNode) {
 			if (this.currentNodeModel != null) {
-				System.out.println("Création d'un MetaNode demandée par clic sur un node classique"); //$NON-NLS-1$
+				if (!SVC_NODES.canPutInSameMetaNode(realNode.getNode(), this.direction)) {
+					GuiUtils.errorAlert(Messages.getString("Problem.node.multipleLinkedInMeta")); //$NON-NLS-1$
+					this.currentNodeModel = null;
+					return;
+
+				}
 				mutateToMetaNode(realNode);
 			} else if (this.currentHookType != null) {
-				System.out.println("Clic sur un noeud classique pour commencer un tracé de tuyau !"); //$NON-NLS-1$
 				startDrawingLinkFromGraphNode(realNode);
 			}
 		} else {
 			GraphicalMetaNode meta = (GraphicalMetaNode) graphicNode;
 			if (this.currentNodeModel != null) {
-				System.out.println("Ajout d'un nouveau node à un MetaNode demandée par clic sur un node metanode"); //$NON-NLS-1$
+				if (!SVC_NODES.canPutInSameMetaNode(meta.getNode(), this.direction)) {
+					GuiUtils.errorAlert(Messages.getString("Problem.node.multipleLinkedInMeta")); //$NON-NLS-1$
+					this.currentNodeModel = null;
+					return;
+				}
 				addNodeToMetaNode(meta);
 			} else if (this.currentHookType != null) {
-				System.out.println("Clic sur un noeud metaNode pour commencer un tracé de tuyau !"); //$NON-NLS-1$
 				startDrawingLinkFromGraphicalMetaNode(meta);
 			}
 		}
@@ -263,12 +272,8 @@ public class EvacuationsLayer extends Pane {
 		final MetaNode oldNode = SVC_NODES.getfullMetaNodeWithChidrenNodes(meta.getNode()).get();
 		final double posX = oldNode.getPosX();
 		final double posY = oldNode.getPosY();
-		final int targetId = oldNode.getId();
 		createNewNode(posX, posY, oldNode, false);
-		final MetaNode savedMeta = (MetaNode) this.floor.getNodes().stream()
-				.filter(n -> n instanceof MetaNode && n.getPosX() == posX && n.getPosY() == posY).findFirst()
-				.orElse(oldNode);
-		drawMetaNode(savedMeta);
+		SVC_NODES.save(oldNode);
 		this.currentNodeModel = null;
 	}
 
@@ -279,7 +284,7 @@ public class EvacuationsLayer extends Pane {
 		final int targetId = oldNode.getId();
 		this.floor.getNodes().removeIf(n -> n.getId() == targetId);
 		SVC_NODES.detachNodeFromFloor(oldNode);
-		final MetaNode meta = new MetaNode();
+		MetaNode meta = new MetaNode();
 		meta.setPosX(posX);
 		meta.setPosY(posY);
 		meta.setActiveLayers(oldNode.getActiveLayers());
@@ -289,15 +294,13 @@ public class EvacuationsLayer extends Pane {
 			SVC_NODES.save(child);
 		}
 		this.floor.addNode(meta);
-//		SVC_NODES.save(meta);
 		this.floor = SVC_FLOORS.update(this.floor);
-		// Récupération de l'instance pour l'IHM (avec id)
-//		final MetaNode savedMeta = (MetaNode) this.floor.getNodes().stream()
-//				.filter(n -> n instanceof MetaNode && n.getPosX() == posX && n.getPosY() == posY).findFirst()
-//				.orElse(meta);
+		final MetaNode savedMeta = (MetaNode) this.floor.getNodes().stream()
+				.filter(n -> n instanceof MetaNode && n.getPosX() == posX && n.getPosY() == posY).findFirst()
+				.orElse(oldNode);
 		getChildren().remove(graphicNode);
 		graphicNode = null;
-		drawMetaNode(meta);
+		drawMetaNode(savedMeta);
 		this.currentNodeModel = null;
 	}
 
