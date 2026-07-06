@@ -1,5 +1,6 @@
 package org.targol.resoplan.repositories;
 
+import java.util.List;
 import java.util.Optional;
 
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -15,6 +16,8 @@ import org.targol.resoplan.model.Node;
 import jakarta.transaction.Transactional;
 
 public interface NodesRepository extends JpaRepository<AbstractNode, Integer> {
+
+	List<AbstractNode> findByPosXAndPosYAndPosZ(double posX, double posY, double posZ);
 
 	@Query("""
 			SELECT f FROM Floor f
@@ -57,8 +60,7 @@ public interface NodesRepository extends JpaRepository<AbstractNode, Integer> {
 	 * Reads a MetaNode using its id and FORCES its children {@link Node}s reading.
 	 *
 	 * @param id Id of the MetaNode to find
-	 * @return Found Node as an {@link Optional} with all its its children
-	 *         {@link Node}s loaded;
+	 * @return Found Node as an {@link Optional} with all its its children {@link Node}s loaded;
 	 */
 	@Query("""
 			SELECT n FROM MetaNode n

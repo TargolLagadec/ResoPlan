@@ -1,5 +1,7 @@
 package org.targol.resoplan.model;
 
+import org.targol.resoplan.i18n.Messages;
+
 public enum LayerType {
 	ELEC("elec"), //$NON-NLS-1$
 	WATER_ALIM("arrivee"), //$NON-NLS-1$
@@ -16,7 +18,8 @@ public enum LayerType {
 		return this.key;
 	}
 
-//	public List<> getSubCategoryClass() {
-//		return (Class<T>) this.subCategoryClass;
-//	}
+	public String getLabel() {
+		return Messages.getString("LayerCheck." + this.key);
+	}
+
 }

@@ -205,6 +205,11 @@ public class EvacuationsLayer extends Pane {
 		final Node curNode = new Node(this.currentNodeModel);
 		curNode.setPosX(x);
 		curNode.setPosY(y);
+		if (NodeCross.GOES_DOWN.equals(dir)) {
+			curNode.setPosZ(0);
+		} else {
+			curNode.setPosZ(AppStateManager.getInstance().currentProjectProperty().get().getHsp());
+		}
 		curNode.setNodeCross(dir);
 		return (Node) SVC_NODES.save(curNode);
 	}
@@ -246,7 +251,7 @@ public class EvacuationsLayer extends Pane {
 	}
 
 	private void mutateToMetaNode(GraphicalNode graphicNode) {
-		final Node oldNode = graphicNode.getNode();
+		final Node oldNode = SVC_NODES.getByIdWithHooks(graphicNode.getNode().getId()).get();
 		final double posX = oldNode.getPosX();
 		final double posY = oldNode.getPosY();
 		final int targetId = oldNode.getId();

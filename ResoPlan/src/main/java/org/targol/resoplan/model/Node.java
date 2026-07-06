@@ -38,8 +38,7 @@ public class Node extends AbstractNode {
 	private NodeCross nodeCross = NodeCross.NONE;
 
 	/**
-	 * Dans le cas ou le Node est traversant un plancher ou un plafond, node associé
-	 * à l'autre étage.
+	 * Dans le cas ou le Node est traversant un plancher ou un plafond, node associé à l'autre étage.
 	 */
 	@OneToOne
 	@JoinColumn(name = "LINKED_NODE_ID")
@@ -60,7 +59,7 @@ public class Node extends AbstractNode {
 
 	public Map<LayerType, Integer> getNbFreeHooksPerLayer() {
 		final Map<LayerType, Integer> ret = new HashMap<LayerType, Integer>();
-		for (final Hook hook : this.getHooks()) {
+		for (final Hook hook : getHooks()) {
 			if (hook.isLinked()) {
 				continue;
 			}
@@ -79,6 +78,7 @@ public class Node extends AbstractNode {
 		if (this.model == null) {
 			return;
 		}
+		this.posZ = this.model.getAllowedHooks().get(0).getDefaultHeight();
 		for (final HookType modelHook : this.model.getAllowedHooks()) {
 			final Hook hook = new Hook(modelHook, this.posX, this.posY, modelHook.getDefaultHeight());
 			this.activeLayers.add(modelHook.getLayer());
