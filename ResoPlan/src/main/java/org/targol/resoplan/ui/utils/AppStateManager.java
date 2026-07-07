@@ -11,6 +11,8 @@ import org.targol.resoplan.model.Node;
 import org.targol.resoplan.model.Project;
 import org.targol.resoplan.services.FloorsService;
 import org.targol.resoplan.services.NodesService;
+import org.targol.resoplan.ui.utils.events.ProblemsUpdatedEvent;
+import org.targol.resoplan.ui.utils.events.UiEventBus;
 import org.targol.resoplan.utils.SpringContextHelper;
 
 import javafx.beans.property.ObjectProperty;
@@ -47,6 +49,7 @@ public class AppStateManager {
 				updateProjectState(newProj);
 			}
 		});
+		UiEventBus.register(ProblemsUpdatedEvent.REBUILD_MAP, (evt) -> recalculateNodeIdToFloorId());
 	}
 
 	public void updateProjectState(final Project project) {
@@ -54,7 +57,6 @@ public class AppStateManager {
 			this.currentAppState.set(AppState.NO_PROJECT);
 			return;
 		}
-		recalculateNodeIdToFloorId();
 		final boolean missingImage = project.getFloors().stream()
 				.anyMatch(f -> f.getImgPath() == null || f.getImgPath().isEmpty());
 
@@ -77,21 +79,25 @@ public class AppStateManager {
 		return this.nodeIdToFloorId;
 	}
 
-	public void recalculateNodeIdToFloorId() {
+	private void recalculateNodeIdToFloorId() {
 		Map<Integer, Integer> nodeToFloorMap = new HashMap<>();
-		for (Floor floor : this.currentProject.get().getFloors()) {
-			Floor realFloor = this.floorsSvc.reloadWithNodes(floor).get();
-			for (AbstractNode node : realFloor.getNodes()) {
-				nodeToFloorMap.put(node.getId(), floor.getId());
-				// Si c'est un MetaNode, on indexe aussi ses sous-nœuds manuellement
-				if (node instanceof MetaNode meta) {
-					MetaNode fullMeta = this.nodesSvc.getfullMetaNodeWithChidrenNodes(meta).get();
-					for (Node subNode : fullMeta.getNodes()) {
-						nodeToFloorMap.put(subNode.getId(), floor.getId());
+		if (this.currentProject.get() != null) {
+			for (Floor floor : this.currentProject.get().getFloors()) {
+				Floor realFloor = this.floorsSvc.reloadWithNodes(floor).get();
+				for (AbstractNode node : realFloor.getNodes()) {
+					nodeToFloorMap.put(node.getId(), floor.getId());
+					// Si c'est un MetaNode, on indexe aussi ses sous-nœuds manuellement
+					if (node instanceof MetaNode meta) {
+						MetaNode fullMeta = this.nodesSvc.getfullMetaNodeWithChidrenNodes(meta).get();
+						for (Node subNode : fullMeta.getNodes()) {
+							nodeToFloorMap.put(subNode.getId(), floor.getId());
+						}
 					}
 				}
 			}
 		}
+		this.nodeIdToFloorId.set(nodeToFloorMap);
+		UiEventBus.send(ProblemsUpdatedEvent.fireCheck(this.currentProject.get()));
 	}
 
 	public ObjectProperty<Floor> activeFloorProperty() {

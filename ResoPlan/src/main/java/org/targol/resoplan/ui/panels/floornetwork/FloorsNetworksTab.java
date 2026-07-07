@@ -16,13 +16,15 @@ import javafx.scene.layout.Pane;
 
 public class FloorsNetworksTab extends TabPane {
 
+	private final Project project;
 	private final List<LayeredFloorTab> floorTabs = new ArrayList<>();
 	private boolean isSyncing = false;
 
-	public FloorsNetworksTab(final Project proj) {
-		this.setTabClosingPolicy(TabClosingPolicy.UNAVAILABLE);
+	public FloorsNetworksTab(final Project project) {
+		this.project = project;
+		setTabClosingPolicy(TabClosingPolicy.UNAVAILABLE);
 		final AppStateManager state = AppStateManager.getInstance();
-		this.getSelectionModel().selectedItemProperty().addListener((obs, oldTab, newTab) -> {
+		getSelectionModel().selectedItemProperty().addListener((obs, oldTab, newTab) -> {
 			if (newTab instanceof final LayeredFloorTab layeredTab) {
 				state.setActiveFloor(layeredTab.getFloor());
 				state.activeNetworkLayerProperty().set(layeredTab.getCurrentLayer());
@@ -33,21 +35,21 @@ public class FloorsNetworksTab extends TabPane {
 			}
 		});
 
-		final List<Floor> sortedFloors = proj.getFloors().stream().sorted(Comparator.comparingInt(Floor::getNumber))
+		final List<Floor> sortedFloors = project.getFloors().stream().sorted(Comparator.comparingInt(Floor::getNumber))
 				.toList();
 		boolean first = true;
 		for (final Floor floor : sortedFloors) {
-			final LayeredFloorTab tab = new LayeredFloorTab(this, floor, first);
+			final LayeredFloorTab tab = new LayeredFloorTab(this, this.project, floor, first);
 			if (first) {
 				first = false;
 			}
 			this.floorTabs.add(tab);
-			this.getTabs().add(tab);
+			getTabs().add(tab);
 			final ScrollPane sp = tab.getCenterScrollPane();
 			sp.hvalueProperty().addListener((obs, oldVal, newVal) -> syncScrollHorizontal(tab, newVal.doubleValue()));
 			sp.vvalueProperty().addListener((obs, oldVal, newVal) -> syncScrollVertical(tab, newVal.doubleValue()));
 		}
-		this.getSelectionModel().select(0);
+		getSelectionModel().select(0);
 	}
 
 	/**

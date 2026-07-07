@@ -44,12 +44,36 @@ import javafx.scene.paint.Color;
 public class GuiUtils {
 
 	/*
-	 * marge de 200px pour ne pas coller aux bords du ScrollPane
+	 * marge éventuelle pour ne pas coller aux bords du ScrollPane
 	 */
 	public static final double NETWORK_PLANS_MARGIN = 0;
 
 	/**
-	 * Convertit une position IHM (local au Pane) en coordonnées absolues Terrain (BDD)
+	 * Convertit une valeur en pixel pour le positionnement à l'écran en une valeur en cm pour stockage en bdd pour les
+	 * calculs de débit.
+	 *
+	 * @param proj       Projet contenant l'échelle en pixels par mètre.
+	 * @param pixelValue valeur à convertir
+	 * @return la valeur convertie en cm.
+	 */
+	public static double pixelToCentimetres(Project proj, double pixelValue) {
+		return pixelValue * 100 / proj.getPlansScale();
+	}
+
+	/**
+	 * Convertit une valeur en centimètres stockée en bdd pour les calculs de débit en une valeur en pixels pour le
+	 * positionnement à l'écran.
+	 *
+	 * @param proj    Projet contenant l'échelle en pixels par mètre.
+	 * @param cmValue valeur à convertir
+	 * @return la valeur convertie en pixels.
+	 */
+	public static double centimetresTopixels(Project proj, double cmValue) {
+		return cmValue * proj.getPlansScale() / 100;
+	}
+
+	/**
+	 * Convertit une position IHM (local au Pane) en coordonnées écran
 	 */
 	public static Point2D ihmToAbsolute(final Floor floor, final double ioX, final double ioY) {
 		final double absX = ioX - NETWORK_PLANS_MARGIN - floor.getShiftX();
@@ -58,7 +82,7 @@ public class GuiUtils {
 	}
 
 	/**
-	 * Convertit une coordonnée absolue Terrain (BDD) en position de pixel IHM pour le rendu
+	 * Convertit une coordonnée écran en position relative au panel pour le rendu
 	 */
 	public static Point2D absoluteToIo(final Floor floor, final double absX, final double absY) {
 		final double ioX = absX + NETWORK_PLANS_MARGIN + floor.getShiftX();

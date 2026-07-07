@@ -44,9 +44,11 @@ public class EvacuationsLayer extends Pane {
 	private NodeModel currentNodeModel;
 	private HookType currentHookType;
 	private NodeCross direction;
+	private final Project project;
 	private Floor floor;
 
-	public EvacuationsLayer(final Floor floor) {
+	public EvacuationsLayer(final Project project, final Floor floor) {
+		this.project = project;
 		// Attention, on remplace le floor lazy loadé (ou avec des floors osolètes) avec
 		// celui contenant ses noeuds !
 		this.floor = SVC_FLOORS.reloadWithNodes(floor).get();
@@ -82,11 +84,8 @@ public class EvacuationsLayer extends Pane {
 
 			if (graphicalNode != null) {
 				final double halfSize = AbstractGraphicalNode.getNodeSize() / 2;
-				System.err.println(
-						"au refresh du EvacuationCanvas : position = (" + node.getPosX() + "," + node.getPosY() + ")");
-
-				graphicalNode.setTranslateX(node.getPosX() - halfSize);
-				graphicalNode.setTranslateY(node.getPosY() - halfSize);
+				graphicalNode.setTranslateX(GuiUtils.centimetresTopixels(this.project, node.getPosX()) - halfSize);
+				graphicalNode.setTranslateY(GuiUtils.centimetresTopixels(this.project, node.getPosY()) - halfSize);
 			} else {
 				drawGraphicalNode(node);
 			}
@@ -107,11 +106,7 @@ public class EvacuationsLayer extends Pane {
 	private void onNodePlacementEvent(final NodePlacementEvent evt) {
 		final Floor targetFloor = evt.getFloor();
 		if (targetFloor.equals(this.floor)) {
-			final NodeModel newTool = evt.getModel();
-			if (newTool != null) {
-				System.err.println("Dans le listener EvacuationsLayer, on dessine le node " + newTool.getName());
-				setCurrentNodeModel(newTool, evt.getNodeCross());
-			}
+			setCurrentNodeModel(evt.getModel(), evt.getNodeCross());
 		}
 		evt.consume();
 	}
@@ -135,7 +130,6 @@ public class EvacuationsLayer extends Pane {
 		}
 		final double x = event.getX();
 		final double y = event.getY();
-		System.err.println("Clic sur l'étage " + this.floor.getNumber() + " à la position (" + x + "," + y + ")");
 		if (this.currentHookType == null && this.currentNodeModel == null) {
 			return;
 		}
@@ -156,11 +150,12 @@ public class EvacuationsLayer extends Pane {
 		event.consume();
 	}
 
-	private void createNewNode(final double x, final double y, final INodeContainer container, final boolean draw) {
+	private void createNewNode(final double pixelX, final double pixelY, final INodeContainer container,
+			final boolean draw) {
 		if (this.direction == null || this.direction.equals(NodeCross.NONE)) {
 			Node newNode = new Node(this.currentNodeModel);
-			newNode.setPosX(x);
-			newNode.setPosY(y);
+			newNode.setPosX(GuiUtils.pixelToCentimetres(this.project, pixelX));
+			newNode.setPosY(GuiUtils.pixelToCentimetres(this.project, pixelY));
 			newNode = (Node) SVC_NODES.save(newNode);
 			container.addNode(newNode);
 			if (container instanceof Floor) {
@@ -170,12 +165,13 @@ public class EvacuationsLayer extends Pane {
 				drawGraphicalNode(newNode);
 			}
 		} else {
-			createLinkedNodes(x, y, container, draw);
+			createLinkedNodes(pixelX, pixelY, container, draw);
 		}
-		UiEventBus.send(ProblemsUpdatedEvent.fireCheck(AppStateManager.getInstance().currentProjectProperty().get()));
+		UiEventBus.send(ProblemsUpdatedEvent.fireMapRebuild());
 	}
 
-	private void createLinkedNodes(final double x, final double y, final INodeContainer container, final boolean draw) {
+	private void createLinkedNodes(final double pixelX, final double pixelY, final INodeContainer container,
+			final boolean draw) {
 		final int levelOffset = this.direction.equals(NodeCross.GOES_DOWN) ? -1 : 1;
 		final NodeCross twinDirection = this.direction.equals(NodeCross.GOES_DOWN) ? NodeCross.GOES_UP
 				: NodeCross.GOES_DOWN;
@@ -183,8 +179,8 @@ public class EvacuationsLayer extends Pane {
 		final Floor targetFloor = getFloorAtLevel(levelOffset);
 
 		if (targetFloor != null) {
-			final Node curNode = buildAndSaveDirectionalNode(x, y, this.direction);
-			final Node linkedNode = buildAndSaveDirectionalNode(x, y, twinDirection);
+			final Node curNode = buildAndSaveDirectionalNode(pixelX, pixelY, this.direction);
+			final Node linkedNode = buildAndSaveDirectionalNode(pixelX, pixelY, twinDirection);
 			associateNodes(curNode, linkedNode);
 
 			container.addNode(curNode);
@@ -201,10 +197,10 @@ public class EvacuationsLayer extends Pane {
 		}
 	}
 
-	private Node buildAndSaveDirectionalNode(final double x, final double y, final NodeCross dir) {
+	private Node buildAndSaveDirectionalNode(final double pixelX, final double pixelY, final NodeCross dir) {
 		final Node curNode = new Node(this.currentNodeModel);
-		curNode.setPosX(x);
-		curNode.setPosY(y);
+		curNode.setPosX(GuiUtils.pixelToCentimetres(this.project, pixelX));
+		curNode.setPosY(GuiUtils.pixelToCentimetres(this.project, pixelY));
 		if (NodeCross.GOES_DOWN.equals(dir)) {
 			curNode.setPosZ(0);
 		} else {
@@ -221,16 +217,16 @@ public class EvacuationsLayer extends Pane {
 		SVC_NODES.save(n2);
 	}
 
-	private Floor getFloorAtLevel(final int i) {
+	private Floor getFloorAtLevel(final int floorLevel) {
 		final Project proj = AppStateManager.getInstance().currentProjectProperty().get();
-		final Floor withNoNodes = proj.getFloorByNumber(this.floor.getNumber() + i).get();
+		final Floor withNoNodes = proj.getFloorByNumber(this.floor.getNumber() + floorLevel).get();
 		return SVC_FLOORS.reloadWithNodes(withNoNodes).get();
 	}
 
 	private void drawGraphicalNode(final AbstractNode node) {
 		if (node instanceof final Node realNode) {
-			final GraphicalNode gn = new GraphicalNode(realNode, LayerType.WATER_EVAC, this.drawingColor,
-					(mouseEvent) -> onExistingNodeClick(mouseEvent));
+			final GraphicalNode gn = new GraphicalNode(this.project, this.floor, realNode, LayerType.WATER_EVAC,
+					this.drawingColor, (mouseEvent) -> onExistingNodeClick(mouseEvent));
 			getChildren().add(gn);
 			requestLayout();
 		} else {
@@ -270,34 +266,35 @@ public class EvacuationsLayer extends Pane {
 
 	private void addNodeToMetaNode(final GraphicalMetaNode meta) {
 		final MetaNode oldNode = SVC_NODES.getfullMetaNodeWithChidrenNodes(meta.getNode()).get();
-		final double posX = oldNode.getPosX();
-		final double posY = oldNode.getPosY();
-		createNewNode(posX, posY, oldNode, false);
+		final double pixelPosX = GuiUtils.centimetresTopixels(this.project, oldNode.getPosX());
+		final double pixelPosY = GuiUtils.centimetresTopixels(this.project, oldNode.getPosY());
+		createNewNode(pixelPosX, pixelPosY, oldNode, false);
 		SVC_NODES.save(oldNode);
 		this.currentNodeModel = null;
 	}
 
 	private void mutateToMetaNode(GraphicalNode graphicNode) {
 		final Node oldNode = SVC_NODES.getfullNodeWithHooks(graphicNode.getNode()).get();
-		final double posX = oldNode.getPosX();
-		final double posY = oldNode.getPosY();
+		final double centimeterPosX = oldNode.getPosX();
+		final double centimeterPosY = oldNode.getPosY();
 		final int targetId = oldNode.getId();
 		this.floor.getNodes().removeIf(n -> n.getId() == targetId);
 		SVC_NODES.detachNodeFromFloor(oldNode);
 		final MetaNode meta = new MetaNode();
-		meta.setPosX(posX);
-		meta.setPosY(posY);
+		meta.setPosX(centimeterPosX);
+		meta.setPosY(centimeterPosY);
 		meta.setActiveLayers(oldNode.getActiveLayers());
 		meta.addNode(oldNode);
-		createNewNode(posX, posY, meta, false);
+		createNewNode(GuiUtils.centimetresTopixels(this.project, centimeterPosX),
+				GuiUtils.centimetresTopixels(this.project, centimeterPosY), meta, false);
 		for (final Node child : meta.getNodes()) {
 			SVC_NODES.save(child);
 		}
 		this.floor.addNode(meta);
 		this.floor = SVC_FLOORS.update(this.floor);
 		final MetaNode savedMeta = (MetaNode) this.floor.getNodes().stream()
-				.filter(n -> n instanceof MetaNode && n.getPosX() == posX && n.getPosY() == posY).findFirst()
-				.orElse(oldNode);
+				.filter(n -> n instanceof MetaNode && n.getPosX() == centimeterPosX && n.getPosY() == centimeterPosY)
+				.findFirst().orElse(oldNode);
 		getChildren().remove(graphicNode);
 		graphicNode = null;
 		drawMetaNode(savedMeta);
@@ -305,33 +302,31 @@ public class EvacuationsLayer extends Pane {
 	}
 
 	private void drawMetaNode(final MetaNode meta) {
-		final GraphicalMetaNode gn = new GraphicalMetaNode(meta, LayerType.WATER_EVAC, this.drawingColor,
-				(mouseEvent) -> onExistingNodeClick(mouseEvent));
+		final GraphicalMetaNode gn = new GraphicalMetaNode(this.project, this.floor, meta, LayerType.WATER_EVAC,
+				this.drawingColor, (mouseEvent) -> onExistingNodeClick(mouseEvent));
 		getChildren().add(gn);
 		requestLayout();
 	}
 
 	private void startDrawingLinkFromGraphNode(final GraphicalNode graphicNode) {
 		// TODO Auto-generated method stub
-
 	}
 
 	private void startDrawingLinkFromGraphicalMetaNode(final GraphicalMetaNode graphicNode) {
 		// TODO Auto-generated method stub
-
 	}
 
-	private void drawPipe(final double x1, final double y1, final double x2, final double y2) {
-//		this.gc.setStroke(Color.BROWN);
-//		// TODO Modifier ça
-//		final double tubeDiam = 100;
-//		this.gc.setLineWidth(tubeDiam / 10);
-//		this.gc.setLineCap(javafx.scene.shape.StrokeLineCap.ROUND);
-//		this.gc.strokeLine(x1, y1, x2, y2);
+	private void drawPipe(final double pixelStartX, final double pixelStartY, final double pixelEndX,
+			final double pixelEndY) {
+		// TODO Auto-generated method stub
 	}
 
 	public void setCurrentNodeModel(final NodeModel tool, final NodeCross nodeCross) {
-		this.currentNodeModel = SVC_NODEMODELS.getByIdWithallowedHooks(tool.getId()).get();
+		if (tool == null) {
+			this.currentNodeModel = null;
+		} else {
+			this.currentNodeModel = SVC_NODEMODELS.getByIdWithallowedHooks(tool.getId()).get();
+		}
 		this.direction = nodeCross;
 		this.currentHookType = null;
 		this.isDrawingTube = false;
@@ -343,5 +338,4 @@ public class EvacuationsLayer extends Pane {
 		this.currentNodeModel = null;
 		this.isDrawingTube = false;
 	}
-
 }

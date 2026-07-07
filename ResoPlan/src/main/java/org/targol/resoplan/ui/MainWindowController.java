@@ -77,7 +77,7 @@ public class MainWindowController {
 		manageEvents();
 		manageAccesses();
 		manageDynamicToolbar();
-		UiEventBus.send(ProblemsUpdatedEvent.fireCheck(null));
+		UiEventBus.send(ProblemsUpdatedEvent.fireMapRebuild());
 	}
 
 	private void manageEvents() {
@@ -184,7 +184,7 @@ public class MainWindowController {
 		// service.setOpenedProject(project) charge les étages en plus dans le projet.
 		final Project prjWithFloors = this.service.getOpenedProject();
 		stateMgr.setOpenedProject(prjWithFloors);
-		UiEventBus.send(ProblemsUpdatedEvent.fireCheck(prjWithFloors));
+		UiEventBus.send(ProblemsUpdatedEvent.fireMapRebuild());
 		if (newProj) {
 			displayAdjustPanel();
 		} else {

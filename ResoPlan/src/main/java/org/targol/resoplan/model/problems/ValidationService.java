@@ -1,5 +1,6 @@
 package org.targol.resoplan.model.problems;
 
+import java.text.NumberFormat;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -13,7 +14,6 @@ import org.targol.resoplan.model.MetaNode;
 import org.targol.resoplan.model.Node;
 import org.targol.resoplan.model.Project;
 import org.targol.resoplan.model.catalog.NodeModel;
-import org.targol.resoplan.services.FloorsService;
 import org.targol.resoplan.services.NodeModelsService;
 import org.targol.resoplan.services.NodesService;
 import org.targol.resoplan.services.ProjectsService;
@@ -22,16 +22,16 @@ import org.targol.resoplan.services.ProjectsService;
 public class ValidationService {
 
 	private final ProjectsService projectsSvc;
-	private final FloorsService floorsSvc;
 	private final NodesService nodesSvc;
 	private final NodeModelsService nodeModsSvc;
+	private NumberFormat numberFormat = NumberFormat.getInstance();
 
-	public ValidationService(final ProjectsService projectsSvc, final FloorsService floorsSvc,
-			final NodesService nodesSvc, final NodeModelsService nodeModsSvc) {
+	public ValidationService(final ProjectsService projectsSvc, final NodesService nodesSvc,
+			final NodeModelsService nodeModsSvc) {
 		this.projectsSvc = projectsSvc;
-		this.floorsSvc = floorsSvc;
 		this.nodesSvc = nodesSvc;
 		this.nodeModsSvc = nodeModsSvc;
+		this.numberFormat.setMaximumFractionDigits(2);
 	}
 
 	public List<Problem> validateProject(Project project) {
@@ -75,6 +75,9 @@ public class ValidationService {
 
 	private void validateNode(Project project, Floor floor, Node node, List<Problem> problems) {
 		Node realNode = this.nodesSvc.getfullNodeWithHooks(node).get();
+		String formatedPosX = this.numberFormat.format(realNode.getPosX());
+		String formatedPosY = this.numberFormat.format(realNode.getPosY());
+		String formatedPosZ = this.numberFormat.format(realNode.getPosZ());
 		// Vérification qu'il n'y a pas plusieurs nodes au même endroit
 		List<NodeCollision> collisions = this.nodesSvc.checkCollisions(realNode);
 		if (collisions.size() > 0) {
@@ -82,15 +85,13 @@ public class ValidationService {
 				if (Severity.ERROR.equals(col.severity())) {
 					problems.add(Problem.nodeError(project.getId(), floor.getId(), col.layer(), node.getId(),
 							Messages.getString("Problem.node.samePlace.error", //$NON-NLS-1$
-									realNode.getModel().getName(), realNode.getPosX(), realNode.getPosY(),
-									realNode.getPosZ(), floor.getNumber(), col.layer(),
-									col.other().getModel().getName())));
+									realNode.getModel().getName(), formatedPosX, formatedPosY, formatedPosZ,
+									floor.getNumber(), col.layer(), col.other().getModel().getName())));
 				} else {
 					problems.add(Problem.nodeWarning(project.getId(), floor.getId(), col.layer(), node.getId(),
 							Messages.getString("Problem.node.samePlace.error", //$NON-NLS-1$
-									realNode.getModel().getName(), realNode.getPosX(), realNode.getPosY(),
-									realNode.getPosZ(), floor.getNumber(), col.layer(),
-									col.other().getModel().getName())));
+									realNode.getModel().getName(), formatedPosX, formatedPosY, formatedPosZ,
+									floor.getNumber(), col.layer(), col.other().getModel().getName())));
 				}
 			}
 
@@ -99,8 +100,8 @@ public class ValidationService {
 		for (final LayerType layer : freeHooks.keySet()) {
 			problems.add(Problem.nodeWarning(project.getId(), floor.getId(), layer, node.getId(),
 					Messages.getString("Problem.node.unlinkedHook", realNode.getModel().getName(), //$NON-NLS-1$
-							realNode.getPosX(), realNode.getPosY(), realNode.getPosZ(), floor.getNumber(),
-							layer.getLabel(), freeHooks.get(layer))));
+							formatedPosX, formatedPosY, formatedPosZ, floor.getNumber(), layer.getLabel(),
+							freeHooks.get(layer))));
 
 		}
 	}

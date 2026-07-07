@@ -148,7 +148,7 @@ public class FloorsAdjustmentPanel extends BorderPane {
 			service.updateProject(this.project);
 			AppStateManager.getInstance().currentProjectProperty().set(this.project);
 			AppStateManager.getInstance().updateProjectState(this.project);
-			UiEventBus.send(ProblemsUpdatedEvent.fireCheck(this.project));
+			UiEventBus.send(ProblemsUpdatedEvent.fireMapRebuild());
 
 			this.tracingScale = false;
 			this.stackPaneCalques.getChildren().remove(this.scaleTracingCanvas);

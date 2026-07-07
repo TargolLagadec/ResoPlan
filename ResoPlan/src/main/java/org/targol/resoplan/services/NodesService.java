@@ -90,15 +90,15 @@ public class NodesService extends NoCacheService {
 		return ret;
 	}
 
-	public Set<Floor> processLazyMove(final AbstractNode node, final double xFin, final double yFin) {
+	public Set<Floor> processLazyMove(final AbstractNode node, final double centimeterX, final double centimeterY) {
 		final Set<Floor> impactedFloorIds = new HashSet<>();
-		runRecursiveLazyMove(node, xFin, yFin, impactedFloorIds);
+		runRecursiveLazyMove(node, centimeterX, centimeterY, impactedFloorIds);
 		return impactedFloorIds;
 	}
 
-	private void runRecursiveLazyMove(final AbstractNode node, final double xFin, final double yFin,
+	private void runRecursiveLazyMove(final AbstractNode node, final double centimeterX, final double centimeterY,
 			final Set<Floor> impactedFloorIds) {
-		if (node.getPosX() == xFin && node.getPosY() == yFin) {
+		if (node.getPosX() == centimeterX && node.getPosY() == centimeterY) {
 			return;
 		}
 		final Floor floor = this.repo.findFloorByNodeId(node.getId());
@@ -106,21 +106,21 @@ public class NodesService extends NoCacheService {
 			impactedFloorIds.add(floor);
 		}
 		if (node instanceof final Node realNode) {
-			node.setPosX(xFin);
-			node.setPosY(yFin);
+			node.setPosX(centimeterX);
+			node.setPosY(centimeterY);
 			saveAndClear(node);
 			if (realNode.getLinkedNode() != null) {
-				runRecursiveLazyMove(realNode.getLinkedNode(), xFin, yFin, impactedFloorIds);
+				runRecursiveLazyMove(realNode.getLinkedNode(), centimeterX, centimeterY, impactedFloorIds);
 			}
 			this.repo.findParentMetanode(node.getId())
-					.ifPresent(parent -> runRecursiveLazyMove(parent, xFin, yFin, impactedFloorIds));
+					.ifPresent(parent -> runRecursiveLazyMove(parent, centimeterX, centimeterY, impactedFloorIds));
 		} else if (node instanceof MetaNode meta) {
-			node.setPosX(xFin);
-			node.setPosY(yFin);
+			node.setPosX(centimeterX);
+			node.setPosY(centimeterY);
 			saveAndClear(meta);
 			meta = this.repo.findMetaByIdWithChildrenNodes(meta.getId()).get();
 			for (final Node child : meta.getNodes()) {
-				runRecursiveLazyMove(child, xFin, yFin, impactedFloorIds);
+				runRecursiveLazyMove(child, centimeterX, centimeterY, impactedFloorIds);
 			}
 		}
 	}

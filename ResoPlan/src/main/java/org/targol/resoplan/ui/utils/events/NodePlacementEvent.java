@@ -46,7 +46,7 @@ public class NodePlacementEvent extends GenericActionEvent {
 			final NodeCross nodeCross) {
 		super(eventType);
 		this.floor = Objects.requireNonNull(floor, "Le Floor ne peut pas être null");
-		this.model = Objects.requireNonNull(model, "Le NodeModel ne peut pas être null");
+		this.model = model;
 		this.nodeCross = nodeCross;
 	}
 

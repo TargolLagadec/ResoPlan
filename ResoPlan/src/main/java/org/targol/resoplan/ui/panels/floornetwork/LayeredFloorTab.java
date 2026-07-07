@@ -27,6 +27,7 @@ import javafx.scene.input.ScrollEvent;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.StackPane;
+import javafx.scene.paint.Color;
 
 public class LayeredFloorTab extends Tab {
 
@@ -44,13 +45,15 @@ public class LayeredFloorTab extends Tab {
 	private ToggleGroup headerToggleGroup;
 	private ScrollPane centerScrollPane;
 	private Pane mainNetworkPane;
-	// Layers
+
+	private final Project project;
+	private final Floor floor;
 	private EvacuationsLayer evacLayer;
 
-	private final Floor floor;
-
-	public LayeredFloorTab(final FloorsNetworksTab parentController, final Floor floor, final boolean active) {
+	public LayeredFloorTab(final FloorsNetworksTab parentController, final Project project, final Floor floor,
+			final boolean active) {
 		this.parentController = parentController;
+		this.project = project;
 		// Attention, on remplace le floor lazy loadé avec celui contenant ses noeuds !
 		this.floor = SVC_FLOORS.reloadWithNodes(floor).get();
 		initTabHeader();
@@ -62,8 +65,7 @@ public class LayeredFloorTab extends Tab {
 		this.centerScrollPane = new ScrollPane();
 		setContent(this.centerScrollPane);
 
-		final Project currentProject = AppStateManager.getInstance().currentProjectProperty().get();
-		final Bounds projectBounds = GuiUtils.calculateUniversalProjectBounds(currentProject);
+		final Bounds projectBounds = GuiUtils.calculateUniversalProjectBounds(this.project);
 
 		this.mainNetworkPane = new StackPane();
 		this.mainNetworkPane.setPrefSize(projectBounds.getWidth(), projectBounds.getHeight());
@@ -75,18 +77,15 @@ public class LayeredFloorTab extends Tab {
 
 		this.centerScrollPane.addEventFilter(ScrollEvent.SCROLL, event -> onScrollEvent(event));
 
-		// Configuration de l'image (identique à ton outil d'ajustement)
 		final ImageView layerImageView = new ImageView();
 		final File imgFile = new File(this.floor.getImgPath());
-		final Image img = new Image(imgFile.toURI().toString());
+		Image img = new Image(imgFile.toURI().toString());
+		if (this.floor.isVirtual()) {
+			img = GuiUtils.changeColorInImage(img, Color.BLACK, Color.BURLYWOOD);
+		}
 		layerImageView.setImage(img);
 		layerImageView.setPickOnBounds(true);
 		layerImageView.setPreserveRatio(true);
-
-		if (this.floor.isVirtual()) {
-			layerImageView.setOpacity(0.5d);
-		}
-
 		layerImageView.setScaleX(this.floor.getZoomFactor());
 		layerImageView.setScaleY(this.floor.getZoomFactor());
 		layerImageView.setTranslateX(this.floor.getShiftX());
@@ -94,14 +93,14 @@ public class LayeredFloorTab extends Tab {
 
 		this.mainNetworkPane.getChildren().add(layerImageView);
 
-		// Ajout du calque de dessin
-		this.evacLayer = new EvacuationsLayer(this.floor);
+		// Ajout du calque des évacuations
+		this.evacLayer = new EvacuationsLayer(this.project, this.floor);
 		this.mainNetworkPane.getChildren().add(this.evacLayer);
-
 		this.evacLayer.setPrefSize(projectBounds.getWidth(), projectBounds.getHeight());
 		this.evacLayer.setMinSize(projectBounds.getWidth(), projectBounds.getHeight());
 		this.evacLayer.setMaxSize(projectBounds.getWidth(), projectBounds.getHeight());
 		this.evacLayer.visibleProperty().bind(this.radioEvac.selectedProperty());
+		// TODO À terme, rajouter les autres calques.
 	}
 
 	private void onScrollEvent(final ScrollEvent event) {

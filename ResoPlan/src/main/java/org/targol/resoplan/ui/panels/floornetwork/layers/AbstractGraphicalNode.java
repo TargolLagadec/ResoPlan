@@ -6,8 +6,11 @@ import java.util.function.Consumer;
 import org.targol.resoplan.model.AbstractNode;
 import org.targol.resoplan.model.Floor;
 import org.targol.resoplan.model.LayerType;
+import org.targol.resoplan.model.Project;
 import org.targol.resoplan.services.NodesService;
 import org.targol.resoplan.services.ProjectsService;
+import org.targol.resoplan.ui.utils.GuiUtils;
+import org.targol.resoplan.ui.utils.events.NodePlacementEvent;
 import org.targol.resoplan.ui.utils.events.NodePropertiesAskedEvent;
 import org.targol.resoplan.ui.utils.events.RefreshFloorLayerEvent;
 import org.targol.resoplan.ui.utils.events.UiEventBus;
@@ -23,12 +26,14 @@ import javafx.scene.shape.Rectangle;
 
 public abstract class AbstractGraphicalNode extends StackPane {
 
-	public static final int NODE_SIZE_IN_CM = 20;
+	public static final int NODE_SIZE_IN_CM = 10;
 
 	protected static final ProjectsService SVC_PROJ = SpringContextHelper.getBean(ProjectsService.class);
 	protected static final NodesService SVC_NODES = SpringContextHelper.getBean(NodesService.class);
 	protected static final int SCALE = SVC_PROJ.getOpenedProject().getPlansScale();
 
+	protected final Project project;
+	private Floor floor;
 	protected AbstractNode node;
 	protected final LayerType layer;
 	protected final Color defaultColor;
@@ -36,8 +41,10 @@ public abstract class AbstractGraphicalNode extends StackPane {
 	private double dragEndY;
 	boolean dragging = false;
 
-	public AbstractGraphicalNode(final AbstractNode node, final LayerType layer, final Color defaultColor,
-			final Consumer<MouseEvent> onMergeRequested) {
+	public AbstractGraphicalNode(final Project project, final Floor floor, final AbstractNode node,
+			final LayerType layer, final Color defaultColor, final Consumer<MouseEvent> onMergeRequested) {
+		this.project = project;
+		this.floor = floor;
 		this.node = node;
 		this.layer = layer;
 		this.defaultColor = defaultColor;
@@ -51,8 +58,8 @@ public abstract class AbstractGraphicalNode extends StackPane {
 		view.setPreserveRatio(true);
 		view.fitWidthProperty().set(nodeSize);
 		getChildren().add(view);
-		setTranslateX(node.getPosX() - nodeSize / 2);
-		setTranslateY(node.getPosY() - nodeSize / 2);
+		setTranslateX(GuiUtils.centimetresTopixels(this.project, node.getPosX()) - nodeSize / 2);
+		setTranslateY(GuiUtils.centimetresTopixels(this.project, node.getPosY()) - nodeSize / 2);
 		initEvents(onMergeRequested);
 	}
 
@@ -68,14 +75,10 @@ public abstract class AbstractGraphicalNode extends StackPane {
 
 	private void initEvents(final Consumer<MouseEvent> onMergeRequested) {
 		setOnContextMenuRequested(evt -> {
+			evt.consume();
 			UiEventBus.send(NodePropertiesAskedEvent.of(this.layer, this.node));
-			// final ContextMenu menu = createContextMenu();
-//			if (menu != null) {
-//				menu.show(this, evt.getScreenX(), evt.getScreenY());
-//			}
-//			evt.consume();
+			UiEventBus.send(NodePlacementEvent.of(this.layer, this.floor, null));
 		});
-
 		final Delta dragDelta = new Delta();
 		final double halfSize = getNodeSize() / 2;
 
@@ -103,9 +106,11 @@ public abstract class AbstractGraphicalNode extends StackPane {
 
 		setOnMouseReleased(evt -> {
 			if (this.dragging) {
-				System.err.println("À la fin du drag : position = (" + this.dragEndX + "," + this.dragEndY + ")");
+				System.err.println("À la fin du drag : position écran = (" + this.dragEndX + "," + this.dragEndY + ")");
 
-				final Set<Floor> impactedFloors = SVC_NODES.processLazyMove(this.node, this.dragEndX, this.dragEndY);
+				final Set<Floor> impactedFloors = SVC_NODES.processLazyMove(this.node,
+						GuiUtils.pixelToCentimetres(this.project, this.dragEndX),
+						GuiUtils.pixelToCentimetres(this.project, this.dragEndY));
 
 				Platform.runLater(() -> {
 					for (final Floor floor : impactedFloors) {
