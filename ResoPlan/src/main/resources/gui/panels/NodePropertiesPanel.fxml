@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<fx:root type="javafx.scene.layout.GridPane" hgap="10"
+	prefWidth="300" maxWidth="300" vgap="10" xmlns="http://javafx.com/javafx/26"
+	xmlns:fx="http://javafx.com/fxml/1">
+	<children>
+		<Label text="%NodePropertiesPanel.model" wrapText="true" GridPane.columnIndex="0" GridPane.rowIndex="0" />
+		<TextField fx:id="modelTextField" disable="true" editable="false" GridPane.columnIndex="1" GridPane.rowIndex="0" />
+
+		<Label text="%NodePropertiesPanel.posX" wrapText="true" GridPane.columnIndex="0" GridPane.rowIndex="1" />
+		<TextField fx:id="posXTextField" disable="true" editable="false" GridPane.columnIndex="1" GridPane.rowIndex="1" />
+
+		<Label text="%NodePropertiesPanel.posY" wrapText="true" GridPane.columnIndex="0" GridPane.rowIndex="2"/> 
+		<TextField fx:id="posYTextField" disable="true" editable="false" GridPane.columnIndex="1" GridPane.rowIndex="2" />
+
+		<Label text="%NodePropertiesPanel.posZ" wrapText="true" GridPane.columnIndex="0" GridPane.rowIndex="3"/> 
+		<TextField fx:id="posZTextField"  GridPane.columnIndex="1" GridPane.rowIndex="3" />
+
+		<Label text="%NodePropertiesPanel.floor" wrapText="true" GridPane.columnIndex="0" GridPane.rowIndex="4"/>
+		<TextField fx:id="floorTextField" disable="true" editable="false"  GridPane.columnIndex="1" GridPane.rowIndex="4" />
+
+		<Label text="%NodePropertiesPanel.layer" wrapText="true" GridPane.columnIndex="0" GridPane.rowIndex="5"/>
+		<TextArea fx:id="layersTextField" disable="true" editable="false"  GridPane.columnIndex="1" GridPane.rowIndex="5" />
+
+		<Label text="%NodePropertiesPanel.nodeCross" wrapText="true" GridPane.columnIndex="0" GridPane.rowIndex="6" />
+		<TextField fx:id="nodeCrossTextField" disable="true" editable="false"  GridPane.columnIndex="1" GridPane.rowIndex="6" />
+
+		<Label text="%NodePropertiesPanel.hooks" wrapText="true" GridPane.columnIndex="0" GridPane.rowIndex="7" />
+		<TextArea fx:id="hooksTextField" disable="true" editable="false"  GridPane.columnIndex="1" GridPane.rowIndex="7" />
+
+		<HBox GridPane.columnSpan="2" GridPane.columnIndex="0" GridPane.rowIndex="8"  
+			GridPane.halignment="RIGHT"
+			GridPane.valignment="BASELINE">
+			<children>
+				<Button fx:id="saveButton" mnemonicParsing="false" text="%NodePropertiesPanel.saveButton" disable="true"/>
+				<Button fx:id="deleteButton" mnemonicParsing="false" text="%NodePropertiesPanel.delButton" />
+			</children>
+			<GridPane.margin>
+				<Insets bottom="10.0" left="50.0" right="10.0" top="20.0" />
+			</GridPane.margin>
+		</HBox>
+	</children>
+	<columnConstraints>
+		<ColumnConstraints />
+		<ColumnConstraints maxWidth="200" />
+	</columnConstraints>
+	<rowConstraints>
+		<RowConstraints minHeight="10.0" prefHeight="40.0" />
+		<RowConstraints minHeight="10.0" prefHeight="40.0" />
+		<RowConstraints minHeight="10.0" prefHeight="40.0" />
+		<RowConstraints minHeight="10.0" prefHeight="40.0" />
+		<RowConstraints minHeight="10.0" prefHeight="40.0" />
+		<RowConstraints minHeight="10.0" prefHeight="40.0" />
+		<RowConstraints minHeight="10.0" prefHeight="40.0" />
+		<RowConstraints minHeight="10.0" prefHeight="40.0" />
+		<RowConstraints minHeight="10.0" prefHeight="60.0" />
+	</rowConstraints>
+</fx:root>

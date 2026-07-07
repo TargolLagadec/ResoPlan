@@ -19,7 +19,11 @@ public class FloorsService extends NoCacheService {
 	}
 
 	public Optional<Floor> reloadWithNodes(final Floor f) {
-		return detachOptionalIfPresent(this.repo.findByIdWithNodes(f.getId()));
+		return findByIdWithNodes(f.getId());
+	}
+
+	public Optional<Floor> findByIdWithNodes(int id) {
+		return detachOptionalIfPresent(this.repo.findByIdWithNodes(id));
 	}
 
 	public Floor create(final Floor floor) throws ServiceException {

@@ -24,7 +24,7 @@ public class ValidationService {
 	private final ProjectsService projectsSvc;
 	private final NodesService nodesSvc;
 	private final NodeModelsService nodeModsSvc;
-	private NumberFormat numberFormat = NumberFormat.getInstance();
+	private final NumberFormat numberFormat = NumberFormat.getInstance();
 
 	public ValidationService(final ProjectsService projectsSvc, final NodesService nodesSvc,
 			final NodeModelsService nodeModsSvc) {
