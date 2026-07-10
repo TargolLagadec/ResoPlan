@@ -1,36 +1,56 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<?import javafx.scene.control.ButtonType?>
-<?import javafx.scene.control.ChoiceBox?>
-<?import javafx.scene.control.DialogPane?>
-<?import javafx.scene.control.Label?>
-<?import javafx.scene.control.ToggleButton?>
-<?import javafx.scene.layout.ColumnConstraints?>
-<?import javafx.scene.layout.GridPane?>
-<?import javafx.scene.layout.RowConstraints?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
 
 <DialogPane prefHeight="500" prefWidth="500"
 	xmlns="http://javafx.com/javafx/26" xmlns:fx="http://javafx.com/fxml/1">
 
 	<buttonTypes>
-		<ButtonType fx:id="okButtonType" buttonData="OK_DONE" text="%Generic.dialog.Ok" />
+		<ButtonType fx:id="okButtonType" buttonData="OK_DONE"
+			text="%Generic.dialog.Ok" />
 	</buttonTypes>
 	<content>
-		<GridPane hgap="5" vgap="5">
-
-			<Label text="%Dialog.prefs.theme" GridPane.columnIndex="0" GridPane.rowIndex="1" />
-			<ChoiceBox fx:id="themeChoiceBox" GridPane.columnIndex="1" GridPane.columnSpan="2" GridPane.rowIndex="1" />
-
-			<columnConstraints>
-				<ColumnConstraints />
-				<ColumnConstraints hgrow="ALWAYS" />
-				<ColumnConstraints />
-			</columnConstraints>
-			<rowConstraints>
-				<RowConstraints />
-				<RowConstraints />
-			</rowConstraints>
-		</GridPane>
+		<VBox>
+			<TitledPane animated="false" collapsible="false"
+				text="%Dialog.prefs.general">
+				<GridPane hgap="5" vgap="5">
+					<Label text="%Dialog.prefs.theme" wrapText="true"
+						GridPane.columnIndex="0" GridPane.rowIndex="1" />
+					<ChoiceBox fx:id="themeChoiceBox"
+						GridPane.columnIndex="1" GridPane.rowIndex="1" />
+					<columnConstraints>
+						<ColumnConstraints />
+						<ColumnConstraints hgrow="ALWAYS" />
+					</columnConstraints>
+					<rowConstraints>
+						<RowConstraints />
+						<RowConstraints />
+					</rowConstraints>
+				</GridPane>
+			</TitledPane>
+			<TitledPane animated="false" collapsible="false"
+				text="%Dialog.prefs.plan">
+				<GridPane hgap="5" vgap="5">
+					<Label text="%Dialog.prefs.plan.rulers" wrapText="true"
+						GridPane.columnIndex="0" GridPane.rowIndex="0" />
+					<CheckBox fx:id="rulersCheckBox" GridPane.columnIndex="1"
+						GridPane.rowIndex="0" />
+					<Label text="%Dialog.prefs.plan.grid" wrapText="true"
+						GridPane.columnIndex="0" GridPane.rowIndex="1" />
+					<CheckBox fx:id="gridCheckBox" GridPane.columnIndex="1"
+						GridPane.rowIndex="1" />
+					<columnConstraints>
+						<ColumnConstraints />
+						<ColumnConstraints hgrow="ALWAYS" />
+					</columnConstraints>
+					<rowConstraints>
+						<RowConstraints />
+						<RowConstraints />
+					</rowConstraints>
+				</GridPane>
+			</TitledPane>
+		</VBox>
 	</content>
 
 </DialogPane>

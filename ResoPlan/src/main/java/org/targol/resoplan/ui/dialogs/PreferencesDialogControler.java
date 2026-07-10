@@ -16,6 +16,7 @@ import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.control.Button;
 import javafx.scene.control.ButtonType;
+import javafx.scene.control.CheckBox;
 import javafx.scene.control.ChoiceBox;
 import javafx.scene.control.Dialog;
 import javafx.scene.control.DialogPane;
@@ -29,6 +30,10 @@ public class PreferencesDialogControler extends Dialog<Void> {
 	private ButtonType okButtonType;
 	@FXML
 	private ChoiceBox<Theme> themeChoiceBox;
+	@FXML
+	private CheckBox rulersCheckBox;
+	@FXML
+	private CheckBox gridCheckBox;
 
 	private final Window parentWindow;
 
@@ -58,21 +63,15 @@ public class PreferencesDialogControler extends Dialog<Void> {
 	@FXML
 	private void initialize() {
 		final PreferencesManager prefsMgr = PreferencesManager.getInstance();
-//		this.outdirPath.setText(prefsMgr.getPreference(PreferencesManager.PREF_OUTDIR));
 		initThemesChoicBox(prefsMgr);
-//		this.chkGetSetAuto.setSelected(prefsMgr.getBoolPreference(PreferencesManager.PREF_GENERATE_GETSET));
-//		this.chkGetSetAuto.setOnAction(event -> {
-//			prefsMgr.setBoolPreference(PreferencesManager.PREF_GENERATE_GETSET, this.chkGetSetAuto.isSelected());
-//		});
-//		this.chkSvcRepoAuto.setSelected(prefsMgr.getBoolPreference(PreferencesManager.PREF_JPA_GENERATE_REPO_AND_SRV));
-//		this.chkSvcRepoAuto.setOnAction(event -> {
-//			prefsMgr.setBoolPreference(PreferencesManager.PREF_JPA_GENERATE_REPO_AND_SRV,
-//					this.chkSvcRepoAuto.isSelected());
-//		});
-	}
-
-	@FXML
-	private void browseOutdir(final ActionEvent event) {
+		this.rulersCheckBox.setSelected(prefsMgr.getBoolPreference(PreferencesManager.PREF_SHOW_RULERS));
+		this.rulersCheckBox.setOnAction(event -> {
+			prefsMgr.setBoolPreference(PreferencesManager.PREF_SHOW_RULERS, this.rulersCheckBox.isSelected());
+		});
+		this.gridCheckBox.setSelected(prefsMgr.getBoolPreference(PreferencesManager.PREF_SHOW_GRID));
+		this.gridCheckBox.setOnAction(event -> {
+			prefsMgr.setBoolPreference(PreferencesManager.PREF_SHOW_GRID, this.gridCheckBox.isSelected());
+		});
 	}
 
 	@FXML

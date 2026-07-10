@@ -9,8 +9,8 @@ import org.targol.resoplan.ui.utils.events.UiEventBus;
 public class PreferencesManager {
 
 	private static final String PREF_THEME = "general.theme"; //$NON-NLS-1$
-	public static final String PREF_LAST_COLNUM = "general.colNum"; //$NON-NLS-1$
-	public static final String PREF_LAST_ROWNUM = "general.rowNum"; //$NON-NLS-1$
+	public static final String PREF_SHOW_RULERS = "network.showRulers"; //$NON-NLS-1$
+	public static final String PREF_SHOW_GRID = "network.showGrid"; //$NON-NLS-1$
 
 	private static PreferencesManager instance;
 	private final Preferences prefs;
