@@ -27,22 +27,28 @@ public class MetricHorizontalRulerCanvas extends Canvas {
 		double viewportWidth = scrollPane.getViewportBounds().getWidth();
 		double hValue = scrollPane.getHvalue();
 		double hOffset = (contentWidth - viewportWidth) * hValue;
-		double firstTickCm = Math.ceil(hOffset / mainStepPx) * mainStepCm;
+		if (hOffset < 0) {
+			hOffset = 0;
+		}
+		double firstTickCm = Math.floor(hOffset / mainStepPx) * mainStepCm;
 		gc.setStroke(Color.BLACK);
 		gc.setFill(Color.DARKGRAY);
 		gc.setFont(Font.font(9));
+		gc.setLineWidth(2);
 
 		for (double cm = firstTickCm;; cm += mainStepCm) {
 			double px = cm * scale - hOffset;
 			if (px > width) {
 				break;
 			}
-			gc.strokeLine(px, 0, px, 15);
-			String label = String.format("%.1fm", cm / 100.0);
-			gc.fillText(label, px + 3, 12);
-			double subPx = px - mainStepPx / 2;
-			if (subPx > 0 && subPx < width) {
-				gc.strokeLine(subPx, 0, subPx, 8);
+			if (px >= 0) {
+				gc.strokeLine(px, 0, px, 15);
+				String label = String.format("%.1fm", cm / 100.0); //$NON-NLS-1$
+				gc.fillText(label, px + 3, 12);
+				double subPx = px - mainStepPx / 2;
+				if (subPx > 0 && subPx < width) {
+					gc.strokeLine(subPx, 0, subPx, 8);
+				}
 			}
 		}
 	}

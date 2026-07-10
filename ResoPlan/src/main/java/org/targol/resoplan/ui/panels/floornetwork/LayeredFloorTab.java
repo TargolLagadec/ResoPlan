@@ -24,8 +24,10 @@ import javafx.scene.control.ToggleGroup;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.input.ScrollEvent;
+import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Pane;
+import javafx.scene.layout.Priority;
 import javafx.scene.layout.StackPane;
 import javafx.scene.paint.Color;
 
@@ -45,10 +47,13 @@ public class LayeredFloorTab extends Tab {
 	private ToggleGroup headerToggleGroup;
 	private ScrollPane centerScrollPane;
 	private Pane mainNetworkPane;
+	private MetricGridCanvas grid;
+	private MetricHorizontalRulerCanvas horizRuler;
+	private MetricVerticalRulerCanvas verticRuler;
+	private EvacuationsLayer evacLayer;
 
 	private final Project project;
 	private final Floor floor;
-	private EvacuationsLayer evacLayer;
 
 	public LayeredFloorTab(final FloorsNetworksTab parentController, final Project project, final Floor floor,
 			final boolean active) {
@@ -63,9 +68,29 @@ public class LayeredFloorTab extends Tab {
 
 	private void initContent() {
 		this.centerScrollPane = new ScrollPane();
-		setContent(this.centerScrollPane);
+
+		this.horizRuler = new MetricHorizontalRulerCanvas();
+		this.verticRuler = new MetricVerticalRulerCanvas();
+		GridPane layoutGrid = new GridPane();
+		layoutGrid.add(this.horizRuler, 1, 0);
+		// Règle gauche (index 0,1)
+		layoutGrid.add(this.verticRuler, 0, 1);
+		// Plan au centre (index 1,1)
+		layoutGrid.add(this.centerScrollPane, 1, 1);
+		GridPane.setHgrow(this.centerScrollPane, Priority.ALWAYS);
+		GridPane.setVgrow(this.centerScrollPane, Priority.ALWAYS);
+		setContent(layoutGrid);
+		this.horizRuler.widthProperty().bind(this.centerScrollPane.widthProperty());
+		this.horizRuler.setHeight(20);
+		this.verticRuler.heightProperty().bind(this.centerScrollPane.heightProperty());
+		this.verticRuler.setWidth(20);
 
 		final Bounds projectBounds = GuiUtils.calculateUniversalProjectBounds(this.project);
+
+		this.grid = new MetricGridCanvas();
+		this.grid.setWidth(projectBounds.getWidth());
+		this.grid.setHeight(projectBounds.getHeight());
+		this.grid.mouseTransparentProperty().set(true);
 
 		this.mainNetworkPane = new StackPane();
 		this.mainNetworkPane.setPrefSize(projectBounds.getWidth(), projectBounds.getHeight());
@@ -74,7 +99,6 @@ public class LayeredFloorTab extends Tab {
 
 		final Group zoomGroup = new Group(this.mainNetworkPane);
 		this.centerScrollPane.setContent(zoomGroup);
-
 		this.centerScrollPane.addEventFilter(ScrollEvent.SCROLL, event -> onScrollEvent(event));
 
 		final ImageView layerImageView = new ImageView();
@@ -101,6 +125,33 @@ public class LayeredFloorTab extends Tab {
 		this.evacLayer.setMaxSize(projectBounds.getWidth(), projectBounds.getHeight());
 		this.evacLayer.visibleProperty().bind(this.radioEvac.selectedProperty());
 		// TODO À terme, rajouter les autres calques.
+
+		this.mainNetworkPane.getChildren().add(this.grid);
+		setupRepaintListeners();
+		triggerRepaint();
+	}
+
+	private void setupRepaintListeners() {
+		// Écoute du Zoom
+		this.mainNetworkPane.scaleXProperty().addListener((obs, old, newVal) -> triggerRepaint());
+
+		// Écoute du Déplacement (Scroll)
+		this.centerScrollPane.hvalueProperty().addListener((obs, old, newVal) -> repaintRulers());
+		this.centerScrollPane.vvalueProperty().addListener((obs, old, newVal) -> repaintRulers());
+
+		// Écoute du redimensionnement des règles
+		this.horizRuler.widthProperty().addListener((obs, old, newVal) -> repaintRulers());
+		this.verticRuler.heightProperty().addListener((obs, old, newVal) -> repaintRulers());
+	}
+
+	private void triggerRepaint() {
+		this.grid.repaint(this.centerScrollPane, this.mainNetworkPane);
+		repaintRulers();
+	}
+
+	private void repaintRulers() {
+		this.horizRuler.repaint(this.centerScrollPane, this.mainNetworkPane);
+		this.verticRuler.repaint(this.centerScrollPane, this.mainNetworkPane);
 	}
 
 	private void onScrollEvent(final ScrollEvent event) {
