@@ -17,7 +17,6 @@ import org.targol.resoplan.utils.SpringContextHelper;
 
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SimpleObjectProperty;
-import javafx.scene.layout.Region;
 
 public class AppStateManager {
 
@@ -29,12 +28,10 @@ public class AppStateManager {
 
 	private final ObjectProperty<Map<Integer, Integer>> nodeIdToFloorId = new SimpleObjectProperty<>(new HashMap<>());
 	private final ObjectProperty<Project> currentProject = new SimpleObjectProperty<>(null);
-	private final ObjectProperty<AppState> currentAppState = new SimpleObjectProperty<>(AppState.NO_PROJECT);
+//	private final ObjectProperty<AppState> currentAppState = new SimpleObjectProperty<>(AppState.NO_PROJECT);
 
-	private final ObjectProperty<Floor> activeFloor = new SimpleObjectProperty<>(null);
+//	private final ObjectProperty<Floor> activeFloor = new SimpleObjectProperty<>(null);
 	private final ObjectProperty<LayerType> activeNetworkLayer = new SimpleObjectProperty<>(null);
-
-	private final ObjectProperty<Region> currentMainPanel = new SimpleObjectProperty<>(null);
 
 	private final FloorsService floorsSvc = SpringContextHelper.getBean(FloorsService.class);
 	private final NodesService nodesSvc = SpringContextHelper.getBean(NodesService.class);
@@ -42,37 +39,15 @@ public class AppStateManager {
 	private AppStateManager() {
 		this.currentProject.addListener((obs, oldProj, newProj) -> {
 			if (newProj == null) {
-				this.currentAppState.set(AppState.NO_PROJECT);
-				this.activeFloor.set(null);
+//				this.activeFloor.set(null);
 				this.activeNetworkLayer.set(null);
-			} else {
-				updateProjectState(newProj);
 			}
 		});
-		UiEventBus.register(ProblemsUpdatedEvent.REBUILD_MAP, (evt) -> recalculateNodeIdToFloorId());
-	}
-
-	public void updateProjectState(final Project project) {
-		if (project == null) {
-			this.currentAppState.set(AppState.NO_PROJECT);
-			return;
-		}
-		final boolean missingImage = project.getFloors().stream()
-				.anyMatch(f -> f.getImgPath() == null || f.getImgPath().isEmpty());
-
-		if (missingImage || project.getPlansScale() == 0) {
-			this.currentAppState.set(AppState.PROJECT_INCOMPLETE);
-		} else {
-			this.currentAppState.set(AppState.PROJECT_READY);
-		}
+		UiEventBus.register(null, ProblemsUpdatedEvent.REBUILD_MAP, (evt) -> recalculateNodeIdToFloorId());
 	}
 
 	public ObjectProperty<Project> currentProjectProperty() {
 		return this.currentProject;
-	}
-
-	public ObjectProperty<AppState> currentAppStateProperty() {
-		return this.currentAppState;
 	}
 
 	public ObjectProperty<Map<Integer, Integer>> nodeIdToFloorId() {
@@ -80,16 +55,16 @@ public class AppStateManager {
 	}
 
 	private void recalculateNodeIdToFloorId() {
-		Map<Integer, Integer> nodeToFloorMap = new HashMap<>();
+		final Map<Integer, Integer> nodeToFloorMap = new HashMap<>();
 		if (this.currentProject.get() != null) {
-			for (Floor floor : this.currentProject.get().getFloors()) {
-				Floor realFloor = this.floorsSvc.reloadWithNodes(floor).get();
-				for (AbstractNode node : realFloor.getNodes()) {
+			for (final Floor floor : this.currentProject.get().getFloors()) {
+				final Floor realFloor = this.floorsSvc.reloadWithNodes(floor).get();
+				for (final AbstractNode node : realFloor.getNodes()) {
 					nodeToFloorMap.put(node.getId(), floor.getId());
 					// Si c'est un MetaNode, on indexe aussi ses sous-nœuds manuellement
-					if (node instanceof MetaNode meta) {
-						MetaNode fullMeta = this.nodesSvc.getfullMetaNodeWithChidrenNodes(meta).get();
-						for (Node subNode : fullMeta.getNodes()) {
+					if (node instanceof final MetaNode meta) {
+						final MetaNode fullMeta = this.nodesSvc.getfullMetaNodeWithChidrenNodes(meta).get();
+						for (final Node subNode : fullMeta.getNodes()) {
 							nodeToFloorMap.put(subNode.getId(), floor.getId());
 						}
 					}
@@ -100,9 +75,9 @@ public class AppStateManager {
 		UiEventBus.send(ProblemsUpdatedEvent.fireCheck(this.currentProject.get()));
 	}
 
-	public ObjectProperty<Floor> activeFloorProperty() {
-		return this.activeFloor;
-	}
+//	public ObjectProperty<Floor> activeFloorProperty() {
+//		return this.activeFloor;
+//	}
 
 	public ObjectProperty<LayerType> activeNetworkLayerProperty() {
 		return this.activeNetworkLayer;
@@ -110,27 +85,13 @@ public class AppStateManager {
 
 	public void setOpenedProject(final Project project) {
 		this.currentProject.set(project);
-		updateProjectState(project);
 	}
 
-	public void setActiveFloor(final Floor floor) {
-		this.activeFloor.set(floor);
-	}
+//	public void setActiveFloor(final Floor floor) {
+//		this.activeFloor.set(floor);
+//	}
 
 	public void setActiveNetworkLayer(final LayerType layer) {
 		this.activeNetworkLayer.set(layer);
 	}
-
-	public ObjectProperty<Region> currentMainPanelProperty() {
-		return this.currentMainPanel;
-	}
-
-	public void setCurrentOpenedMainPanel(final Region panel) {
-		this.currentMainPanel.set(panel);
-	}
-
-	public Region getCurrentOpenedMainPanel() {
-		return this.currentMainPanel.get();
-	}
-
 }

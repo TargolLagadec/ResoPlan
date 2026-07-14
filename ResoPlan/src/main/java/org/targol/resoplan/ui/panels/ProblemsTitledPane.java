@@ -62,10 +62,10 @@ public class ProblemsTitledPane extends TitledPane {
 		this.sortedProblems.comparatorProperty().bind(this.tableView.comparatorProperty());
 		setContent(this.tableView);
 		setupFilterLogic();
-		UiEventBus.register(ThemeChangeEvent.THEME_CHANGE, (event) -> {
+		UiEventBus.register(this, ThemeChangeEvent.THEME_CHANGE, (event) -> {
 			Platform.runLater(() -> this.tableView.refresh());
 		});
-		UiEventBus.register(ProblemsUpdatedEvent.DISPLAY_PROBLEMS, (event) -> updateProblems());
+		UiEventBus.register(this, ProblemsUpdatedEvent.DISPLAY_PROBLEMS, (event) -> updateProblems());
 	}
 
 	public void updateProblems() {
@@ -82,14 +82,14 @@ public class ProblemsTitledPane extends TitledPane {
 	}
 
 	private void buildHeader() {
-		Label titleLabel = new Label(Messages.getString("ProblemsTitledPane.title")); //$NON-NLS-1$
+		final Label titleLabel = new Label(Messages.getString("ProblemsTitledPane.title")); //$NON-NLS-1$
 		titleLabel.setStyle("-fx-font-weight: bold;"); //$NON-NLS-1$
-		HBox headerLayout = new HBox(20);
+		final HBox headerLayout = new HBox(20);
 
 		this.cboxError.setSelected(true);
 		this.cboxWarning.setSelected(true);
 		this.cboxInfo.setSelected(true);
-		HBox severityGroup = new HBox(10, this.cboxError, this.cboxWarning, this.cboxInfo);
+		final HBox severityGroup = new HBox(10, this.cboxError, this.cboxWarning, this.cboxInfo);
 		severityGroup.setOnMouseClicked(Event::consume);
 
 		this.cboxGeneral.setSelected(true);
@@ -102,7 +102,7 @@ public class ProblemsTitledPane extends TitledPane {
 		this.cboxLayer.setTooltip(new Tooltip(Messages.getString("ProblemsTitledPane.filter.layer.tooltip"))); //$NON-NLS-1$
 		this.cboxNode.setSelected(true);
 		this.cboxNode.setTooltip(new Tooltip(Messages.getString("ProblemsTitledPane.filter.node.tooltip"))); //$NON-NLS-1$
-		HBox typeGroup = new HBox(10, this.cboxGeneral, this.cboxProject, this.cboxFloor, this.cboxLayer,
+		final HBox typeGroup = new HBox(10, this.cboxGeneral, this.cboxProject, this.cboxFloor, this.cboxLayer,
 				this.cboxNode);
 		typeGroup.setOnMouseClicked(Event::consume);
 
@@ -120,13 +120,13 @@ public class ProblemsTitledPane extends TitledPane {
 
 	private void initTableColumns() {
 		// --- 1. Colonne Gravité (Icône) ---
-		TableColumn<Problem, Severity> colSeverity = new TableColumn<>("!"); //$NON-NLS-1$
+		final TableColumn<Problem, Severity> colSeverity = new TableColumn<>("!"); //$NON-NLS-1$
 		colSeverity.setPrefWidth(30);
 		colSeverity.setMaxWidth(30);
 		colSeverity.setCellValueFactory(cellData -> new SimpleObjectProperty<>(cellData.getValue().getSeverity()));
 		colSeverity.setCellFactory(column -> new TableCell<>() {
 			@Override
-			protected void updateItem(Severity item, boolean empty) {
+			protected void updateItem(final Severity item, final boolean empty) {
 				super.updateItem(item, empty);
 				if (empty || item == null) {
 					setGraphic(null);
@@ -137,55 +137,55 @@ public class ProblemsTitledPane extends TitledPane {
 			}
 		});
 		// --- 2. Colonne Projet ---
-		TableColumn<Problem, Boolean> colProject = new TableColumn<>(
+		final TableColumn<Problem, Boolean> colProject = new TableColumn<>(
 				Messages.getString("ProblemsTitledPane.filter.project.label")); //$NON-NLS-1$
 		colProject.setPrefWidth(100);
 		colProject.setMaxWidth(100);
 		colProject.setCellValueFactory(cellData -> {
-			Problem p = cellData.getValue();
-			boolean isProjectOnly = p.getProjectId() != null && p.getFloorId() == null;
+			final Problem p = cellData.getValue();
+			final boolean isProjectOnly = p.getProjectId() != null && p.getFloorId() == null;
 			return new SimpleBooleanProperty(isProjectOnly);
 		});
 		setCheckMarkCellFactory(colProject);
 
 		// --- 3. Colonne Étage ---
-		TableColumn<Problem, Boolean> colFloor = new TableColumn<>(
+		final TableColumn<Problem, Boolean> colFloor = new TableColumn<>(
 				Messages.getString("ProblemsTitledPane.filter.floor.label")); //$NON-NLS-1$
 		colFloor.setPrefWidth(100);
 		colFloor.setMaxWidth(100);
 		colFloor.setCellValueFactory(cellData -> {
-			Problem p = cellData.getValue();
-			boolean isFloorOnly = p.getFloorId() != null && p.getLayerType() == null;
+			final Problem p = cellData.getValue();
+			final boolean isFloorOnly = p.getFloorId() != null && p.getLayerType() == null;
 			return new SimpleBooleanProperty(isFloorOnly);
 		});
 		setCheckMarkCellFactory(colFloor);
 
 		// --- 4. Colonne Layer ---
-		TableColumn<Problem, Boolean> colLayer = new TableColumn<>(
+		final TableColumn<Problem, Boolean> colLayer = new TableColumn<>(
 				Messages.getString("ProblemsTitledPane.filter.layer.label")); //$NON-NLS-1$
 		colLayer.setPrefWidth(100);
 		colLayer.setMaxWidth(100);
 		colLayer.setCellValueFactory(cellData -> {
-			Problem p = cellData.getValue();
-			boolean isLayerOnly = p.getLayerType() != null && p.getNodeId() == null;
+			final Problem p = cellData.getValue();
+			final boolean isLayerOnly = p.getLayerType() != null && p.getNodeId() == null;
 			return new SimpleBooleanProperty(isLayerOnly);
 		});
 		setCheckMarkCellFactory(colLayer);
 
 		// --- 5. Colonne Node ---
-		TableColumn<Problem, Boolean> colNode = new TableColumn<>(
+		final TableColumn<Problem, Boolean> colNode = new TableColumn<>(
 				Messages.getString("ProblemsTitledPane.filter.node.label")); //$NON-NLS-1$
 		colNode.setPrefWidth(100);
 		colNode.setMaxWidth(100);
 		colNode.setCellValueFactory(cellData -> {
-			Problem p = cellData.getValue();
-			boolean isNode = p.getNodeId() != null;
+			final Problem p = cellData.getValue();
+			final boolean isNode = p.getNodeId() != null;
 			return new SimpleBooleanProperty(isNode);
 		});
 		setCheckMarkCellFactory(colNode);
 
 		// --- 6. Colonne Message ---
-		TableColumn<Problem, String> colMessage = new TableColumn<>(Messages.getString("ProblemsTitledPane.message")); //$NON-NLS-1$
+		final TableColumn<Problem, String> colMessage = new TableColumn<>(Messages.getString("ProblemsTitledPane.message")); //$NON-NLS-1$
 		colMessage.setCellValueFactory(cellData -> new SimpleStringProperty(cellData.getValue().getMessage()));
 		// Permet à la colonne message de prendre tout l'espace restant
 		this.tableView.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY_FLEX_LAST_COLUMN);
@@ -193,7 +193,7 @@ public class ProblemsTitledPane extends TitledPane {
 		this.tableView.getColumns().addAll(colSeverity, colProject, colFloor, colLayer, colNode, colMessage);
 	}
 
-	private ImageView buidSeverityIcon(Severity severity) {
+	private ImageView buidSeverityIcon(final Severity severity) {
 		if (severity == null) {
 			return null;
 		}
@@ -203,17 +203,17 @@ public class ProblemsTitledPane extends TitledPane {
 		return view;
 	}
 
-	private void setCheckMarkCellFactory(TableColumn<Problem, Boolean> column) {
+	private void setCheckMarkCellFactory(final TableColumn<Problem, Boolean> column) {
 		column.setCellFactory(col -> new TableCell<>() {
 			@Override
-			protected void updateItem(Boolean item, boolean empty) {
+			protected void updateItem(final Boolean item, final boolean empty) {
 				super.updateItem(item, empty);
 				if (empty || item == null || !item) {
 					setGraphic(null);
 					setText("");
 				} else {
 					// Création du caractère de coche ✓ ou d'un Label avec ton icône SVG
-					Label checkMark = new Label("✓");
+					final Label checkMark = new Label("✓");
 					checkMark.setStyle("-fx-text-fill: green; -fx-font-weight: bold;");
 					setGraphic(checkMark);
 				}
@@ -224,7 +224,7 @@ public class ProblemsTitledPane extends TitledPane {
 	}
 
 	private void setupFilterLogic() {
-		InvalidationListener filterTrigger = observable -> updateFilter();
+		final InvalidationListener filterTrigger = observable -> updateFilter();
 
 		this.cboxError.selectedProperty().addListener(filterTrigger);
 		this.cboxWarning.selectedProperty().addListener(filterTrigger);

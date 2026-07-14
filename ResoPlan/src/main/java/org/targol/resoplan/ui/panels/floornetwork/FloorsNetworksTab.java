@@ -6,7 +6,9 @@ import java.util.List;
 
 import org.targol.resoplan.model.Floor;
 import org.targol.resoplan.model.Project;
+import org.targol.resoplan.services.ProjectsService;
 import org.targol.resoplan.ui.utils.AppStateManager;
+import org.targol.resoplan.utils.SpringContextHelper;
 
 import javafx.geometry.Bounds;
 import javafx.scene.Group;
@@ -17,16 +19,18 @@ import javafx.scene.layout.Pane;
 public class FloorsNetworksTab extends TabPane {
 
 	private final Project project;
+	private static final ProjectsService SVC_PROJ = SpringContextHelper.getBean(ProjectsService.class);
+
 	private final List<LayeredFloorTab> floorTabs = new ArrayList<>();
 	private boolean isSyncing = false;
 
 	public FloorsNetworksTab(final Project project) {
-		this.project = project;
+		this.project = SVC_PROJ.openProjectWithFloorsAndNodes(project).get();
 		setTabClosingPolicy(TabClosingPolicy.UNAVAILABLE);
 		final AppStateManager state = AppStateManager.getInstance();
 		getSelectionModel().selectedItemProperty().addListener((obs, oldTab, newTab) -> {
 			if (newTab instanceof final LayeredFloorTab layeredTab) {
-				state.setActiveFloor(layeredTab.getFloor());
+				// UiEventBus.send(RefreshFloorLayerEvent.floorChanged(layeredTab.getFloor()));
 				state.activeNetworkLayerProperty().set(layeredTab.getCurrentLayer());
 				layeredTab.enableHeaderRadioButtons();
 			}

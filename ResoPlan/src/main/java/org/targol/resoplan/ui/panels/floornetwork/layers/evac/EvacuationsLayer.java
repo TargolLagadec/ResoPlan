@@ -60,10 +60,11 @@ public class EvacuationsLayer extends Pane {
 		setPickOnBounds(true);
 		setStyle("-fx-background-color: transparent;"); //$NON-NLS-1$
 		addEventHandler(MouseEvent.MOUSE_CLICKED, this::handleCanvasClick);
-		UiEventBus.register(NodePlacementEvent.WATER_EVAC, evt -> onNodePlacementEvent(evt));
-		UiEventBus.register(LinkTracingEvent.WATER_EVAC, evt -> onLinkTracingEvent(evt));
-		UiEventBus.register(LinkedNodePlacementEvent.WATER_EVAC, evt -> onLinkedNodePlacementEvent(evt));
-		UiEventBus.register(RefreshFloorLayerEvent.WATER_EVAC, evt -> refresh(evt));
+		UiEventBus.register(this, NodePlacementEvent.WATER_EVAC, evt -> onNodePlacementEvent(evt));
+		UiEventBus.register(this, LinkTracingEvent.WATER_EVAC, evt -> onLinkTracingEvent(evt));
+		UiEventBus.register(this, LinkedNodePlacementEvent.WATER_EVAC, evt -> onLinkedNodePlacementEvent(evt));
+		UiEventBus.register(this, RefreshFloorLayerEvent.WATER_EVAC, evt -> refresh(evt));
+//		UiEventBus.register(this, RefreshFloorLayerEvent.CHANGE_FLOOR, evt -> changeFloor(evt));
 	}
 
 	private void refresh(final RefreshFloorLayerEvent evt) {
@@ -104,22 +105,15 @@ public class EvacuationsLayer extends Pane {
 	}
 
 	private void onNodePlacementEvent(final NodePlacementEvent evt) {
-		final Floor targetFloor = evt.getFloor();
-		if (targetFloor.equals(this.floor)) {
-			setCurrentNodeModel(evt.getModel(), evt.getNodeCross());
-		}
+		setCurrentNodeModel(evt.getModel(), evt.getNodeCross());
 		evt.consume();
 	}
 
 	private void onLinkTracingEvent(final LinkTracingEvent evt) {
-		final Floor targetFloor = evt.getFloor();
-		if (targetFloor.equals(this.floor)) {
-			final HookType newTool = evt.getHook();
-			if (newTool != null) {
-				System.err
-						.println("Dans le listener EvacuationsLayer, on trace un lien de type " + newTool.getHookKey());
-				setCurrentHookType(newTool);
-			}
+		final HookType newTool = evt.getHook();
+		if (newTool != null) {
+			System.err.println("Dans le listener EvacuationsLayer, on trace un lien de type " + newTool.getHookKey());
+			setCurrentHookType(newTool);
 		}
 		evt.consume();
 	}

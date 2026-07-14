@@ -3,14 +3,18 @@ package org.targol.resoplan.ui.panels;
 import java.util.List;
 
 import org.targol.resoplan.model.Project;
+import org.targol.resoplan.services.ProjectsService;
 import org.targol.resoplan.ui.utils.events.ProjectUpdatedEvent;
 import org.targol.resoplan.ui.utils.events.UiEventBus;
+import org.targol.resoplan.utils.SpringContextHelper;
 
 import javafx.fxml.FXML;
 import javafx.scene.control.ListCell;
 import javafx.scene.control.ListView;
 
 public class WelcomePanelController {
+
+	private static final ProjectsService SVC_PROJECTS = SpringContextHelper.getBean(ProjectsService.class);
 
 	@FXML
 	private ListView<Project> lstProjects;
@@ -30,7 +34,7 @@ public class WelcomePanelController {
 				}
 			};
 			cell.setOnMouseClicked(event -> {
-				final Project project = cell.getItem();
+				final Project project = SVC_PROJECTS.openProjectWithFloorsAndNodes(cell.getItem()).get();
 				UiEventBus.send(ProjectUpdatedEvent.firechange(project));
 			});
 			return cell;

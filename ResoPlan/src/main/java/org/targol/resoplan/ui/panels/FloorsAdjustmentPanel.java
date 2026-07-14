@@ -18,6 +18,7 @@ import org.targol.resoplan.ui.utils.AppStateManager;
 import org.targol.resoplan.ui.utils.GuiUtils;
 import org.targol.resoplan.ui.utils.events.AjustEvent;
 import org.targol.resoplan.ui.utils.events.ProblemsUpdatedEvent;
+import org.targol.resoplan.ui.utils.events.ProjectUpdatedEvent;
 import org.targol.resoplan.ui.utils.events.UiEventBus;
 import org.targol.resoplan.utils.SpringContextHelper;
 
@@ -49,6 +50,8 @@ public class FloorsAdjustmentPanel extends BorderPane {
 	private StackPane stackPaneCalques;
 
 	private final Project project;
+	private static final ProjectsService SVC_PROJ = SpringContextHelper.getBean(ProjectsService.class);
+
 	private final ResourceBundle bundle = ResourceBundle.getBundle("i18n.messages", Locale.getDefault()); //$NON-NLS-1$
 	private final Map<Floor, ImageView> layerImages = new HashMap<>();
 	// Scale tracing
@@ -58,10 +61,10 @@ public class FloorsAdjustmentPanel extends BorderPane {
 	private Color paintColor = Color.BLACK;
 
 	public FloorsAdjustmentPanel(final Project proj) {
-		this.project = proj;
-		UiEventBus.register(AjustEvent.FLOOR_UPDATED, evt -> onFloorChangeEvent(evt));
-		UiEventBus.register(AjustEvent.VISUAL_CHANGED, evt -> onVisualChangeEvent(evt));
-		UiEventBus.register(AjustEvent.SCALE_LINE_START_REQUIRED, evt -> onScaleStart(evt));
+		this.project = SVC_PROJ.openProjectWithFloorsAndNodes(proj).get();
+		UiEventBus.register(this, AjustEvent.FLOOR_UPDATED, evt -> onFloorChangeEvent(evt));
+		UiEventBus.register(this, AjustEvent.VISUAL_CHANGED, evt -> onVisualChangeEvent(evt));
+		UiEventBus.register(this, AjustEvent.SCALE_LINE_START_REQUIRED, evt -> onScaleStart(evt));
 
 		final FXMLLoader loader = new FXMLLoader(getClass().getResource("/gui/panels/FloorsAdjustmentPanel.fxml"), //$NON-NLS-1$
 				this.bundle);
@@ -115,7 +118,6 @@ public class FloorsAdjustmentPanel extends BorderPane {
 		final ImageView imgView = this.layerImages.get(floor);
 		imgView.setVisible(event.isVisible());
 		imgView.setOpacity(event.getOpacity());
-		final Image originalImage = (Image) imgView.getUserData();
 		this.paintColor = event.getPaintColor();
 		updateImageView(floor, imgView);
 		this.stackPaneCalques.requestLayout();
@@ -147,7 +149,7 @@ public class FloorsAdjustmentPanel extends BorderPane {
 			final ProjectsService service = SpringContextHelper.getBean(ProjectsService.class);
 			service.updateProject(this.project);
 			AppStateManager.getInstance().currentProjectProperty().set(this.project);
-			AppStateManager.getInstance().updateProjectState(this.project);
+			UiEventBus.send(ProjectUpdatedEvent.firechange(this.project));
 			UiEventBus.send(ProblemsUpdatedEvent.fireMapRebuild());
 
 			this.tracingScale = false;

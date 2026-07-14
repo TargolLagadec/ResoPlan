@@ -21,7 +21,6 @@ import org.targol.resoplan.ui.utils.events.NodePlacementEvent;
 import org.targol.resoplan.utils.MiscUtils;
 import org.targol.resoplan.utils.SpringContextHelper;
 
-import javafx.beans.binding.BooleanBinding;
 import javafx.geometry.BoundingBox;
 import javafx.geometry.Bounds;
 import javafx.geometry.Point2D;
@@ -49,26 +48,26 @@ public class GuiUtils {
 	public static final double NETWORK_PLANS_MARGIN = 0;
 
 	/**
-	 * Convertit une valeur en pixel pour le positionnement à l'écran en une valeur en cm pour stockage en bdd pour les
-	 * calculs de débit.
+	 * Convertit une valeur en pixel pour le positionnement à l'écran en une valeur
+	 * en cm pour stockage en bdd pour les calculs de débit.
 	 *
 	 * @param proj       Projet contenant l'échelle en pixels par mètre.
 	 * @param pixelValue valeur à convertir
 	 * @return la valeur convertie en cm.
 	 */
-	public static double pixelToCentimetres(Project proj, double pixelValue) {
+	public static double pixelToCentimetres(final Project proj, final double pixelValue) {
 		return pixelValue * 100 / proj.getPlansScale();
 	}
 
 	/**
-	 * Convertit une valeur en centimètres stockée en bdd pour les calculs de débit en une valeur en pixels pour le
-	 * positionnement à l'écran.
+	 * Convertit une valeur en centimètres stockée en bdd pour les calculs de débit
+	 * en une valeur en pixels pour le positionnement à l'écran.
 	 *
 	 * @param proj    Projet contenant l'échelle en pixels par mètre.
 	 * @param cmValue valeur à convertir
 	 * @return la valeur convertie en pixels.
 	 */
-	public static double centimetresTopixels(Project proj, double cmValue) {
+	public static double centimetresTopixels(final Project proj, final double cmValue) {
 		return cmValue * proj.getPlansScale() / 100;
 	}
 
@@ -224,29 +223,6 @@ public class GuiUtils {
 		alert.showAndWait();
 	}
 
-	private static BooleanBinding buildNewDisabledBinding(final LayerType layer, final NodeCross direction) {
-		switch (direction) {
-		case NONE:
-			return BindingBuilder.createDefaultBuilderFor(layer).build();
-		case GOES_DOWN:
-			return BindingBuilder.createDefaultBuilderFor(layer).activeFloorAndProjectMatch((floor, project) -> {
-				if (floor == null || project == null) {
-					return true;
-				}
-				return floor.getNumber() == project.getLowestFloorNumber();
-			}).build();
-		case GOES_UP:
-			return BindingBuilder.createDefaultBuilderFor(layer).activeFloorAndProjectMatch((floor, project) -> {
-				if (floor == null || project == null) {
-					return true;
-				}
-				return floor.getNumber() == project.getTopmostFloorNumber();
-			}).build();
-		default:
-			return null;
-		}
-	}
-
 	public static VBox buildCategorizedNodeModelsToolbar(final LayerType layer, final NodeCategory cat,
 			final NodeModelsService modelsService, final ToggleGroup placementGroup) {
 		final VBox ret = new VBox(5);
@@ -266,9 +242,7 @@ public class GuiUtils {
 				btnDown.setUserData(model);
 				buttons.getChildren().add(btnDown);
 			} else {
-				final CatalogButton btn = new CatalogButton(model, () -> NodePlacementEvent.of(layer,
-						AppStateManager.getInstance().activeFloorProperty().get(), model));
-				btn.disableProperty().bind(BindingBuilder.createDefaultBuilderFor(layer).build());
+				final CatalogButton btn = new CatalogButton(model, () -> NodePlacementEvent.of(layer, model));
 				btn.setToggleGroup(placementGroup);
 				btn.setUserData(model);
 				buttons.getChildren().add(btn);
@@ -280,9 +254,8 @@ public class GuiUtils {
 
 	private static CatalogButtonUpOrDown buildUpDownButton(final LayerType layer, final NodeModel model,
 			final NodeCross nodeCross) {
-		final CatalogButtonUpOrDown ret = new CatalogButtonUpOrDown(model, nodeCross, () -> NodePlacementEvent.of(layer,
-				AppStateManager.getInstance().activeFloorProperty().get(), model, nodeCross));
-		ret.disableProperty().bind(buildNewDisabledBinding(layer, nodeCross));
+		final CatalogButtonUpOrDown ret = new CatalogButtonUpOrDown(model, nodeCross,
+				() -> NodePlacementEvent.of(layer, model, nodeCross));
 		return ret;
 	}
 
@@ -314,10 +287,9 @@ public class GuiUtils {
 					buttons.getChildren().add(btnDown);
 				} else {
 
-					final CatalogButton btn = new CatalogButton(fullmodel, () -> NodePlacementEvent.of(layer,
-							AppStateManager.getInstance().activeFloorProperty().get(), fullmodel));
+					final CatalogButton btn = new CatalogButton(fullmodel,
+							() -> NodePlacementEvent.of(layer, fullmodel));
 					btn.setToggleGroup(placementGroup); // Partagé pour qu'un seul outil soit actif à la fois
-					btn.disableProperty().bind(BindingBuilder.createDefaultBuilderFor(layer).build());
 					btn.setUserData(fullmodel);
 					buttons.getChildren().add(btn);
 				}
@@ -336,10 +308,8 @@ public class GuiUtils {
 		final HBox buttons = new HBox(5);
 		final HookTypesService hooksService = SpringContextHelper.getBean(HookTypesService.class);
 		for (final HookType hook : hooksService.getAllFromLayer(layer)) {
-			final LayerLinkButton btn = new LayerLinkButton(hook,
-					() -> LinkTracingEvent.of(layer, AppStateManager.getInstance().activeFloorProperty().get(), hook));
+			final LayerLinkButton btn = new LayerLinkButton(hook, () -> LinkTracingEvent.of(layer, hook));
 			btn.setToggleGroup(placementGroup); // Partagé pour qu'un seul outil soit actif à la fois
-			btn.disableProperty().bind(buildNewDisabledBinding(layer, NodeCross.NONE));
 			btn.setUserData(hook);
 			buttons.getChildren().add(btn);
 		}

@@ -2,12 +2,16 @@ package org.targol.resoplan.ui.components;
 
 import java.util.function.Supplier;
 
+import org.targol.resoplan.model.Floor;
 import org.targol.resoplan.model.catalog.NodeModel;
 import org.targol.resoplan.model.catalog.enums.NodeCross;
+import org.targol.resoplan.services.ProjectsService;
 import org.targol.resoplan.ui.utils.ThemesManager;
 import org.targol.resoplan.ui.utils.events.GenericActionEvent;
+import org.targol.resoplan.ui.utils.events.RefreshFloorLayerEvent;
 import org.targol.resoplan.ui.utils.events.ThemeChangeEvent;
 import org.targol.resoplan.ui.utils.events.UiEventBus;
+import org.targol.resoplan.utils.SpringContextHelper;
 
 import javafx.beans.property.DoubleProperty;
 import javafx.beans.property.SimpleDoubleProperty;
@@ -16,8 +20,12 @@ import javafx.scene.control.Tooltip;
 import javafx.scene.image.ImageView;
 
 public class CatalogButtonUpOrDown extends ToggleButton {
+
+	private static final ProjectsService SVC_PROJ = SpringContextHelper.getBean(ProjectsService.class);
 	private static final double size = 30.0d;
+
 	private final DoubleProperty imgWidth = new SimpleDoubleProperty(25.0d);
+
 	private final NodeModel model;
 	private final NodeCross nodeCross;
 
@@ -33,13 +41,24 @@ public class CatalogButtonUpOrDown extends ToggleButton {
 		setMaxWidth(size);
 		final String desc = model.getDescription();
 		setTooltip(new Tooltip(desc));
-		UiEventBus.register(ThemeChangeEvent.THEME_CHANGE, (event) -> updateAppearance());
+		UiEventBus.register(this, ThemeChangeEvent.THEME_CHANGE, (event) -> updateAppearance());
+		UiEventBus.register(this, RefreshFloorLayerEvent.REFRESH_ANY, (event) -> setButtonAvialiability(event));
 
 		this.imgWidth.addListener((obs, oldValue, newValue) -> {
 			updateAppearance();
 		});
 		setOnAction(e -> UiEventBus.send(eventSupplier.get()));
 		updateAppearance();
+	}
+
+	private void setButtonAvialiability(final RefreshFloorLayerEvent event) {
+		final Floor floor = event.getFloor();
+		if (NodeCross.GOES_DOWN.equals(this.nodeCross) && SVC_PROJ.isBottomestFloor(floor)) {
+			this.setDisable(true);
+		}
+		if (NodeCross.GOES_UP.equals(this.nodeCross) && SVC_PROJ.isTopmostFloor(floor)) {
+			this.setDisable(true);
+		}
 	}
 
 	public double getImgWidth() {

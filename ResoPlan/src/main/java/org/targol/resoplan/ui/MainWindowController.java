@@ -15,28 +15,25 @@ import org.targol.resoplan.ui.panels.FloorsAdjustmentPanel;
 import org.targol.resoplan.ui.panels.ProblemsTitledPane;
 import org.targol.resoplan.ui.panels.WelcomePanelController;
 import org.targol.resoplan.ui.panels.floornetwork.FloorsNetworksSplitPane;
-import org.targol.resoplan.ui.toolbars.AjustToolBar;
 import org.targol.resoplan.ui.toolbars.DefaultToolBar;
 import org.targol.resoplan.ui.toolbars.EvacToolBar;
 import org.targol.resoplan.ui.utils.AppState;
 import org.targol.resoplan.ui.utils.AppStateManager;
-import org.targol.resoplan.ui.utils.BindingBuilder;
 import org.targol.resoplan.ui.utils.DialogsHelper;
 import org.targol.resoplan.ui.utils.GuiUtils;
 import org.targol.resoplan.ui.utils.events.GenericActionEvent;
 import org.targol.resoplan.ui.utils.events.ProblemsUpdatedEvent;
 import org.targol.resoplan.ui.utils.events.ProjectUpdatedEvent;
 import org.targol.resoplan.ui.utils.events.UiEventBus;
+import org.targol.resoplan.utils.MiscUtils;
 import org.targol.resoplan.utils.ProjectParams;
 
-import javafx.beans.binding.BooleanBinding;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.control.Menu;
 import javafx.scene.control.MenuItem;
 import javafx.scene.layout.HBox;
-import javafx.scene.layout.Region;
 import javafx.scene.layout.StackPane;
 import javafx.stage.Stage;
 
@@ -81,19 +78,18 @@ public class MainWindowController {
 	}
 
 	private void manageEvents() {
-		UiEventBus.register(GenericActionEvent.TRIGGER_CATALOG, e -> displayCatalogPanel());
-		UiEventBus.register(GenericActionEvent.TRIGGER_NETWORKS, e -> displayNetworksPanel());
-		UiEventBus.register(GenericActionEvent.TRIGGER_ALIGN, e -> displayAdjustPanel());
-		UiEventBus.register(GenericActionEvent.TRIGGER_DEBIT, e -> displayDebitPanel());
-		UiEventBus.register(ProjectUpdatedEvent.PROJECT_UPDATE, e -> manageProjectChangeEvent(e));
+		UiEventBus.register(this.contentPane, GenericActionEvent.TRIGGER_CATALOG, e -> displayCatalogPanel());
+		UiEventBus.register(this.contentPane, GenericActionEvent.TRIGGER_NETWORKS, e -> displayNetworksPanel());
+		UiEventBus.register(this.contentPane, GenericActionEvent.TRIGGER_ALIGN, e -> displayAdjustPanel());
+		UiEventBus.register(this.contentPane, GenericActionEvent.TRIGGER_DEBIT, e -> displayDebitPanel());
+		UiEventBus.register(this.contentPane, ProjectUpdatedEvent.PROJECT_UPDATE, e -> manageProjectChangeEvent(e));
 	}
 
 	private void manageProjectChangeEvent(final ProjectUpdatedEvent e) {
-		if (e.getProject() == null) {
-			newProject();
-		} else {
+		if (e.getProject() != null) {
 			openProject(e.getProject());
 		}
+		manageAccesses();
 	}
 
 	private void manageDynamicToolbar() {
@@ -101,17 +97,6 @@ public class MainWindowController {
 		this.toolbarContainer.getChildren().clear();
 		final DefaultToolBar defBar = new DefaultToolBar();
 		this.toolbarContainer.getChildren().setAll(defBar);
-		stateMgr.currentMainPanelProperty().addListener((obs, oldPane, newPane) -> {
-			if (newPane == null) {
-				return;
-			}
-			if (newPane instanceof FloorsAdjustmentPanel) {
-				final Project currentProject = stateMgr.currentProjectProperty().get();
-				this.toolbarContainer.getChildren().clear();
-				final AjustToolBar tBar = new AjustToolBar(currentProject);
-				this.toolbarContainer.getChildren().setAll(tBar);
-			}
-		});
 		stateMgr.activeNetworkLayerProperty().addListener((obs, oldLayer, newLayer) -> {
 			this.toolbarContainer.getChildren().clear();
 			if (newLayer == null || stateMgr.currentProjectProperty().get() == null) {
@@ -146,13 +131,14 @@ public class MainWindowController {
 	}
 
 	private void manageAccesses() {
-		final BooleanBinding noProjectDisable = BindingBuilder.disableWhen().stateIs(AppState.NO_PROJECT).build();
-		this.mnuClose.disableProperty().bind(noProjectDisable);
-		this.mnuAlign.disableProperty().bind(noProjectDisable);
-		final BooleanBinding networkEtDebitDisable = BindingBuilder.disableWhen()
-				.stateIs(AppState.NO_PROJECT, AppState.PROJECT_INCOMPLETE).build();
-		this.mnuNetwork.disableProperty().bind(networkEtDebitDisable);
-		this.mnuDebit.disableProperty().bind(networkEtDebitDisable);
+		final AppState state = MiscUtils.getAppState(this.service.getOpenedProject());
+		final boolean noProject = AppState.NO_PROJECT.equals(state);
+		this.mnuClose.setDisable(noProject);
+		this.mnuAlign.setDisable(noProject);
+		final boolean incompleteProject = AppState.NO_PROJECT.equals(state)
+				|| AppState.PROJECT_INCOMPLETE.equals(state);
+		this.mnuNetwork.setDisable(incompleteProject);
+		this.mnuDebit.setDisable(incompleteProject);
 	}
 
 	@FXML
@@ -178,17 +164,12 @@ public class MainWindowController {
 	}
 
 	private void openProject(final Project project, final boolean newProj) {
-		this.service.setOpenedProject(project);
-		final AppStateManager stateMgr = AppStateManager.getInstance();
-		// Attention, bien passer par service.getOpenedProject() parce que
-		// service.setOpenedProject(project) charge les étages en plus dans le projet.
-		final Project prjWithFloors = this.service.getOpenedProject();
-		stateMgr.setOpenedProject(prjWithFloors);
+		final Project prjWithFloors = this.service.setOpenedProject(project);
 		UiEventBus.send(ProblemsUpdatedEvent.fireMapRebuild());
 		if (newProj) {
 			displayAdjustPanel();
 		} else {
-			final boolean isIncomplete = AppState.PROJECT_INCOMPLETE.equals(stateMgr.currentAppStateProperty().get());
+			final boolean isIncomplete = AppState.PROJECT_INCOMPLETE.equals(MiscUtils.getAppState(prjWithFloors));
 			if (isIncomplete) {
 				displayAdjustPanel();
 			} else {
@@ -204,12 +185,10 @@ public class MainWindowController {
 			final FXMLLoader loader = new FXMLLoader(getClass().getResource("/gui/panels/WelcomePanel.fxml"), //$NON-NLS-1$
 					this.bundle);
 			final Parent root = loader.load();
-			AppStateManager.getInstance().setCurrentOpenedMainPanel((Region) root);
 			this.contentPane.getChildren().setAll(root);
 			final WelcomePanelController controller = loader.getController();
 			controller.setProjects(this.service.getAllProjects());
 		} catch (final IOException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 	}
@@ -217,7 +196,6 @@ public class MainWindowController {
 	@FXML
 	private void displayAdjustPanel() {
 		final FloorsAdjustmentPanel panel = new FloorsAdjustmentPanel(this.service.getOpenedProject());
-		AppStateManager.getInstance().setCurrentOpenedMainPanel(panel);
 		this.contentPane.getChildren().setAll(panel);
 	}
 
@@ -231,8 +209,6 @@ public class MainWindowController {
 			return;
 		}
 		final FloorsNetworksSplitPane panel = new FloorsNetworksSplitPane(this.service.getOpenedProject());
-//		final FloorsNetworksTab panel = new FloorsNetworksTab(this.service.getOpenedProject());
-		AppStateManager.getInstance().setCurrentOpenedMainPanel(panel);
 		this.contentPane.getChildren().setAll(panel);
 	}
 
@@ -258,6 +234,7 @@ public class MainWindowController {
 		displayWelcomePanel();
 		final Stage stage = (Stage) this.contentPane.getScene().getWindow();
 		stage.setTitle(Messages.getString("MainWindow.title")); //$NON-NLS-1$
+		UiEventBus.send(ProjectUpdatedEvent.firechange(null));
 	}
 
 	private void refreshRecentProjectsMenu() {

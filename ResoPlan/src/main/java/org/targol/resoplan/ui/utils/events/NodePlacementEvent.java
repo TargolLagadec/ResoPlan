@@ -1,8 +1,5 @@
 package org.targol.resoplan.ui.utils.events;
 
-import java.util.Objects;
-
-import org.targol.resoplan.model.Floor;
 import org.targol.resoplan.model.LayerType;
 import org.targol.resoplan.model.catalog.NodeModel;
 import org.targol.resoplan.model.catalog.enums.NodeCross;
@@ -19,39 +16,32 @@ public class NodePlacementEvent extends GenericActionEvent {
 	public static final EventType<NodePlacementEvent> WATER_ALIM = new EventType<>(PLACEMENT_ANY, "NODE_ALIM"); //$NON-NLS-1$
 	public static final EventType<NodePlacementEvent> NET = new EventType<>(PLACEMENT_ANY, "NODE_NET"); //$NON-NLS-1$
 
-	public static NodePlacementEvent of(final LayerType layer, final Floor floor, final NodeModel model) {
+	public static NodePlacementEvent of(final LayerType layer, final NodeModel model) {
 		return switch (layer) {
-		case ELEC -> new NodePlacementEvent(ELEC, floor, model, null);
-		case WATER_EVAC -> new NodePlacementEvent(WATER_EVAC, floor, model, null);
-		case WATER_ALIM -> new NodePlacementEvent(WATER_ALIM, floor, model, null);
-		case NET -> new NodePlacementEvent(NET, floor, model, null);
+		case ELEC -> new NodePlacementEvent(ELEC, model, null);
+		case WATER_EVAC -> new NodePlacementEvent(WATER_EVAC, model, null);
+		case WATER_ALIM -> new NodePlacementEvent(WATER_ALIM, model, null);
+		case NET -> new NodePlacementEvent(NET, model, null);
 		};
 	}
 
-	public static NodePlacementEvent of(final LayerType layer, final Floor floor, final NodeModel model,
-			final NodeCross nodeCross) {
+	public static NodePlacementEvent of(final LayerType layer, final NodeModel model, final NodeCross nodeCross) {
 		return switch (layer) {
-		case ELEC -> new NodePlacementEvent(ELEC, floor, model, nodeCross);
-		case WATER_EVAC -> new NodePlacementEvent(WATER_EVAC, floor, model, nodeCross);
-		case WATER_ALIM -> new NodePlacementEvent(WATER_ALIM, floor, model, nodeCross);
-		case NET -> new NodePlacementEvent(NET, floor, model, nodeCross);
+		case ELEC -> new NodePlacementEvent(ELEC, model, nodeCross);
+		case WATER_EVAC -> new NodePlacementEvent(WATER_EVAC, model, nodeCross);
+		case WATER_ALIM -> new NodePlacementEvent(WATER_ALIM, model, nodeCross);
+		case NET -> new NodePlacementEvent(NET, model, nodeCross);
 		};
 	}
 
-	private final Floor floor;
 	private final NodeModel model;
 	private final NodeCross nodeCross;
 
-	private NodePlacementEvent(final EventType<NodePlacementEvent> eventType, final Floor floor, final NodeModel model,
+	private NodePlacementEvent(final EventType<NodePlacementEvent> eventType, final NodeModel model,
 			final NodeCross nodeCross) {
 		super(eventType);
-		this.floor = Objects.requireNonNull(floor, "Le Floor ne peut pas être null");
 		this.model = model;
 		this.nodeCross = nodeCross;
-	}
-
-	public Floor getFloor() {
-		return this.floor;
 	}
 
 	public NodeModel getModel() {

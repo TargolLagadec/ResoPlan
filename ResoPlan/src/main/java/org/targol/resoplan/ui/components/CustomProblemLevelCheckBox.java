@@ -26,7 +26,7 @@ public class CustomProblemLevelCheckBox extends CheckBox {
 		this.imgWidth.addListener((obs, oldValue, newValue) -> {
 			updateAppearance();
 		});
-		UiEventBus.register(ThemeChangeEvent.THEME_CHANGE, (event) -> updateAppearance());
+		UiEventBus.register(this, ThemeChangeEvent.THEME_CHANGE, (event) -> updateAppearance());
 
 		setType(type);
 	}

@@ -33,7 +33,7 @@ public abstract class AbstractGraphicalNode extends StackPane {
 	protected static final int SCALE = SVC_PROJ.getOpenedProject().getPlansScale();
 
 	protected final Project project;
-	private Floor floor;
+	private final Floor floor;
 	protected AbstractNode node;
 	protected final LayerType layer;
 	protected final Color defaultColor;
@@ -77,7 +77,7 @@ public abstract class AbstractGraphicalNode extends StackPane {
 		setOnContextMenuRequested(evt -> {
 			evt.consume();
 			UiEventBus.send(NodePropertiesAskedEvent.of(this.layer, this.node));
-			UiEventBus.send(NodePlacementEvent.of(this.layer, this.floor, null));
+			UiEventBus.send(NodePlacementEvent.of(this.layer, null));
 		});
 		final Delta dragDelta = new Delta();
 		final double halfSize = getNodeSize() / 2;

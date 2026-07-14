@@ -34,7 +34,7 @@ public class CustomButton extends Button {
 		setMinWidth(size);
 		setMaxHeight(size);
 		setMaxWidth(size);
-		UiEventBus.register(ThemeChangeEvent.THEME_CHANGE, (event) -> updateAppearance());
+		UiEventBus.register(this, ThemeChangeEvent.THEME_CHANGE, (event) -> updateAppearance());
 
 		this.type.addListener((obs, oldValue, newValue) -> {
 			updateAppearance();

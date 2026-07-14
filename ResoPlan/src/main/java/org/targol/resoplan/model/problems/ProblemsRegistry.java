@@ -20,7 +20,7 @@ public class ProblemsRegistry {
 
 	public ProblemsRegistry(final ValidationService validationService) {
 		this.validationService = validationService;
-		UiEventBus.register(ProblemsUpdatedEvent.CHECK_PROBLEMS, event -> {
+		UiEventBus.register(null, ProblemsUpdatedEvent.CHECK_PROBLEMS, event -> {
 			this.validateAndRefresh(event.getProject());
 		});
 	}

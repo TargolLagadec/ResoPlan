@@ -33,7 +33,7 @@ public class CatalogButton extends ToggleButton {
 		this.imgWidth.addListener((obs, oldValue, newValue) -> {
 			updateAppearance();
 		});
-		UiEventBus.register(ThemeChangeEvent.THEME_CHANGE, (event) -> updateAppearance());
+		UiEventBus.register(this, ThemeChangeEvent.THEME_CHANGE, (event) -> updateAppearance());
 		setOnAction(e -> UiEventBus.send(eventSupplier.get()));
 		updateAppearance();
 	}
@@ -53,7 +53,7 @@ public class CatalogButton extends ToggleButton {
 	private void updateAppearance() {
 		String imgName = this.model.getImgName();
 		if (imgName == null || imgName.isBlank()) {
-			imgName = "unknown";
+			imgName = "unknown"; //$NON-NLS-1$
 		}
 		final ImageView view = new ImageView(ThemesManager.getInstance().getCatalogIcon(imgName, true));
 		view.setPreserveRatio(true);

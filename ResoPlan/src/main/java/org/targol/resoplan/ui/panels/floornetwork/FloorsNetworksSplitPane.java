@@ -30,7 +30,7 @@ public class FloorsNetworksSplitPane extends SplitPane {
 		this.propertiesPanel = new Label("propriétés");
 		this.mainTabPane = new FloorsNetworksTab(proj);
 		getItems().addAll(this.propertiesPanel, this.mainTabPane);
-		UiEventBus.register(NodePropertiesAskedEvent.NODE_PROPS_ANY, (event) -> changeProperties(event));
+		UiEventBus.register(this, NodePropertiesAskedEvent.NODE_PROPS_ANY, (event) -> changeProperties(event));
 	}
 
 	private void changeProperties(final NodePropertiesAskedEvent event) {
@@ -40,13 +40,13 @@ public class FloorsNetworksSplitPane extends SplitPane {
 			System.out.println("Demande proriétés : null");
 			newPanel = new Label("propriétés");
 		} else {
-			Floor floor = SVC_FLOORS
+			final Floor floor = SVC_FLOORS
 					.findByIdWithNodes(AppStateManager.getInstance().nodeIdToFloorId().get().get(node.getId())).get();
 			if (node instanceof final Node realNode) {
 				System.out.println("Demande proriétés : " + realNode.getModel().getName());
 				newPanel = new NodePropertiesPanel(floor, realNode);
 			} else {
-				System.out.println("Demande proriétés : Colonne");
+				System.out.println("Demande propriétés : Colonne");
 				newPanel = new Label("Colonne");
 			}
 		}

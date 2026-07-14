@@ -29,7 +29,7 @@ public class LayerLinkButton extends ToggleButton {
 		setMaxWidth(size);
 		final String desc = hookType.getDescription();
 		setTooltip(new Tooltip(desc));
-		UiEventBus.register(ThemeChangeEvent.THEME_CHANGE, (event) -> updateAppearance());
+		UiEventBus.register(this, ThemeChangeEvent.THEME_CHANGE, (event) -> updateAppearance());
 
 		this.imgWidth.addListener((obs, oldValue, newValue) -> {
 			updateAppearance();

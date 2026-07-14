@@ -1,12 +1,14 @@
 package org.targol.resoplan.ui.toolbars;
 
 import org.targol.resoplan.i18n.Messages;
+import org.targol.resoplan.model.Project;
 import org.targol.resoplan.ui.components.CustomButton;
 import org.targol.resoplan.ui.utils.AppState;
-import org.targol.resoplan.ui.utils.BindingBuilder;
 import org.targol.resoplan.ui.utils.events.GenericActionEvent;
+import org.targol.resoplan.ui.utils.events.ProjectUpdatedEvent;
+import org.targol.resoplan.ui.utils.events.UiEventBus;
+import org.targol.resoplan.utils.MiscUtils;
 
-import javafx.beans.binding.BooleanBinding;
 import javafx.geometry.Pos;
 import javafx.scene.control.Label;
 import javafx.scene.control.Separator;
@@ -25,9 +27,12 @@ public class DefaultToolBar extends ToolBar {
 		this.toolCatalog = new CustomButton("catalog", //$NON-NLS-1$
 				() -> new GenericActionEvent(GenericActionEvent.TRIGGER_CATALOG));
 		this.toolAlign = new CustomButton("alignment", () -> new GenericActionEvent(GenericActionEvent.TRIGGER_ALIGN)); //$NON-NLS-1$
+		this.toolAlign.setDisable(true);
 		this.toolNetworks = new CustomButton("reseaux", //$NON-NLS-1$
 				() -> new GenericActionEvent(GenericActionEvent.TRIGGER_NETWORKS));
+		this.toolNetworks.setDisable(true);
 		this.toolDebit = new CustomButton("debit", () -> new GenericActionEvent(GenericActionEvent.TRIGGER_DEBIT)); //$NON-NLS-1$
+		this.toolDebit.setDisable(true);
 		final VBox ret = new VBox(5);
 		ret.getStyleClass().add("toolgroup"); //$NON-NLS-1$
 		ret.setAlignment(Pos.CENTER_LEFT);
@@ -37,10 +42,14 @@ public class DefaultToolBar extends ToolBar {
 		ret.getChildren().add(label);
 		ret.getChildren().add(buttons);
 		getItems().addAll(ret, new Separator());
-		this.toolAlign.disableProperty().bind(BindingBuilder.disableWhen().stateIs(AppState.NO_PROJECT).build());
-		final BooleanBinding networkEtDebitDisable = BindingBuilder.disableWhen()
-				.stateIs(AppState.NO_PROJECT, AppState.PROJECT_INCOMPLETE).build();
-		this.toolNetworks.disableProperty().bind(networkEtDebitDisable);
-		this.toolDebit.disableProperty().bind(networkEtDebitDisable);
+		UiEventBus.register(this, ProjectUpdatedEvent.PROJECT_UPDATE, (event) -> setButtonsAvialiability(event));
+	}
+
+	private void setButtonsAvialiability(final ProjectUpdatedEvent event) {
+		final Project proj = event.getProject();
+		final AppState state = MiscUtils.getAppState(proj);
+		this.toolAlign.setDisable(AppState.NO_PROJECT.equals(state));
+		this.toolNetworks.setDisable(!AppState.PROJECT_READY.equals(state));
+		this.toolDebit.setDisable(!AppState.PROJECT_READY.equals(state));
 	}
 }

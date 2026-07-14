@@ -26,18 +26,25 @@ public class ProjectsService extends NoCacheService {
 		this.floorsService = floorsService;
 	}
 
-	public void setOpenedProject(final Project project) {
+	/**
+	 * détermine le projet ouvert et charge tous ses étages et noeuds.
+	 *
+	 * @param project le projet ouvert
+	 * @return le même projet mais avec tous ses étages et noeuds.
+	 */
+	public Project setOpenedProject(final Project project) {
 		if (project == null) {
 			this.openedProject = null;
-			return;
+			return null;
 		}
 
 		// On lit le projet en forçant la lecture de ses étages
-		final Project fullProject = this.repo.findByIdWithFloors(project.getId())
+		final Project fullProject = this.repo.findProjectWithFloorsAndNodes(project.getId())
 				.orElseThrow(() -> new IllegalArgumentException("Projet introuvable en BDD"));
 		fullProject.setLastOpened(LocalDateTime.now());
 		saveAndClear(fullProject);
 		this.openedProject = fullProject;
+		return fullProject;
 	}
 
 	public Optional<Project> openProjectWithFloorsAndNodes(final Project p) {
@@ -95,6 +102,14 @@ public class ProjectsService extends NoCacheService {
 			throw new ServiceException(Messages.getString("ProjectsService.UpdateError.DoesntExist")); //$NON-NLS-1$
 		}
 		return saveAndClear(projectToUpdate);
+	}
+
+	public boolean isBottomestFloor(final Floor floor) {
+		return this.openedProject.getLowestFloorNumber() == floor.getNumber();
+	}
+
+	public boolean isTopmostFloor(final Floor floor) {
+		return this.openedProject.getTopmostFloorNumber() == floor.getNumber();
 	}
 
 	public void deleteProject(final int id) {

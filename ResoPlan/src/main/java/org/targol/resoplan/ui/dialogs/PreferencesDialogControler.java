@@ -7,8 +7,6 @@ import java.util.ResourceBundle;
 import org.targol.resoplan.i18n.Messages;
 import org.targol.resoplan.ui.utils.ThemesManager;
 import org.targol.resoplan.ui.utils.ThemesManager.Theme;
-import org.targol.resoplan.ui.utils.events.ThemeChangeEvent;
-import org.targol.resoplan.ui.utils.events.UiEventBus;
 import org.targol.resoplan.utils.PreferencesManager;
 
 import javafx.event.ActionEvent;
@@ -40,7 +38,6 @@ public class PreferencesDialogControler extends Dialog<Void> {
 	private final ResourceBundle bundle = ResourceBundle.getBundle("i18n.messages", Locale.getDefault()); //$NON-NLS-1$
 
 	public PreferencesDialogControler(final Window owner) {
-		UiEventBus.register(ThemeChangeEvent.THEME_CHANGE, (event) -> themeChanged(event.getTheme()));
 		this.parentWindow = owner;
 		try {
 
@@ -96,6 +93,7 @@ public class PreferencesDialogControler extends Dialog<Void> {
 			if (newTheme != null) {
 				final ThemesManager tm = ThemesManager.getInstance();
 				prefsMgr.setCurrentTheme(newTheme);
+				themeChanged(newTheme);
 			}
 		});
 	}

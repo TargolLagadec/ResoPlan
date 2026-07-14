@@ -13,9 +13,9 @@ import org.targol.resoplan.model.Floor;
 import org.targol.resoplan.model.Project;
 import org.targol.resoplan.services.FloorsService;
 import org.targol.resoplan.services.ProjectsService;
-import org.targol.resoplan.ui.utils.AppStateManager;
 import org.targol.resoplan.ui.utils.events.AjustEvent;
 import org.targol.resoplan.ui.utils.events.ProblemsUpdatedEvent;
+import org.targol.resoplan.ui.utils.events.ProjectUpdatedEvent;
 import org.targol.resoplan.ui.utils.events.UiEventBus;
 import org.targol.resoplan.utils.IoHelper;
 import org.targol.resoplan.utils.SpringContextHelper;
@@ -49,8 +49,8 @@ public class FloorPropertiesPanel extends GridPane {
 		colors.put(5, Color.BLUEVIOLET);
 	}
 
-	private final ProjectsService projectsService = SpringContextHelper.getBean(ProjectsService.class);
-	private final FloorsService floorsService = SpringContextHelper.getBean(FloorsService.class);
+	private static final ProjectsService SVC_PROJECTS = SpringContextHelper.getBean(ProjectsService.class);
+	private static final FloorsService SVC_FLOORS = SpringContextHelper.getBean(FloorsService.class);
 
 	@FXML
 	private TextField fileNameTextField;
@@ -140,7 +140,7 @@ public class FloorPropertiesPanel extends GridPane {
 			this.floor.setZoomFactor(this.zoomSpinner.getValueFactory().getValue() / 100);
 			this.floor.setShiftX(this.shiftXSpinner.getValueFactory().getValue());
 			this.floor.setShiftY(this.shiftYSpinner.getValueFactory().getValue());
-			this.floorsService.update(this.floor);
+			FloorPropertiesPanel.SVC_FLOORS.update(this.floor);
 			checkVirtualAboveOrBellowFloor();
 			UiEventBus.send(AjustEvent.fireFloorUpdated(this.floor));
 			informStateManager();
@@ -170,7 +170,7 @@ public class FloorPropertiesPanel extends GridPane {
 	}
 
 	private void informStateManager() {
-		AppStateManager.getInstance().updateProjectState(this.projectsService.getOpenedProject());
+		UiEventBus.send(ProjectUpdatedEvent.firechange(FloorPropertiesPanel.SVC_PROJECTS.getOpenedProject()));
 	}
 
 	private void changeColor(final int newValue) {
@@ -186,7 +186,7 @@ public class FloorPropertiesPanel extends GridPane {
 				new ExtensionFilter(Messages.getString("FloorPropertiesPanel.filename.types"), "*.png", "*.jpg")); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 		final File file = fileChooser.showOpenDialog(this.getScene().getWindow());
 		final String newFileName = IoHelper.generateFloorPlanImageName(file,
-				this.projectsService.getOpenedProject().getId(), this.floor.getId());
+				FloorPropertiesPanel.SVC_PROJECTS.getOpenedProject().getId(), this.floor.getId());
 		final File result = IoHelper.copyFile(file, newFileName);
 		this.fileNameTextField.setText(result.getAbsolutePath());
 		this.floor.setImgPath(result.getAbsolutePath());
@@ -194,10 +194,10 @@ public class FloorPropertiesPanel extends GridPane {
 		final Image img = new Image(result.toURI().toString());
 		this.floor.setImgWidth(img.getWidth());
 		this.floor.setImgHeight(img.getHeight());
-		this.floorsService.update(this.floor);
+		FloorPropertiesPanel.SVC_FLOORS.update(this.floor);
 		checkVirtualAboveOrBellowFloor();
 		informStateManager();
-		UiEventBus.send(ProblemsUpdatedEvent.fireCheck(this.projectsService.getOpenedProject()));
+		UiEventBus.send(ProblemsUpdatedEvent.fireCheck(FloorPropertiesPanel.SVC_PROJECTS.getOpenedProject()));
 		UiEventBus.send(AjustEvent.fireFloorUpdated(this.floor));
 	}
 
@@ -209,7 +209,7 @@ public class FloorPropertiesPanel extends GridPane {
 	 */
 	private void checkVirtualAboveOrBellowFloor() {
 		final int floorNum = this.floor.getNumber();
-		final Project proj = this.projectsService.getOpenedProject();
+		final Project proj = FloorPropertiesPanel.SVC_PROJECTS.getOpenedProject();
 		if (floorNum == 0) {
 			final Optional<Floor> basmnt = proj.getFloorByNumber(-1);
 			if (basmnt.isPresent()) {
@@ -221,7 +221,7 @@ public class FloorPropertiesPanel extends GridPane {
 					basement.setImgWidth(this.floor.getImgWidth());
 					basement.setImgHeight(this.floor.getImgHeight());
 					basement.setZoomFactor(this.floor.getZoomFactor());
-					this.floorsService.update(basement);
+					FloorPropertiesPanel.SVC_FLOORS.update(basement);
 				}
 			}
 		} else {
@@ -235,7 +235,7 @@ public class FloorPropertiesPanel extends GridPane {
 					attic.setImgWidth(this.floor.getImgWidth());
 					attic.setImgHeight(this.floor.getImgHeight());
 					attic.setZoomFactor(this.floor.getZoomFactor());
-					this.floorsService.update(attic);
+					FloorPropertiesPanel.SVC_FLOORS.update(attic);
 				}
 			}
 		}
