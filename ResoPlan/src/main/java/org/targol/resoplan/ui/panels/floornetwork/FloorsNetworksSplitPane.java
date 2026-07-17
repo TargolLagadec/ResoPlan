@@ -1,11 +1,13 @@
 package org.targol.resoplan.ui.panels.floornetwork;
 
+import java.util.Optional;
+
 import org.targol.resoplan.model.AbstractNode;
 import org.targol.resoplan.model.Floor;
 import org.targol.resoplan.model.Node;
 import org.targol.resoplan.model.Project;
 import org.targol.resoplan.services.FloorsService;
-import org.targol.resoplan.ui.utils.AppStateManager;
+import org.targol.resoplan.services.NodesService;
 import org.targol.resoplan.ui.utils.events.NodePropertiesAskedEvent;
 import org.targol.resoplan.ui.utils.events.UiEventBus;
 import org.targol.resoplan.utils.SpringContextHelper;
@@ -22,6 +24,7 @@ public class FloorsNetworksSplitPane extends SplitPane {
 
 	private final Project proj;
 	private static final FloorsService SVC_FLOORS = SpringContextHelper.getBean(FloorsService.class);
+	private static final NodesService SVC_NODES = SpringContextHelper.getBean(NodesService.class);
 
 	public FloorsNetworksSplitPane(final Project proj) {
 		this.proj = proj;
@@ -40,14 +43,19 @@ public class FloorsNetworksSplitPane extends SplitPane {
 			System.out.println("Demande proriétés : null");
 			newPanel = new Label("propriétés");
 		} else {
-			final Floor floor = SVC_FLOORS
-					.findByIdWithNodes(AppStateManager.getInstance().nodeIdToFloorId().get().get(node.getId())).get();
-			if (node instanceof final Node realNode) {
-				System.out.println("Demande proriétés : " + realNode.getModel().getName());
-				newPanel = new NodePropertiesPanel(floor, realNode);
+			Optional<Integer> floorId = SVC_NODES.getFloorIdFromNode(node);
+			if (floorId.isEmpty()) {
+				System.out.println("Demande proriétés : null");
+				newPanel = new Label("propriétés");
 			} else {
-				System.out.println("Demande propriétés : Colonne");
-				newPanel = new Label("Colonne");
+				final Floor floor = SVC_FLOORS.findByIdWithNodes(floorId.get()).get();
+				if (node instanceof final Node realNode) {
+					System.out.println("Demande proriétés : " + realNode.getModel().getName());
+					newPanel = new NodePropertiesPanel(floor, realNode);
+				} else {
+					System.out.println("Demande propriétés : Colonne");
+					newPanel = new Label("Colonne");
+				}
 			}
 		}
 		getItems().set(0, newPanel);

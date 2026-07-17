@@ -42,6 +42,13 @@ public interface NodesRepository extends JpaRepository<AbstractNode, Integer> {
 			""", nativeQuery = true)
 	void detachFromFloor(@Param("nodeId") int nodeId);
 
+	@Query(value = """
+			SELECT FLOOR_ID
+			FROM NODE
+			WHERE ID = :nodeId
+			""", nativeQuery = true)
+	Optional<Integer> findFloorIdByNodeId(@Param("nodeId") int nodeId);
+
 	/**
 	 * Reads a Node using its id and FORCES its {@link Hook}s reading.
 	 *

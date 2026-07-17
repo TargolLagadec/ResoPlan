@@ -8,6 +8,7 @@ import java.util.ResourceBundle;
 
 import org.springframework.stereotype.Component;
 import org.targol.resoplan.i18n.Messages;
+import org.targol.resoplan.model.LayerType;
 import org.targol.resoplan.model.Project;
 import org.targol.resoplan.services.ProjectsService;
 import org.targol.resoplan.ui.dialogs.PreferencesDialogControler;
@@ -21,6 +22,7 @@ import org.targol.resoplan.ui.utils.AppState;
 import org.targol.resoplan.ui.utils.AppStateManager;
 import org.targol.resoplan.ui.utils.DialogsHelper;
 import org.targol.resoplan.ui.utils.GuiUtils;
+import org.targol.resoplan.ui.utils.events.ChangeLayerEvent;
 import org.targol.resoplan.ui.utils.events.GenericActionEvent;
 import org.targol.resoplan.ui.utils.events.ProblemsUpdatedEvent;
 import org.targol.resoplan.ui.utils.events.ProjectUpdatedEvent;
@@ -73,61 +75,53 @@ public class MainWindowController {
 		displayWelcomePanel();
 		manageEvents();
 		manageAccesses();
-		manageDynamicToolbar();
+		showDefaultToolbar();
 		UiEventBus.send(ProblemsUpdatedEvent.fireMapRebuild());
 	}
 
 	private void manageEvents() {
-		UiEventBus.register(this.contentPane, GenericActionEvent.TRIGGER_CATALOG, e -> displayCatalogPanel());
-		UiEventBus.register(this.contentPane, GenericActionEvent.TRIGGER_NETWORKS, e -> displayNetworksPanel());
-		UiEventBus.register(this.contentPane, GenericActionEvent.TRIGGER_ALIGN, e -> displayAdjustPanel());
-		UiEventBus.register(this.contentPane, GenericActionEvent.TRIGGER_DEBIT, e -> displayDebitPanel());
 		UiEventBus.register(this.contentPane, ProjectUpdatedEvent.PROJECT_UPDATE, e -> manageProjectChangeEvent(e));
+		UiEventBus.register(this.contentPane, GenericActionEvent.SHOW_CATALOG, e -> displayCatalogPanel());
+		UiEventBus.register(this.contentPane, GenericActionEvent.SHOW_NETWORKS, e -> displayNetworksPanel());
+		UiEventBus.register(this.contentPane, GenericActionEvent.SHOW_ALIGN, e -> displayAdjustPanel());
+		UiEventBus.register(this.contentPane, GenericActionEvent.SHOW_DEBIT, e -> displayDebitPanel());
+		UiEventBus.register(this.contentPane, ChangeLayerEvent.CHANGE_LAYER, e -> displayLayerToolBar(e));
 	}
 
 	private void manageProjectChangeEvent(final ProjectUpdatedEvent e) {
 		if (e.getProject() != null) {
-			openProject(e.getProject());
+			openProject(e.getProject(), true);
 		}
 		manageAccesses();
 	}
 
-	private void manageDynamicToolbar() {
-		final AppStateManager stateMgr = AppStateManager.getInstance();
+	private void displayLayerToolBar(ChangeLayerEvent e) {
+		LayerType layer = e.getLayer();
+		final Project currentProject = this.service.getOpenedProject();
+
+		switch (layer) {
+		case WATER_EVAC:
+			final EvacToolBar evacBar = new EvacToolBar(currentProject);
+			this.toolbarContainer.getChildren().setAll(evacBar);
+			break;
+		case WATER_ALIM:
+			// TODO Mettre la bonne toolbar
+			this.toolbarContainer.getChildren().setAll(new DefaultToolBar());
+			break;
+		case ELEC:
+			// TODO Mettre la bonne toolbar
+			this.toolbarContainer.getChildren().setAll(new DefaultToolBar());
+			break;
+		case NET:
+			// TODO Mettre la bonne toolbar
+			this.toolbarContainer.getChildren().setAll(new DefaultToolBar());
+			break;
+		}
+	}
+
+	private void showDefaultToolbar() {
 		this.toolbarContainer.getChildren().clear();
-		final DefaultToolBar defBar = new DefaultToolBar();
-		this.toolbarContainer.getChildren().setAll(defBar);
-		stateMgr.activeNetworkLayerProperty().addListener((obs, oldLayer, newLayer) -> {
-			this.toolbarContainer.getChildren().clear();
-			if (newLayer == null || stateMgr.currentProjectProperty().get() == null) {
-				this.toolbarContainer.getChildren().setAll(defBar);
-				return;
-			}
-			final Project currentProject = stateMgr.currentProjectProperty().get();
-			switch (newLayer) {
-			case WATER_EVAC:
-				final EvacToolBar evacBar = new EvacToolBar(currentProject);
-				this.toolbarContainer.getChildren().setAll(evacBar);
-				break;
-
-			case WATER_ALIM:
-				// TODO Mettre la bonne toolbar
-				this.toolbarContainer.getChildren().setAll(defBar);
-				break;
-
-			case ELEC:
-				// TODO Mettre la bonne toolbar
-				this.toolbarContainer.getChildren().setAll(defBar);
-				break;
-			case NET:
-				// TODO Mettre la bonne toolbar
-				this.toolbarContainer.getChildren().setAll(defBar);
-				break;
-
-			default:
-				break;
-			}
-		});
+		this.toolbarContainer.getChildren().setAll(new DefaultToolBar());
 	}
 
 	private void manageAccesses() {
@@ -159,11 +153,11 @@ public class MainWindowController {
 		dialog.showAndWait();
 	}
 
-	private void openProject(final Project project) {
-		openProject(project, false);
+	private void openProject(final Project project, boolean isEventTriggered) {
+		openProject(project, false, isEventTriggered);
 	}
 
-	private void openProject(final Project project, final boolean newProj) {
+	private void openProject(final Project project, final boolean newProj, boolean isEventTriggered) {
 		final Project prjWithFloors = this.service.setOpenedProject(project);
 		UiEventBus.send(ProblemsUpdatedEvent.fireMapRebuild());
 		if (newProj) {
@@ -178,6 +172,9 @@ public class MainWindowController {
 		}
 		final Stage stage = (Stage) this.contentPane.getScene().getWindow();
 		stage.setTitle(Messages.getString("MainWindow.title.withProj", project.getName())); //$NON-NLS-1$
+		if (!isEventTriggered) {
+			UiEventBus.send(ProjectUpdatedEvent.firechange(prjWithFloors));
+		}
 	}
 
 	private void displayWelcomePanel() {
@@ -242,7 +239,7 @@ public class MainWindowController {
 		final List<Project> projects = this.service.getLastTenProjects();
 		for (final Project project : projects) {
 			final MenuItem item = new MenuItem(project.getName());
-			item.setOnAction(event -> openProject(project));
+			item.setOnAction(event -> openProject(project, false));
 			this.mnuRecentProjects.getItems().add(item);
 		}
 		if (projects.isEmpty()) {

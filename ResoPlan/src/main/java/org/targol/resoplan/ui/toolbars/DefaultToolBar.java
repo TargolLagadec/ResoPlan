@@ -25,13 +25,13 @@ public class DefaultToolBar extends ToolBar {
 	public DefaultToolBar() {
 		super();
 		this.toolCatalog = new CustomButton("catalog", //$NON-NLS-1$
-				() -> new GenericActionEvent(GenericActionEvent.TRIGGER_CATALOG));
-		this.toolAlign = new CustomButton("alignment", () -> new GenericActionEvent(GenericActionEvent.TRIGGER_ALIGN)); //$NON-NLS-1$
+				() -> new GenericActionEvent(GenericActionEvent.SHOW_CATALOG));
+		this.toolAlign = new CustomButton("alignment", () -> new GenericActionEvent(GenericActionEvent.SHOW_ALIGN)); //$NON-NLS-1$
 		this.toolAlign.setDisable(true);
 		this.toolNetworks = new CustomButton("reseaux", //$NON-NLS-1$
-				() -> new GenericActionEvent(GenericActionEvent.TRIGGER_NETWORKS));
+				() -> new GenericActionEvent(GenericActionEvent.SHOW_NETWORKS));
 		this.toolNetworks.setDisable(true);
-		this.toolDebit = new CustomButton("debit", () -> new GenericActionEvent(GenericActionEvent.TRIGGER_DEBIT)); //$NON-NLS-1$
+		this.toolDebit = new CustomButton("debit", () -> new GenericActionEvent(GenericActionEvent.SHOW_DEBIT)); //$NON-NLS-1$
 		this.toolDebit.setDisable(true);
 		final VBox ret = new VBox(5);
 		ret.getStyleClass().add("toolgroup"); //$NON-NLS-1$

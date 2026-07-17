@@ -7,12 +7,12 @@ public class GenericActionEvent extends Event {
 
 	private static final long serialVersionUID = -3385174978941478162L;
 
-	public static final EventType<GenericActionEvent> ANY = new EventType<>(Event.ANY, "APP_UI_ANY");
+	public static final EventType<GenericActionEvent> ANY = new EventType<>(Event.ANY, "APP_UI_ANY"); //$NON-NLS-1$
 
-	public static final EventType<GenericActionEvent> TRIGGER_CATALOG = new EventType<>(ANY, "TRIGGER_CATALOG");
-	public static final EventType<GenericActionEvent> TRIGGER_ALIGN = new EventType<>(ANY, "TRIGGER_ALIGN");
-	public static final EventType<GenericActionEvent> TRIGGER_NETWORKS = new EventType<>(ANY, "TRIGGER_NETWORKS");
-	public static final EventType<GenericActionEvent> TRIGGER_DEBIT = new EventType<>(ANY, "TRIGGER_DEBIT");
+	public static final EventType<GenericActionEvent> SHOW_CATALOG = new EventType<>(ANY, "SHOW_CATALOG"); //$NON-NLS-1$
+	public static final EventType<GenericActionEvent> SHOW_ALIGN = new EventType<>(ANY, "SHOW_ALIGN"); //$NON-NLS-1$
+	public static final EventType<GenericActionEvent> SHOW_NETWORKS = new EventType<>(ANY, "SHOW_NETWORKS"); //$NON-NLS-1$
+	public static final EventType<GenericActionEvent> SHOW_DEBIT = new EventType<>(ANY, "SHOW_DEBIT"); //$NON-NLS-1$
 
 	public GenericActionEvent(final EventType<? extends Event> eventType) {
 		super(eventType);

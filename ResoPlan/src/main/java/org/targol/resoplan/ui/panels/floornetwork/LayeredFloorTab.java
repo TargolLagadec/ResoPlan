@@ -11,6 +11,8 @@ import org.targol.resoplan.ui.components.CustomLayerRadio;
 import org.targol.resoplan.ui.panels.floornetwork.layers.evac.EvacuationsLayer;
 import org.targol.resoplan.ui.utils.AppStateManager;
 import org.targol.resoplan.ui.utils.GuiUtils;
+import org.targol.resoplan.ui.utils.events.ChangeLayerEvent;
+import org.targol.resoplan.ui.utils.events.UiEventBus;
 import org.targol.resoplan.utils.SpringContextHelper;
 
 import javafx.geometry.Bounds;
@@ -220,6 +222,8 @@ public class LayeredFloorTab extends Tab {
 		this.headerToggleGroup.selectedToggleProperty().addListener((obs, oldVal, newVal) -> {
 			if (newVal != null) {
 				final CustomLayerRadio rb = (CustomLayerRadio) newVal;
+				UiEventBus.send(ChangeLayerEvent.of(rb.getType()));
+				// TODO virer ça qui ne devrait plus être nécessaire
 				if (state.activeNetworkLayerProperty().get() != rb.getType()) {
 					state.setActiveNetworkLayer(rb.getType());
 				}

@@ -6,11 +6,14 @@ import java.util.Locale;
 import java.util.ResourceBundle;
 
 import org.targol.resoplan.i18n.Messages;
+import org.targol.resoplan.model.AbstractNode;
 import org.targol.resoplan.model.Floor;
 import org.targol.resoplan.model.Hook;
 import org.targol.resoplan.model.LayerType;
 import org.targol.resoplan.model.Node;
 import org.targol.resoplan.services.NodesService;
+import org.targol.resoplan.ui.utils.events.NodeMoveEvent;
+import org.targol.resoplan.ui.utils.events.UiEventBus;
 import org.targol.resoplan.utils.SpringContextHelper;
 
 import javafx.fxml.FXML;
@@ -44,7 +47,7 @@ public class NodePropertiesPanel extends GridPane {
 	private Button deleteButton;
 
 	private final Floor floor;
-	private final Node node;
+	private Node node;
 	private static final NodesService SVC_NODES = SpringContextHelper.getBean(NodesService.class);
 	private final ResourceBundle bundle = ResourceBundle.getBundle("i18n.messages", Locale.getDefault()); //$NON-NLS-1$
 	private final NumberFormat numberFormat = NumberFormat.getInstance();
@@ -62,6 +65,16 @@ public class NodePropertiesPanel extends GridPane {
 		} catch (final IOException e) {
 			throw new RuntimeException("Impossible de charger le FXML de FloorPropertiesPanel", e); //$NON-NLS-1$
 		}
+		UiEventBus.register(this, NodeMoveEvent.NODE_MOVE, (event) -> updateNode(event));
+	}
+
+	private void updateNode(NodeMoveEvent event) {
+		AbstractNode node = event.getNode();
+		if (node instanceof Node) {
+			this.node = SVC_NODES.getfullNodeWithHooks((Node) node).get();
+			;
+		}
+		initialize();
 	}
 
 	@FXML

@@ -10,6 +10,7 @@ import org.targol.resoplan.model.Project;
 import org.targol.resoplan.services.NodesService;
 import org.targol.resoplan.services.ProjectsService;
 import org.targol.resoplan.ui.utils.GuiUtils;
+import org.targol.resoplan.ui.utils.events.NodeMoveEvent;
 import org.targol.resoplan.ui.utils.events.NodePlacementEvent;
 import org.targol.resoplan.ui.utils.events.NodePropertiesAskedEvent;
 import org.targol.resoplan.ui.utils.events.RefreshFloorLayerEvent;
@@ -106,13 +107,12 @@ public abstract class AbstractGraphicalNode extends StackPane {
 
 		setOnMouseReleased(evt -> {
 			if (this.dragging) {
-				System.err.println("À la fin du drag : position écran = (" + this.dragEndX + "," + this.dragEndY + ")");
-
 				final Set<Floor> impactedFloors = SVC_NODES.processLazyMove(this.node,
 						GuiUtils.pixelToCentimetres(this.project, this.dragEndX),
 						GuiUtils.pixelToCentimetres(this.project, this.dragEndY));
 
 				Platform.runLater(() -> {
+					UiEventBus.send(NodeMoveEvent.of(getNode()));
 					for (final Floor floor : impactedFloors) {
 						UiEventBus.send(RefreshFloorLayerEvent.of(this.layer, floor));
 					}

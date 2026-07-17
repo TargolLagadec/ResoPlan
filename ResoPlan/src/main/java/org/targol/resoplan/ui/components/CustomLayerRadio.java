@@ -20,23 +20,13 @@ public class CustomLayerRadio extends RadioButton {
 	private final DoubleProperty imgWidth = new SimpleDoubleProperty(25.0d);
 
 	public CustomLayerRadio(final LayerType type) {
+		this.type.set(type);
+		updateAppearance();
 		UiEventBus.register(this, ThemeChangeEvent.THEME_CHANGE, (event) -> updateAppearance());
-
-		this.type.addListener((obs, oldValue, newValue) -> {
-			updateAppearance();
-		});
-		this.imgWidth.addListener((obs, oldValue, newValue) -> {
-			updateAppearance();
-		});
-		setType(type);
 	}
 
 	public LayerType getType() {
 		return this.type.get();
-	}
-
-	public void setType(final LayerType type) {
-		this.type.set(type);
 	}
 
 	public ObjectProperty<LayerType> typeProperty() {

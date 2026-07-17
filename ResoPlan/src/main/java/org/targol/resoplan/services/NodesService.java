@@ -3,7 +3,6 @@ package org.targol.resoplan.services;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 
@@ -19,7 +18,6 @@ import org.targol.resoplan.model.catalog.enums.NodeCross;
 import org.targol.resoplan.model.problems.NodeCollision;
 import org.targol.resoplan.model.problems.Severity;
 import org.targol.resoplan.repositories.NodesRepository;
-import org.targol.resoplan.ui.utils.AppStateManager;
 import org.targol.resoplan.utils.MiscUtils;
 
 @Service
@@ -33,6 +31,21 @@ public class NodesService extends NoCacheService {
 
 	public AbstractNode save(final AbstractNode node) throws ServiceException {
 		return saveAndClear(node);
+	}
+
+	@Transactional(readOnly = true)
+	public Optional<Node> getfullNodeWithHooks(Node node) {
+		return detachOptionalIfPresent(this.repo.findByIdWithHooks(node.getId()));
+	}
+
+	@Transactional(readOnly = true)
+	public Optional<MetaNode> getfullMetaNodeWithChidrenNodes(MetaNode node) {
+		return detachOptionalIfPresent(this.repo.findMetaByIdWithAllowedChildren(node.getId()));
+	}
+
+	@Transactional(readOnly = true)
+	public Optional<Integer> getFloorIdFromNode(AbstractNode node) {
+		return this.repo.findFloorIdByNodeId(node.getId());
 	}
 
 	public boolean canPutInSameMetaNode(Node node, NodeCross newNodeDirection) {
@@ -53,8 +66,12 @@ public class NodesService extends NoCacheService {
 	}
 
 	public boolean areOnSameFloor(Node node1, Node node2) {
-		Map<Integer, Integer> nodesToFloor = AppStateManager.getInstance().nodeIdToFloorId().get();
-		return nodesToFloor.get(node1.getId()) == nodesToFloor.get(node2.getId());
+		Optional<Integer> floor1 = getFloorIdFromNode(node1);
+		Optional<Integer> floor2 = getFloorIdFromNode(node2);
+		if (floor1.isEmpty() || floor2.isEmpty()) {
+			return false;
+		}
+		return floor1.get().intValue() == floor2.get().intValue();
 	}
 
 	public List<NodeCollision> checkCollisions(Node node) {
@@ -123,16 +140,6 @@ public class NodesService extends NoCacheService {
 				runRecursiveLazyMove(child, centimeterX, centimeterY, impactedFloorIds);
 			}
 		}
-	}
-
-	@Transactional(readOnly = true)
-	public Optional<Node> getfullNodeWithHooks(Node node) {
-		return detachOptionalIfPresent(this.repo.findByIdWithHooks(node.getId()));
-	}
-
-	@Transactional(readOnly = true)
-	public Optional<MetaNode> getfullMetaNodeWithChidrenNodes(MetaNode node) {
-		return detachOptionalIfPresent(this.repo.findMetaByIdWithAllowedChildren(node.getId()));
 	}
 
 	public void detachNodeFromFloor(final AbstractNode node) {
