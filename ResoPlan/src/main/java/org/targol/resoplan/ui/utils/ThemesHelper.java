@@ -2,40 +2,27 @@ package org.targol.resoplan.ui.utils;
 
 import java.util.Objects;
 
-import org.targol.resoplan.utils.PreferencesManager;
+import org.targol.resoplan.utils.PreferencesHelper;
 
 import javafx.scene.image.Image;
 import javafx.scene.paint.Color;
 
-public class ThemesManager {
+public class ThemesHelper {
 
-	private static ThemesManager instance;
-
-	public static ThemesManager getInstance() {
-		if (instance == null) {
-			instance = new ThemesManager();
-		}
-
-		return instance;
-	}
-
-	private ThemesManager() {
-	}
-
-	public Image getIcon(final String name) {
+	public static Image getIcon(final String name) {
 		final String path = "/images/custom/".concat(name).concat(".png"); //$NON-NLS-1$ //$NON-NLS-2$
-		Image icon = new Image(Objects.requireNonNull(getClass().getResourceAsStream(path)));
-		final Color iconColor = PreferencesManager.getInstance().getCurrentTheme().getImagesMainColor();
+		Image icon = new Image(Objects.requireNonNull(ThemesHelper.class.getResourceAsStream(path)));
+		final Color iconColor = PreferencesHelper.getCurrentTheme().getImagesMainColor();
 		if (!Color.WHITE.equals(iconColor)) {
 			icon = GuiUtils.changeColorInImage(icon, Color.WHITE, iconColor);
 		}
 		return icon;
 	}
 
-	public Image getCatalogIcon(final String name, final boolean themeDependant) {
+	public static Image getCatalogIcon(final String name, final boolean themeDependant) {
 		final String path = "/images/catalog/".concat(name).concat(".png"); //$NON-NLS-1$ //$NON-NLS-2$
-		Image icon = new Image(Objects.requireNonNull(getClass().getResourceAsStream(path)));
-		final Color iconColor = PreferencesManager.getInstance().getCurrentTheme().getImagesMainColor();
+		Image icon = new Image(Objects.requireNonNull(ThemesHelper.class.getResourceAsStream(path)));
+		final Color iconColor = PreferencesHelper.getCurrentTheme().getImagesMainColor();
 		if (themeDependant && !Color.WHITE.equals(iconColor)) {
 			icon = GuiUtils.changeColorInImage(icon, Color.WHITE, iconColor);
 		}

@@ -9,7 +9,6 @@ import org.targol.resoplan.model.Project;
 import org.targol.resoplan.services.FloorsService;
 import org.targol.resoplan.ui.components.CustomLayerRadio;
 import org.targol.resoplan.ui.panels.floornetwork.layers.evac.EvacuationsLayer;
-import org.targol.resoplan.ui.utils.AppStateManager;
 import org.targol.resoplan.ui.utils.GuiUtils;
 import org.targol.resoplan.ui.utils.events.ChangeLayerEvent;
 import org.targol.resoplan.ui.utils.events.UiEventBus;
@@ -131,6 +130,7 @@ public class LayeredFloorTab extends Tab {
 		this.mainNetworkPane.getChildren().add(this.grid);
 		setupRepaintListeners();
 		triggerRepaint();
+		UiEventBus.register(this.parentController, ChangeLayerEvent.CHANGE_LAYER, evt -> layerChanged(evt));
 	}
 
 	private void setupRepaintListeners() {
@@ -218,34 +218,28 @@ public class LayeredFloorTab extends Tab {
 		this.radioAlim.setToggleGroup(this.headerToggleGroup);
 		this.radioEvac.setToggleGroup(this.headerToggleGroup);
 		this.radioNet.setToggleGroup(this.headerToggleGroup);
-		final AppStateManager state = AppStateManager.getInstance();
 		this.headerToggleGroup.selectedToggleProperty().addListener((obs, oldVal, newVal) -> {
 			if (newVal != null) {
 				final CustomLayerRadio rb = (CustomLayerRadio) newVal;
 				UiEventBus.send(ChangeLayerEvent.of(rb.getType()));
-				// TODO virer ça qui ne devrait plus être nécessaire
-				if (state.activeNetworkLayerProperty().get() != rb.getType()) {
-					state.setActiveNetworkLayer(rb.getType());
-				}
 			}
 		});
-		state.activeNetworkLayerProperty().addListener((obs, oldLayer, newLayer) -> {
-			if (newLayer == null) {
-				this.headerToggleGroup.selectToggle(null);
-				return;
-			}
-			final CustomLayerRadio targetRadio = switch (newLayer) {
-			case ELEC -> this.radioElec;
-			case WATER_ALIM -> this.radioAlim;
-			case WATER_EVAC -> this.radioEvac;
-			case NET -> this.radioNet;
-			};
-			if (this.headerToggleGroup.getSelectedToggle() != targetRadio) {
-				this.headerToggleGroup.selectToggle(targetRadio);
-			}
-		});
-		if (state.activeNetworkLayerProperty().get() != null) {
-			state.activeNetworkLayerProperty().setValue(state.activeNetworkLayerProperty().get());
+	}
+
+	private void layerChanged(ChangeLayerEvent event) {
+		LayerType newLayer = event.getLayer();
+		if (newLayer == null) {
+			this.headerToggleGroup.selectToggle(null);
+			return;
+		}
+		final CustomLayerRadio targetRadio = switch (newLayer) {
+		case ELEC -> this.radioElec;
+		case WATER_ALIM -> this.radioAlim;
+		case WATER_EVAC -> this.radioEvac;
+		case NET -> this.radioNet;
+		};
+		if (this.headerToggleGroup.getSelectedToggle() != targetRadio) {
+			this.headerToggleGroup.selectToggle(targetRadio);
 		}
 	}
 

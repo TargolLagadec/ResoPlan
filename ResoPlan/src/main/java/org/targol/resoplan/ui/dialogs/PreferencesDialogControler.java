@@ -5,9 +5,8 @@ import java.util.Locale;
 import java.util.ResourceBundle;
 
 import org.targol.resoplan.i18n.Messages;
-import org.targol.resoplan.ui.utils.ThemesManager;
-import org.targol.resoplan.ui.utils.ThemesManager.Theme;
-import org.targol.resoplan.utils.PreferencesManager;
+import org.targol.resoplan.ui.utils.ThemesHelper.Theme;
+import org.targol.resoplan.utils.PreferencesHelper;
 
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
@@ -59,15 +58,14 @@ public class PreferencesDialogControler extends Dialog<Void> {
 
 	@FXML
 	private void initialize() {
-		final PreferencesManager prefsMgr = PreferencesManager.getInstance();
-		initThemesChoicBox(prefsMgr);
-		this.rulersCheckBox.setSelected(prefsMgr.getBoolPreference(PreferencesManager.PREF_SHOW_RULERS));
+		initThemesChoicBox();
+		this.rulersCheckBox.setSelected(PreferencesHelper.getBoolPreference(PreferencesHelper.PREF_SHOW_RULERS));
 		this.rulersCheckBox.setOnAction(event -> {
-			prefsMgr.setBoolPreference(PreferencesManager.PREF_SHOW_RULERS, this.rulersCheckBox.isSelected());
+			PreferencesHelper.setBoolPreference(PreferencesHelper.PREF_SHOW_RULERS, this.rulersCheckBox.isSelected());
 		});
-		this.gridCheckBox.setSelected(prefsMgr.getBoolPreference(PreferencesManager.PREF_SHOW_GRID));
+		this.gridCheckBox.setSelected(PreferencesHelper.getBoolPreference(PreferencesHelper.PREF_SHOW_GRID));
 		this.gridCheckBox.setOnAction(event -> {
-			prefsMgr.setBoolPreference(PreferencesManager.PREF_SHOW_GRID, this.gridCheckBox.isSelected());
+			PreferencesHelper.setBoolPreference(PreferencesHelper.PREF_SHOW_GRID, this.gridCheckBox.isSelected());
 		});
 	}
 
@@ -75,7 +73,7 @@ public class PreferencesDialogControler extends Dialog<Void> {
 	private void onBtnOkClick(final ActionEvent event) {
 	}
 
-	private void initThemesChoicBox(final PreferencesManager prefsMgr) {
+	private void initThemesChoicBox() {
 		this.themeChoiceBox.getItems().addAll(Theme.values());
 		this.themeChoiceBox.setConverter(new StringConverter<Theme>() {
 			@Override
@@ -88,11 +86,10 @@ public class PreferencesDialogControler extends Dialog<Void> {
 				return Theme.valueOf(string);
 			}
 		});
-		this.themeChoiceBox.setValue(prefsMgr.getCurrentTheme());
+		this.themeChoiceBox.setValue(PreferencesHelper.getCurrentTheme());
 		this.themeChoiceBox.valueProperty().addListener((obs, oldTheme, newTheme) -> {
 			if (newTheme != null) {
-				final ThemesManager tm = ThemesManager.getInstance();
-				prefsMgr.setCurrentTheme(newTheme);
+				PreferencesHelper.setCurrentTheme(newTheme);
 				themeChanged(newTheme);
 			}
 		});

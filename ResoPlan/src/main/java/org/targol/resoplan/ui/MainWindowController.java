@@ -19,7 +19,6 @@ import org.targol.resoplan.ui.panels.floornetwork.FloorsNetworksSplitPane;
 import org.targol.resoplan.ui.toolbars.DefaultToolBar;
 import org.targol.resoplan.ui.toolbars.EvacToolBar;
 import org.targol.resoplan.ui.utils.AppState;
-import org.targol.resoplan.ui.utils.AppStateManager;
 import org.targol.resoplan.ui.utils.DialogsHelper;
 import org.targol.resoplan.ui.utils.GuiUtils;
 import org.targol.resoplan.ui.utils.events.ChangeLayerEvent;
@@ -98,7 +97,6 @@ public class MainWindowController {
 	private void displayLayerToolBar(ChangeLayerEvent e) {
 		LayerType layer = e.getLayer();
 		final Project currentProject = this.service.getOpenedProject();
-
 		switch (layer) {
 		case WATER_EVAC:
 			final EvacToolBar evacBar = new EvacToolBar(currentProject);
@@ -194,6 +192,7 @@ public class MainWindowController {
 	private void displayAdjustPanel() {
 		final FloorsAdjustmentPanel panel = new FloorsAdjustmentPanel(this.service.getOpenedProject());
 		this.contentPane.getChildren().setAll(panel);
+		traceMemoryUsage();
 	}
 
 	@FXML
@@ -207,6 +206,21 @@ public class MainWindowController {
 		}
 		final FloorsNetworksSplitPane panel = new FloorsNetworksSplitPane(this.service.getOpenedProject());
 		this.contentPane.getChildren().setAll(panel);
+		traceMemoryUsage();
+	}
+
+	private void traceMemoryUsage() {
+		for (int i = 0; i < 5; i++) {
+			System.gc();
+			try {
+				Thread.sleep(500);
+			} catch (final InterruptedException ignored) {
+			}
+		}
+		final Runtime runtime = Runtime.getRuntime();
+		final long memoireUtiliseeOctets = runtime.totalMemory() - runtime.freeMemory();
+		final double memoireMo = memoireUtiliseeOctets / (1024.0 * 1024.0);
+		System.out.printf("Mémoire utilisée : %.2f Mo%n", memoireMo); //$NON-NLS-1$
 	}
 
 	@FXML
@@ -227,7 +241,6 @@ public class MainWindowController {
 	@FXML
 	private void closeProject() {
 		this.service.setOpenedProject(null);
-		AppStateManager.getInstance().setOpenedProject(null);
 		displayWelcomePanel();
 		final Stage stage = (Stage) this.contentPane.getScene().getWindow();
 		stage.setTitle(Messages.getString("MainWindow.title")); //$NON-NLS-1$

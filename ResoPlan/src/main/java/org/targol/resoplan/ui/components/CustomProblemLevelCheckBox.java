@@ -2,7 +2,7 @@ package org.targol.resoplan.ui.components;
 
 import org.targol.resoplan.i18n.Messages;
 import org.targol.resoplan.model.problems.Severity;
-import org.targol.resoplan.ui.utils.ThemesManager;
+import org.targol.resoplan.ui.utils.ThemesHelper;
 import org.targol.resoplan.ui.utils.events.ThemeChangeEvent;
 import org.targol.resoplan.ui.utils.events.UiEventBus;
 
@@ -60,7 +60,7 @@ public class CustomProblemLevelCheckBox extends CheckBox {
 		if (buttonType == null) {
 			return;
 		}
-		final ImageView view = new ImageView(ThemesManager.getInstance().getIcon(buttonType.getKey()));
+		final ImageView view = new ImageView(ThemesHelper.getIcon(buttonType.getKey()));
 		view.setPreserveRatio(true);
 		view.fitWidthProperty().set(this.imgWidth.get());
 		setGraphic(view);

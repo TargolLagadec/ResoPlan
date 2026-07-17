@@ -5,7 +5,7 @@ import org.targol.resoplan.model.problems.Problem;
 import org.targol.resoplan.model.problems.ProblemsRegistry;
 import org.targol.resoplan.model.problems.Severity;
 import org.targol.resoplan.ui.components.CustomProblemLevelCheckBox;
-import org.targol.resoplan.ui.utils.ThemesManager;
+import org.targol.resoplan.ui.utils.ThemesHelper;
 import org.targol.resoplan.ui.utils.events.ProblemsUpdatedEvent;
 import org.targol.resoplan.ui.utils.events.ThemeChangeEvent;
 import org.targol.resoplan.ui.utils.events.UiEventBus;
@@ -185,7 +185,8 @@ public class ProblemsTitledPane extends TitledPane {
 		setCheckMarkCellFactory(colNode);
 
 		// --- 6. Colonne Message ---
-		final TableColumn<Problem, String> colMessage = new TableColumn<>(Messages.getString("ProblemsTitledPane.message")); //$NON-NLS-1$
+		final TableColumn<Problem, String> colMessage = new TableColumn<>(
+				Messages.getString("ProblemsTitledPane.message")); //$NON-NLS-1$
 		colMessage.setCellValueFactory(cellData -> new SimpleStringProperty(cellData.getValue().getMessage()));
 		// Permet à la colonne message de prendre tout l'espace restant
 		this.tableView.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY_FLEX_LAST_COLUMN);
@@ -197,7 +198,7 @@ public class ProblemsTitledPane extends TitledPane {
 		if (severity == null) {
 			return null;
 		}
-		final ImageView view = new ImageView(ThemesManager.getInstance().getIcon(severity.getKey()));
+		final ImageView view = new ImageView(ThemesHelper.getIcon(severity.getKey()));
 		view.setPreserveRatio(true);
 		view.fitWidthProperty().set(20);
 		return view;

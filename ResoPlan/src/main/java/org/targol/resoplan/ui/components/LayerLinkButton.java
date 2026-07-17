@@ -3,7 +3,7 @@ package org.targol.resoplan.ui.components;
 import java.util.function.Supplier;
 
 import org.targol.resoplan.model.catalog.HookType;
-import org.targol.resoplan.ui.utils.ThemesManager;
+import org.targol.resoplan.ui.utils.ThemesHelper;
 import org.targol.resoplan.ui.utils.events.GenericActionEvent;
 import org.targol.resoplan.ui.utils.events.ThemeChangeEvent;
 import org.targol.resoplan.ui.utils.events.UiEventBus;
@@ -51,7 +51,7 @@ public class LayerLinkButton extends ToggleButton {
 	}
 
 	private void updateAppearance() {
-		final ImageView view = new ImageView(ThemesManager.getInstance().getIcon(this.hookType.getHookKey()));
+		final ImageView view = new ImageView(ThemesHelper.getIcon(this.hookType.getHookKey()));
 		view.setPreserveRatio(true);
 		view.fitWidthProperty().set(this.imgWidth.get());
 		setGraphic(view);

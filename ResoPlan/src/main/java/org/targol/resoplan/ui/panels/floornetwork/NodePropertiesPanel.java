@@ -72,7 +72,6 @@ public class NodePropertiesPanel extends GridPane {
 		AbstractNode node = event.getNode();
 		if (node instanceof Node) {
 			this.node = SVC_NODES.getfullNodeWithHooks((Node) node).get();
-			;
 		}
 		initialize();
 	}

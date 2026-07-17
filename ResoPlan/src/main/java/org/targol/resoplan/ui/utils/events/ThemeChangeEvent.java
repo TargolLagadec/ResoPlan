@@ -1,6 +1,6 @@
 package org.targol.resoplan.ui.utils.events;
 
-import org.targol.resoplan.ui.utils.ThemesManager.Theme;
+import org.targol.resoplan.ui.utils.ThemesHelper.Theme;
 
 import javafx.event.EventType;
 

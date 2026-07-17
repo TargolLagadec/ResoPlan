@@ -3,7 +3,7 @@ package org.targol.resoplan.ui.components;
 import java.util.function.Supplier;
 
 import org.targol.resoplan.model.catalog.NodeModel;
-import org.targol.resoplan.ui.utils.ThemesManager;
+import org.targol.resoplan.ui.utils.ThemesHelper;
 import org.targol.resoplan.ui.utils.events.GenericActionEvent;
 import org.targol.resoplan.ui.utils.events.ThemeChangeEvent;
 import org.targol.resoplan.ui.utils.events.UiEventBus;
@@ -55,7 +55,7 @@ public class CatalogButton extends ToggleButton {
 		if (imgName == null || imgName.isBlank()) {
 			imgName = "unknown"; //$NON-NLS-1$
 		}
-		final ImageView view = new ImageView(ThemesManager.getInstance().getCatalogIcon(imgName, true));
+		final ImageView view = new ImageView(ThemesHelper.getCatalogIcon(imgName, true));
 		view.setPreserveRatio(true);
 		view.fitWidthProperty().set(this.imgWidth.get());
 		setGraphic(view);

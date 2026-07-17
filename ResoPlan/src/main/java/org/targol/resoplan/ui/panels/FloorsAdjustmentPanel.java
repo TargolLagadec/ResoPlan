@@ -14,7 +14,6 @@ import org.targol.resoplan.i18n.Messages;
 import org.targol.resoplan.model.Floor;
 import org.targol.resoplan.model.Project;
 import org.targol.resoplan.services.ProjectsService;
-import org.targol.resoplan.ui.utils.AppStateManager;
 import org.targol.resoplan.ui.utils.GuiUtils;
 import org.targol.resoplan.ui.utils.events.AjustEvent;
 import org.targol.resoplan.ui.utils.events.ProblemsUpdatedEvent;
@@ -148,7 +147,6 @@ public class FloorsAdjustmentPanel extends BorderPane {
 			this.project.setPlansScale(length);
 			final ProjectsService service = SpringContextHelper.getBean(ProjectsService.class);
 			service.updateProject(this.project);
-			AppStateManager.getInstance().currentProjectProperty().set(this.project);
 			UiEventBus.send(ProjectUpdatedEvent.firechange(this.project));
 			UiEventBus.send(ProblemsUpdatedEvent.fireMapRebuild());
 

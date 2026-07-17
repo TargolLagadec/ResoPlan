@@ -7,8 +7,8 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.builder.SpringApplicationBuilder;
 import org.springframework.context.ConfigurableApplicationContext;
 import org.targol.resoplan.i18n.Messages;
-import org.targol.resoplan.ui.utils.ThemesManager.Theme;
-import org.targol.resoplan.utils.PreferencesManager;
+import org.targol.resoplan.ui.utils.ThemesHelper.Theme;
+import org.targol.resoplan.utils.PreferencesHelper;
 
 import javafx.application.Application;
 import javafx.application.Platform;
@@ -38,7 +38,7 @@ public class ResoPlanJavaFxApplication extends Application {
 		final Parent root = loader.load();
 		stage.setTitle(Messages.getString("MainWindow.title")); //$NON-NLS-1$
 		stage.setScene(new Scene(root));
-		final Theme theme = PreferencesManager.getInstance().getCurrentTheme();
+		final Theme theme = PreferencesHelper.getCurrentTheme();
 		stage.getScene().getStylesheets().clear();
 		stage.getScene().getStylesheets().add(getClass().getResource(theme.getCssfilePath()).toExternalForm());
 		stage.setMaximized(true);

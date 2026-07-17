@@ -14,10 +14,10 @@ import org.targol.resoplan.model.catalog.enums.NodeCross;
 import org.targol.resoplan.services.FloorsService;
 import org.targol.resoplan.services.NodeModelsService;
 import org.targol.resoplan.services.NodesService;
+import org.targol.resoplan.services.ProjectsService;
 import org.targol.resoplan.ui.panels.floornetwork.layers.AbstractGraphicalNode;
 import org.targol.resoplan.ui.panels.floornetwork.layers.GraphicalMetaNode;
 import org.targol.resoplan.ui.panels.floornetwork.layers.GraphicalNode;
-import org.targol.resoplan.ui.utils.AppStateManager;
 import org.targol.resoplan.ui.utils.GuiUtils;
 import org.targol.resoplan.ui.utils.events.LinkTracingEvent;
 import org.targol.resoplan.ui.utils.events.LinkedNodePlacementEvent;
@@ -33,6 +33,7 @@ import javafx.scene.paint.Color;
 
 public class EvacuationsLayer extends Pane {
 
+	private static final ProjectsService SVC_PROJECTS = SpringContextHelper.getBean(ProjectsService.class);
 	private static final FloorsService SVC_FLOORS = SpringContextHelper.getBean(FloorsService.class);
 	private static final NodesService SVC_NODES = SpringContextHelper.getBean(NodesService.class);
 	private static final NodeModelsService SVC_NODEMODELS = SpringContextHelper.getBean(NodeModelsService.class);
@@ -64,7 +65,6 @@ public class EvacuationsLayer extends Pane {
 		UiEventBus.register(this, LinkTracingEvent.WATER_EVAC, evt -> onLinkTracingEvent(evt));
 		UiEventBus.register(this, LinkedNodePlacementEvent.WATER_EVAC, evt -> onLinkedNodePlacementEvent(evt));
 		UiEventBus.register(this, RefreshFloorLayerEvent.WATER_EVAC, evt -> refresh(evt));
-//		UiEventBus.register(this, RefreshFloorLayerEvent.CHANGE_FLOOR, evt -> changeFloor(evt));
 	}
 
 	private void refresh(final RefreshFloorLayerEvent evt) {
@@ -198,7 +198,7 @@ public class EvacuationsLayer extends Pane {
 		if (NodeCross.GOES_DOWN.equals(dir)) {
 			curNode.setPosZ(0);
 		} else {
-			curNode.setPosZ(AppStateManager.getInstance().currentProjectProperty().get().getHsp());
+			curNode.setPosZ(SVC_PROJECTS.getOpenedProject().getHsp());
 		}
 		curNode.setNodeCross(dir);
 		return (Node) SVC_NODES.save(curNode);
@@ -212,7 +212,7 @@ public class EvacuationsLayer extends Pane {
 	}
 
 	private Floor getFloorAtLevel(final int floorLevel) {
-		final Project proj = AppStateManager.getInstance().currentProjectProperty().get();
+		final Project proj = SVC_PROJECTS.getOpenedProject();
 		final Floor withNoNodes = proj.getFloorByNumber(this.floor.getNumber() + floorLevel).get();
 		return SVC_FLOORS.reloadWithNodes(withNoNodes).get();
 	}

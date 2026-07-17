@@ -22,6 +22,7 @@ import javafx.animation.KeyFrame;
 import javafx.animation.PauseTransition;
 import javafx.animation.Timeline;
 import javafx.application.Platform;
+import javafx.scene.Node;
 import javafx.scene.Scene;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.StackPane;
@@ -73,8 +74,10 @@ public class UiEventBusMemoryTest {
 		for (int i = 0; i < nbRepetitions; i++) {
 			final int index = i;
 			final KeyFrame frame = new KeyFrame(Duration.millis(i * intervalleMs), event -> {
+				for (Node child : conteneurParent.getChildren()) {
+					child = null;
+				}
 				conteneurParent.getChildren().clear();
-
 				if (index % 2 == 0) {
 					final FloorsAdjustmentPanel p1 = new FloorsAdjustmentPanel(proj);
 					weakRefs.add(new WeakReference<>(p1));

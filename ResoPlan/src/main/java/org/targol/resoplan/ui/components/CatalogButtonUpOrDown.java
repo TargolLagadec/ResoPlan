@@ -6,7 +6,7 @@ import org.targol.resoplan.model.Floor;
 import org.targol.resoplan.model.catalog.NodeModel;
 import org.targol.resoplan.model.catalog.enums.NodeCross;
 import org.targol.resoplan.services.ProjectsService;
-import org.targol.resoplan.ui.utils.ThemesManager;
+import org.targol.resoplan.ui.utils.ThemesHelper;
 import org.targol.resoplan.ui.utils.events.GenericActionEvent;
 import org.targol.resoplan.ui.utils.events.RefreshFloorLayerEvent;
 import org.targol.resoplan.ui.utils.events.ThemeChangeEvent;
@@ -54,10 +54,10 @@ public class CatalogButtonUpOrDown extends ToggleButton {
 	private void setButtonAvialiability(final RefreshFloorLayerEvent event) {
 		final Floor floor = event.getFloor();
 		if (NodeCross.GOES_DOWN.equals(this.nodeCross) && SVC_PROJ.isBottomestFloor(floor)) {
-			this.setDisable(true);
+			setDisable(true);
 		}
 		if (NodeCross.GOES_UP.equals(this.nodeCross) && SVC_PROJ.isTopmostFloor(floor)) {
-			this.setDisable(true);
+			setDisable(true);
 		}
 	}
 
@@ -78,7 +78,7 @@ public class CatalogButtonUpOrDown extends ToggleButton {
 		if (imgName == null || imgName.isBlank()) {
 			imgName = "unknown";
 		}
-		final ImageView view = new ImageView(ThemesManager.getInstance().getCatalogIcon(imgName, true));
+		final ImageView view = new ImageView(ThemesHelper.getCatalogIcon(imgName, true));
 		view.setPreserveRatio(true);
 		view.fitWidthProperty().set(this.imgWidth.get());
 		// Par défaut, les images sont en descente, on fait un miroir vertical pour la

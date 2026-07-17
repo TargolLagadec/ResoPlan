@@ -3,7 +3,7 @@ package org.targol.resoplan.ui.components;
 import java.util.function.Supplier;
 
 import org.targol.resoplan.i18n.Messages;
-import org.targol.resoplan.ui.utils.ThemesManager;
+import org.targol.resoplan.ui.utils.ThemesHelper;
 import org.targol.resoplan.ui.utils.events.GenericActionEvent;
 import org.targol.resoplan.ui.utils.events.ThemeChangeEvent;
 import org.targol.resoplan.ui.utils.events.UiEventBus;
@@ -73,7 +73,7 @@ public class CustomButton extends Button {
 		if (buttonType == null) {
 			return;
 		}
-		final ImageView view = new ImageView(ThemesManager.getInstance().getIcon(this.type.get()));
+		final ImageView view = new ImageView(ThemesHelper.getIcon(this.type.get()));
 		view.setPreserveRatio(true);
 		view.fitWidthProperty().set(this.imgWidth.get());
 		setGraphic(view);
