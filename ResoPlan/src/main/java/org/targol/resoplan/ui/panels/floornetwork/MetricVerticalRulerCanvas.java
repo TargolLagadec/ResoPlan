@@ -49,11 +49,6 @@ public class MetricVerticalRulerCanvas extends Canvas {
 
 	public void clear() {
 		setWidth(0);
-//		GraphicsContext gc = getGraphicsContext2D();
-//		double height = getHeight();
-//		gc.setFill(Color.web("#F0F0F0"));
-//		gc.fillRect(0, 0, 20, height);
-//		setWidth(00);
 	}
 
 }

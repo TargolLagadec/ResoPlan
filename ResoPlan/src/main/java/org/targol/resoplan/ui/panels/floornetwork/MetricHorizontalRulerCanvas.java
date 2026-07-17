@@ -52,9 +52,5 @@ public class MetricHorizontalRulerCanvas extends Canvas {
 
 	public void clear() {
 		setHeight(0);
-//		GraphicsContext gc = getGraphicsContext2D();
-//		double width = getWidth();
-//		gc.setFill(Color.web("#F0F0F0"));
-//		gc.fillRect(0, 0, width, 20);
 	}
 }
