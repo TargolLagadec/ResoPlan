@@ -9,11 +9,8 @@ import javafx.scene.text.Font;
 
 public class MetricHorizontalRulerCanvas extends Canvas {
 
-	public MetricHorizontalRulerCanvas() {
-		setHeight(20);
-	}
-
 	public void repaint(ScrollPane scrollPane, Pane mainPane) {
+		setHeight(20);
 		GraphicsContext gc = getGraphicsContext2D();
 		double width = getWidth();
 		gc.setFill(Color.web("#F0F0F0"));
@@ -51,5 +48,13 @@ public class MetricHorizontalRulerCanvas extends Canvas {
 				}
 			}
 		}
+	}
+
+	public void clear() {
+		setHeight(0);
+//		GraphicsContext gc = getGraphicsContext2D();
+//		double width = getWidth();
+//		gc.setFill(Color.web("#F0F0F0"));
+//		gc.fillRect(0, 0, width, 20);
 	}
 }

@@ -22,12 +22,10 @@ public class FloorsNetworksSplitPane extends SplitPane {
 	private Region propertiesPanel;
 	private final FloorsNetworksTab mainTabPane;
 
-	private final Project proj;
 	private static final FloorsService SVC_FLOORS = SpringContextHelper.getBean(FloorsService.class);
 	private static final NodesService SVC_NODES = SpringContextHelper.getBean(NodesService.class);
 
 	public FloorsNetworksSplitPane(final Project proj) {
-		this.proj = proj;
 		setOrientation(Orientation.HORIZONTAL);
 		setDividerPositions(0.2);
 		this.propertiesPanel = new Label("propriétés");
@@ -40,20 +38,16 @@ public class FloorsNetworksSplitPane extends SplitPane {
 		final AbstractNode node = event.getNode();
 		Region newPanel;
 		if (node == null) {
-			System.out.println("Demande proriétés : null");
 			newPanel = new Label("propriétés");
 		} else {
 			Optional<Integer> floorId = SVC_NODES.getFloorIdFromNode(node);
 			if (floorId.isEmpty()) {
-				System.out.println("Demande proriétés : null");
 				newPanel = new Label("propriétés");
 			} else {
 				final Floor floor = SVC_FLOORS.findByIdWithNodes(floorId.get()).get();
 				if (node instanceof final Node realNode) {
-					System.out.println("Demande proriétés : " + realNode.getModel().getName());
 					newPanel = new NodePropertiesPanel(floor, realNode);
 				} else {
-					System.out.println("Demande propriétés : Colonne");
 					newPanel = new Label("Colonne");
 				}
 			}

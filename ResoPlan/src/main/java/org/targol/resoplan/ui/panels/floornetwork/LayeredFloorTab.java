@@ -11,7 +11,9 @@ import org.targol.resoplan.ui.components.CustomLayerRadio;
 import org.targol.resoplan.ui.panels.floornetwork.layers.evac.EvacuationsLayer;
 import org.targol.resoplan.ui.utils.GuiUtils;
 import org.targol.resoplan.ui.utils.events.ChangeLayerEvent;
+import org.targol.resoplan.ui.utils.events.GenericActionEvent;
 import org.targol.resoplan.ui.utils.events.UiEventBus;
+import org.targol.resoplan.utils.PreferencesHelper;
 import org.targol.resoplan.utils.SpringContextHelper;
 
 import javafx.geometry.Bounds;
@@ -131,6 +133,7 @@ public class LayeredFloorTab extends Tab {
 		setupRepaintListeners();
 		triggerRepaint();
 		UiEventBus.register(this.parentController, ChangeLayerEvent.CHANGE_LAYER, evt -> layerChanged(evt));
+		UiEventBus.register(this.parentController, GenericActionEvent.PREF_CHANGE, evt -> triggerRepaint());
 	}
 
 	private void setupRepaintListeners() {
@@ -147,13 +150,31 @@ public class LayeredFloorTab extends Tab {
 	}
 
 	private void triggerRepaint() {
-		this.grid.repaint(this.centerScrollPane, this.mainNetworkPane);
-		repaintRulers();
+		boolean gridActive = PreferencesHelper.getBoolPreference(PreferencesHelper.PREF_SHOW_GRID);
+		if (gridActive) {
+			this.grid.repaint(this.centerScrollPane, this.mainNetworkPane);
+		} else {
+			this.grid.clear();
+		}
+		boolean rulersActive = PreferencesHelper.getBoolPreference(PreferencesHelper.PREF_SHOW_RULERS);
+		if (rulersActive) {
+			repaintRulers();
+		} else {
+			clearRulers();
+		}
 	}
 
 	private void repaintRulers() {
+		if (!PreferencesHelper.getBoolPreference(PreferencesHelper.PREF_SHOW_RULERS)) {
+			return;
+		}
 		this.horizRuler.repaint(this.centerScrollPane, this.mainNetworkPane);
 		this.verticRuler.repaint(this.centerScrollPane, this.mainNetworkPane);
+	}
+
+	private void clearRulers() {
+		this.horizRuler.clear();
+		this.verticRuler.clear();
 	}
 
 	private void onScrollEvent(final ScrollEvent event) {

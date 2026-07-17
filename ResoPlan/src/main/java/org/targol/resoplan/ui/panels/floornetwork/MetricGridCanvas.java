@@ -46,4 +46,11 @@ public class MetricGridCanvas extends Canvas {
 		return 500;
 	}
 
+	public void clear() {
+		GraphicsContext gc = getGraphicsContext2D();
+		double width = getWidth();
+		double height = getWidth();
+		gc.clearRect(0, 0, width, height);
+	}
+
 }

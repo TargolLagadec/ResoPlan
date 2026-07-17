@@ -13,6 +13,7 @@ public class GenericActionEvent extends Event {
 	public static final EventType<GenericActionEvent> SHOW_ALIGN = new EventType<>(ANY, "SHOW_ALIGN"); //$NON-NLS-1$
 	public static final EventType<GenericActionEvent> SHOW_NETWORKS = new EventType<>(ANY, "SHOW_NETWORKS"); //$NON-NLS-1$
 	public static final EventType<GenericActionEvent> SHOW_DEBIT = new EventType<>(ANY, "SHOW_DEBIT"); //$NON-NLS-1$
+	public static final EventType<GenericActionEvent> PREF_CHANGE = new EventType<>(ANY, "PREF_CHANGE"); //$NON-NLS-1$
 
 	public GenericActionEvent(final EventType<? extends Event> eventType) {
 		super(eventType);

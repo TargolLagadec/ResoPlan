@@ -6,6 +6,8 @@ import java.util.ResourceBundle;
 
 import org.targol.resoplan.i18n.Messages;
 import org.targol.resoplan.ui.utils.ThemesHelper.Theme;
+import org.targol.resoplan.ui.utils.events.GenericActionEvent;
+import org.targol.resoplan.ui.utils.events.UiEventBus;
 import org.targol.resoplan.utils.PreferencesHelper;
 
 import javafx.event.ActionEvent;
@@ -62,10 +64,12 @@ public class PreferencesDialogControler extends Dialog<Void> {
 		this.rulersCheckBox.setSelected(PreferencesHelper.getBoolPreference(PreferencesHelper.PREF_SHOW_RULERS));
 		this.rulersCheckBox.setOnAction(event -> {
 			PreferencesHelper.setBoolPreference(PreferencesHelper.PREF_SHOW_RULERS, this.rulersCheckBox.isSelected());
+			UiEventBus.send(new GenericActionEvent(GenericActionEvent.PREF_CHANGE));
 		});
 		this.gridCheckBox.setSelected(PreferencesHelper.getBoolPreference(PreferencesHelper.PREF_SHOW_GRID));
 		this.gridCheckBox.setOnAction(event -> {
 			PreferencesHelper.setBoolPreference(PreferencesHelper.PREF_SHOW_GRID, this.gridCheckBox.isSelected());
+			UiEventBus.send(new GenericActionEvent(GenericActionEvent.PREF_CHANGE));
 		});
 	}
 
