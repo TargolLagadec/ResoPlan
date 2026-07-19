@@ -10,9 +10,11 @@ import javafx.beans.property.DoubleProperty;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SimpleDoubleProperty;
 import javafx.beans.property.SimpleObjectProperty;
+import javafx.geometry.Insets;
 import javafx.scene.control.RadioButton;
 import javafx.scene.control.Tooltip;
 import javafx.scene.image.ImageView;
+import javafx.scene.layout.StackPane;
 
 public class CustomLayerRadio extends RadioButton {
 
@@ -53,7 +55,9 @@ public class CustomLayerRadio extends RadioButton {
 		final ImageView view = new ImageView(ThemesHelper.getIcon(buttonType.getKey()));
 		view.setPreserveRatio(true);
 		view.fitWidthProperty().set(this.imgWidth.get());
-		setGraphic(view);
+		final StackPane container = new StackPane(view);
+		container.setPadding(new Insets(0, 10, 0, 5));
+		setGraphic(container);
 		setTooltip(new Tooltip(Messages.getString("LayerCheck.".concat(buttonType.getKey())))); //$NON-NLS-1$
 	}
 

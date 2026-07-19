@@ -1,4 +1,4 @@
-package org.targol.resoplan.ui.panels.floornetwork;
+package org.targol.resoplan.ui.panels.floornetwork.decorators;
 
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
@@ -7,50 +7,48 @@ import javafx.scene.layout.Pane;
 import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
 
-public class MetricHorizontalRulerCanvas extends Canvas {
+public class MetricVerticalRulerCanvas extends Canvas {
 
 	public void repaint(ScrollPane scrollPane, Pane mainPane) {
-		setHeight(20);
+		setWidth(20);
 		GraphicsContext gc = getGraphicsContext2D();
-		double width = getWidth();
+		double height = getHeight();
 		gc.setFill(Color.web("#F0F0F0"));
-		gc.fillRect(0, 0, width, 20);
+		gc.fillRect(0, 0, 20, height);
 
-		double scale = mainPane.getScaleX();
+		double scale = mainPane.getScaleY();
 		double mainStepCm = MetricGridCanvas.calculateDynamicStep(scale);
 		double mainStepPx = mainStepCm * scale;
 
-		double contentWidth = mainPane.getBoundsInParent().getWidth();
-		double viewportWidth = scrollPane.getViewportBounds().getWidth();
-		double hValue = scrollPane.getHvalue();
-		double hOffset = (contentWidth - viewportWidth) * hValue;
-		if (hOffset < 0) {
-			hOffset = 0;
-		}
-		double firstTickCm = Math.floor(hOffset / mainStepPx) * mainStepCm;
+		double contentHeight = mainPane.getBoundsInParent().getHeight();
+		double viewportHeight = scrollPane.getViewportBounds().getHeight();
+		double vValue = scrollPane.getVvalue();
+		double vOffset = (contentHeight - viewportHeight) * vValue;
+		double firstTickCm = Math.floor(vOffset / mainStepPx) * mainStepCm;
 		gc.setStroke(Color.BLACK);
 		gc.setFill(Color.DARKGRAY);
 		gc.setFont(Font.font(9));
 		gc.setLineWidth(2);
 
 		for (double cm = firstTickCm;; cm += mainStepCm) {
-			double px = cm * scale - hOffset;
-			if (px > width) {
+			double px = cm * scale - vOffset;
+			if (px > height) {
 				break;
 			}
 			if (px >= 0) {
-				gc.strokeLine(px, 0, px, 15);
+				gc.strokeLine(0, px, 15, px);
 				String label = String.format("%.1fm", cm / 100.0); //$NON-NLS-1$
-				gc.fillText(label, px + 3, 12);
+				gc.fillText(label, 2, px - 6);
 				double subPx = px - mainStepPx / 2;
-				if (subPx > 0 && subPx < width) {
-					gc.strokeLine(subPx, 0, subPx, 8);
+				if (subPx > 0 && subPx < height) {
+					gc.strokeLine(0, subPx, 8, subPx);
 				}
 			}
 		}
 	}
 
 	public void clear() {
-		setHeight(0);
+		setWidth(0);
 	}
+
 }

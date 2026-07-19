@@ -1,4 +1,4 @@
-package org.targol.resoplan.ui.panels.floornetwork;
+package org.targol.resoplan.ui.panels.floornetwork.decorators;
 
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;

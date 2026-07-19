@@ -1,4 +1,4 @@
-package org.targol.resoplan.ui.panels.floornetwork;
+package org.targol.resoplan.ui.panels.floornetwork.properties;
 
 import java.io.IOException;
 import java.text.NumberFormat;

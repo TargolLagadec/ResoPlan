@@ -7,9 +7,11 @@ import java.util.ResourceBundle;
 import org.targol.resoplan.i18n.Messages;
 import org.targol.resoplan.ui.utils.ThemesHelper.Theme;
 import org.targol.resoplan.ui.utils.events.GenericActionEvent;
+import org.targol.resoplan.ui.utils.events.ThemeChangeEvent;
 import org.targol.resoplan.ui.utils.events.UiEventBus;
 import org.targol.resoplan.utils.PreferencesHelper;
 
+import javafx.application.Platform;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
@@ -95,6 +97,7 @@ public class PreferencesDialogControler extends Dialog<Void> {
 			if (newTheme != null) {
 				PreferencesHelper.setCurrentTheme(newTheme);
 				themeChanged(newTheme);
+				Platform.runLater(() -> UiEventBus.send(ThemeChangeEvent.change(newTheme)));
 			}
 		});
 	}

@@ -1,11 +1,9 @@
 package org.targol.resoplan.ui.utils.events;
 
-import javafx.beans.value.ChangeListener;
 import javafx.event.EventHandler;
 import javafx.event.EventType;
 import javafx.scene.Group;
 import javafx.scene.Node;
-import javafx.scene.Scene;
 
 public class UiEventBus {
 
@@ -23,19 +21,20 @@ public class UiEventBus {
 	public static <T extends GenericActionEvent> void register(final Node handlerOwner, final EventType<T> event,
 			final EventHandler<? super T> handler) {
 
-		EVENT_HUB.addEventHandler(event, handler);
+		// Si le composant est déjà dans une scène active au démarrage, on l'abonne
+		if (handlerOwner == null || handlerOwner.getScene() != null) {
+			EVENT_HUB.addEventHandler(event, handler);
+		}
 
 		if (handlerOwner != null) {
-			final ChangeListener<Scene>[] listenerContainer = new ChangeListener[1];
-			listenerContainer[0] = (obs, oldScene, newScene) -> {
+			handlerOwner.sceneProperty().addListener((obs, oldScene, newScene) -> {
 				if (newScene == null) {
 					unregister(event, handler);
-					if (handlerOwner != null) {
-						handlerOwner.sceneProperty().removeListener(listenerContainer[0]);
-					}
+				} else {
+					unregister(event, handler);
+					EVENT_HUB.addEventHandler(event, handler);
 				}
-			};
-			handlerOwner.sceneProperty().addListener(listenerContainer[0]);
+			});
 		}
 	}
 
