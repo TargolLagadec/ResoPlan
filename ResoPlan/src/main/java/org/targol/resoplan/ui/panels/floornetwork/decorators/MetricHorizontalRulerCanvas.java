@@ -1,21 +1,15 @@
 package org.targol.resoplan.ui.panels.floornetwork.decorators;
 
-import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
-import javafx.scene.control.Label;
 import javafx.scene.control.ScrollPane;
-import javafx.scene.layout.BackgroundFill;
 import javafx.scene.layout.Pane;
-import javafx.scene.paint.Color;
-import javafx.scene.paint.Paint;
 import javafx.scene.text.Font;
 
-public class MetricHorizontalRulerCanvas extends Canvas {
-	private Color backgroundColor = Color.DARKGRAY;
-	private Color strokeColor = Color.BLACK;
+public class MetricHorizontalRulerCanvas extends AbstractMetricRulerCanvas {
 
+	@Override
 	public void repaint(final ScrollPane scrollPane, final Pane mainPane) {
-		updateColorsFromCss();
+		updateColorsFromTheme();
 		setHeight(20);
 		final GraphicsContext gc = getGraphicsContext2D();
 		final double width = getWidth();
@@ -56,33 +50,8 @@ public class MetricHorizontalRulerCanvas extends Canvas {
 		}
 	}
 
+	@Override
 	public void clear() {
 		setHeight(0);
-	}
-
-	private void updateColorsFromCss() {
-		if (getScene() == null) {
-			return;
-		}
-		getScene().getStylesheets().get(0);
-		// On crée un Label invisible qui va nous servir de sonde CSS
-		final Label cssProbe = new Label();
-		cssProbe.setManaged(false);
-		cssProbe.setVisible(false);
-		if (getParent() instanceof final Pane parentPane) {
-			parentPane.getChildren().add(cssProbe);
-			cssProbe.applyCss();
-			final Paint textPaint = cssProbe.getTextFill();
-			if (textPaint instanceof Color) {
-				this.strokeColor = (Color) textPaint;
-			}
-			if (cssProbe.getBackground() != null && !cssProbe.getBackground().getFills().isEmpty()) {
-				final BackgroundFill fill = cssProbe.getBackground().getFills().get(0);
-				if (fill.getFill() instanceof Color) {
-					this.backgroundColor = (Color) fill.getFill();
-				}
-			}
-			parentPane.getChildren().remove(cssProbe);
-		}
 	}
 }

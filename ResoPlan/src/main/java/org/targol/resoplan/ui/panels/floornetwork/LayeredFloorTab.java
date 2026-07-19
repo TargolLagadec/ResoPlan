@@ -15,6 +15,7 @@ import org.targol.resoplan.ui.panels.floornetwork.layers.evac.EvacuationsLayer;
 import org.targol.resoplan.ui.utils.GuiUtils;
 import org.targol.resoplan.ui.utils.events.ChangeLayerEvent;
 import org.targol.resoplan.ui.utils.events.GenericActionEvent;
+import org.targol.resoplan.ui.utils.events.ThemeChangeEvent;
 import org.targol.resoplan.ui.utils.events.UiEventBus;
 import org.targol.resoplan.utils.PreferencesHelper;
 import org.targol.resoplan.utils.SpringContextHelper;
@@ -77,7 +78,7 @@ public class LayeredFloorTab extends Tab {
 
 		this.horizRuler = new MetricHorizontalRulerCanvas();
 		this.verticRuler = new MetricVerticalRulerCanvas();
-		GridPane layoutGrid = new GridPane();
+		final GridPane layoutGrid = new GridPane();
 		layoutGrid.add(this.horizRuler, 1, 0);
 		// Règle gauche (index 0,1)
 		layoutGrid.add(this.verticRuler, 0, 1);
@@ -137,6 +138,7 @@ public class LayeredFloorTab extends Tab {
 		triggerRepaint();
 		UiEventBus.register(this.parentController, ChangeLayerEvent.CHANGE_LAYER, evt -> layerChanged(evt));
 		UiEventBus.register(this.parentController, GenericActionEvent.PREF_CHANGE, evt -> triggerRepaint());
+		UiEventBus.register(this.parentController, ThemeChangeEvent.THEME_CHANGE, evt -> triggerRepaint());
 	}
 
 	private void setupRepaintListeners() {
@@ -153,13 +155,13 @@ public class LayeredFloorTab extends Tab {
 	}
 
 	private void triggerRepaint() {
-		boolean gridActive = PreferencesHelper.getBoolPreference(PreferencesHelper.PREF_SHOW_GRID);
+		final boolean gridActive = PreferencesHelper.getBoolPreference(PreferencesHelper.PREF_SHOW_GRID);
 		if (gridActive) {
 			this.grid.repaint(this.centerScrollPane, this.mainNetworkPane);
 		} else {
 			this.grid.clear();
 		}
-		boolean rulersActive = PreferencesHelper.getBoolPreference(PreferencesHelper.PREF_SHOW_RULERS);
+		final boolean rulersActive = PreferencesHelper.getBoolPreference(PreferencesHelper.PREF_SHOW_RULERS);
 		if (rulersActive) {
 			repaintRulers();
 		} else {
@@ -250,8 +252,8 @@ public class LayeredFloorTab extends Tab {
 		});
 	}
 
-	private void layerChanged(ChangeLayerEvent event) {
-		LayerType newLayer = event.getLayer();
+	private void layerChanged(final ChangeLayerEvent event) {
+		final LayerType newLayer = event.getLayer();
 		if (newLayer == null) {
 			this.headerToggleGroup.selectToggle(null);
 			return;

@@ -30,19 +30,24 @@ public class ThemesHelper {
 	}
 
 	public enum Theme {
-		DARK("Dark", "/style/dark.css", Color.WHITE), //$NON-NLS-1$ //$NON-NLS-2$
-		GREY("Grey", "/style/grey.css", Color.WHITE), //$NON-NLS-1$ //$NON-NLS-2$
-		SUNNY("Sunny", "/style/sunny.css", Color.SADDLEBROWN), //$NON-NLS-1$ //$NON-NLS-2$
-		ICEBERG("Iceberg", "/style/iceberg.css", Color.MEDIUMBLUE); //$NON-NLS-1$ //$NON-NLS-2$
+		// ATTENTION : CHANGER LES VALEURS DES COULEURS ICI EN CAS DE CHANGEMENT DANS
+		// LES CSS
+		DARK("Dark", "/style/dark.css", Color.WHITE, Color.web("#181818")), //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+		GREY("Grey", "/style/grey.css", Color.WHITE, Color.web("#373e43")), //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+		SUNNY("Sunny", "/style/sunny.css", Color.SADDLEBROWN, Color.web("#e8e6d3")), //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+		ICEBERG("Iceberg", "/style/iceberg.css", Color.MEDIUMBLUE, Color.web("#9dabbf")); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 
 		private final String name;
 		private final String cssRelativePath;
 		private final Color imagesMainColor;
+		private final Color BackColor;
 
-		private Theme(final String name, final String cssRelativePath, final Color imagesMainColor) {
+		private Theme(final String name, final String cssRelativePath, final Color imagesMainColor,
+				final Color BackColor) {
 			this.name = name;
 			this.cssRelativePath = cssRelativePath;
 			this.imagesMainColor = imagesMainColor;
+			this.BackColor = BackColor;
 		}
 
 		public String getName() {
@@ -55,6 +60,10 @@ public class ThemesHelper {
 
 		public Color getImagesMainColor() {
 			return this.imagesMainColor;
+		}
+
+		public Color getBackColor() {
+			return this.BackColor;
 		}
 
 	}

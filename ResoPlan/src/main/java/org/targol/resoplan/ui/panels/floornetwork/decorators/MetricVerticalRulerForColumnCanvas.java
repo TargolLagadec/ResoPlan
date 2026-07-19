@@ -1,5 +1,8 @@
 package org.targol.resoplan.ui.panels.floornetwork.decorators;
 
+import org.targol.resoplan.ui.utils.ThemesHelper.Theme;
+import org.targol.resoplan.utils.PreferencesHelper;
+
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.layout.BorderPane;
@@ -7,12 +10,16 @@ import javafx.scene.paint.Color;
 
 public class MetricVerticalRulerForColumnCanvas extends Canvas {
 
+	private Color backgroundColor = Color.DARKGRAY;
+	private Color strokeColor = Color.BLACK;
+
 	public void repaint(final BorderPane mainPane, final double hsp) {
+		updateColorsFromTheme();
 		setWidth(50);
 		final GraphicsContext gc = getGraphicsContext2D();
 		final double height = getHeight();
-		gc.setFill(Color.web("#F0F0F0"));
-		gc.fillRect(0, 0, 20, height);
+		gc.setFill(this.backgroundColor);
+		gc.fillRect(0, 0, 50, height);
 
 //		double mainStepCm = MetricGridCanvas.calculateDynamicStep(scale);
 //		double mainStepPx = mainStepCm * scale;
@@ -42,6 +49,15 @@ public class MetricVerticalRulerForColumnCanvas extends Canvas {
 
 	private double calculateStep() {
 		return 0;
+	}
+
+	private void updateColorsFromTheme() {
+		if (getScene() == null) {
+			return;
+		}
+		final Theme theme = PreferencesHelper.getCurrentTheme();
+		this.strokeColor = theme.getImagesMainColor();
+		this.backgroundColor = theme.getBackColor();
 	}
 
 }
