@@ -170,7 +170,7 @@ public class FloorPropertiesPanel extends GridPane {
 	}
 
 	private void informStateManager() {
-		UiEventBus.send(ProjectUpdatedEvent.firechange(FloorPropertiesPanel.SVC_PROJECTS.getOpenedProject()));
+		UiEventBus.send(ProjectUpdatedEvent.fireUpdate(FloorPropertiesPanel.SVC_PROJECTS.getOpenedProject()));
 	}
 
 	private void changeColor(final int newValue) {

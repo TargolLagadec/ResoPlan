@@ -2,6 +2,7 @@ package org.targol.resoplan.ui.utils.events;
 
 import org.targol.resoplan.model.AbstractNode;
 import org.targol.resoplan.model.LayerType;
+import org.targol.resoplan.model.Node;
 
 import javafx.event.EventType;
 
@@ -16,6 +17,8 @@ public class NodePropertiesAskedEvent extends GenericActionEvent {
 	public static final EventType<NodePropertiesAskedEvent> WATER_ALIM = new EventType<>(NODE_PROPS_ANY,
 			"NODE_PROPS_ALIM"); //$NON-NLS-1$
 	public static final EventType<NodePropertiesAskedEvent> NET = new EventType<>(NODE_PROPS_ANY, "NODE_PROPS_NET"); //$NON-NLS-1$
+	public static final EventType<NodePropertiesAskedEvent> SUB_NODE_PROPS = new EventType<>(GenericActionEvent.ANY,
+			"SUB_NODE_PROPS"); //$NON-NLS-1$
 
 	public static NodePropertiesAskedEvent of(final LayerType layer, final AbstractNode node) {
 		return switch (layer) {
@@ -24,6 +27,10 @@ public class NodePropertiesAskedEvent extends GenericActionEvent {
 		case WATER_ALIM -> new NodePropertiesAskedEvent(WATER_ALIM, node);
 		case NET -> new NodePropertiesAskedEvent(NET, node);
 		};
+	}
+
+	public static NodePropertiesAskedEvent showSubNodeProps(final Node node) {
+		return new NodePropertiesAskedEvent(SUB_NODE_PROPS, node);
 	}
 
 	private final AbstractNode node;

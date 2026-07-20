@@ -35,7 +35,7 @@ public class WelcomePanelController {
 			};
 			cell.setOnMouseClicked(event -> {
 				final Project project = SVC_PROJECTS.openProjectWithFloorsAndNodes(cell.getItem()).get();
-				UiEventBus.send(ProjectUpdatedEvent.firechange(project));
+				UiEventBus.send(ProjectUpdatedEvent.fireUpdate(project));
 			});
 			return cell;
 		});
@@ -43,7 +43,7 @@ public class WelcomePanelController {
 
 	@FXML
 	private void onNewProjectClick() {
-		UiEventBus.send(ProjectUpdatedEvent.firechange(null));
+		UiEventBus.send(ProjectUpdatedEvent.fireCreate());
 	}
 
 	public void setProjects(final List<Project> projects) {

@@ -1,15 +1,12 @@
 package org.targol.resoplan.ui.panels.floornetwork;
 
-import java.util.Optional;
-
 import org.targol.resoplan.model.AbstractNode;
-import org.targol.resoplan.model.Floor;
 import org.targol.resoplan.model.MetaNode;
 import org.targol.resoplan.model.Node;
 import org.targol.resoplan.model.Project;
 import org.targol.resoplan.services.FloorsService;
 import org.targol.resoplan.services.NodesService;
-import org.targol.resoplan.ui.panels.floornetwork.properties.MetaNodeColumnPanelController;
+import org.targol.resoplan.ui.panels.floornetwork.properties.MetaNodeColumnPanel;
 import org.targol.resoplan.ui.panels.floornetwork.properties.NodePropertiesPanel;
 import org.targol.resoplan.ui.utils.events.NodePropertiesAskedEvent;
 import org.targol.resoplan.ui.utils.events.UiEventBus;
@@ -43,16 +40,10 @@ public class FloorsNetworksSplitPane extends SplitPane {
 		if (node == null) {
 			newPanel = new Label("propriétés");
 		} else {
-			final Optional<Integer> floorId = SVC_NODES.getFloorIdFromNode(node);
-			if (floorId.isEmpty()) {
-				newPanel = new Label("propriétés");
+			if (node instanceof final Node realNode) {
+				newPanel = new NodePropertiesPanel(realNode);
 			} else {
-				final Floor floor = SVC_FLOORS.findByIdWithNodes(floorId.get()).get();
-				if (node instanceof final Node realNode) {
-					newPanel = new NodePropertiesPanel(floor, realNode);
-				} else {
-					newPanel = new MetaNodeColumnPanelController(floor, (MetaNode) node);
-				}
+				newPanel = new MetaNodeColumnPanel((MetaNode) node);
 			}
 		}
 		getItems().set(0, newPanel);

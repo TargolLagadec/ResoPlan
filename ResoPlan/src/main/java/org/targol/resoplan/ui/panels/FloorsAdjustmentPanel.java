@@ -147,7 +147,7 @@ public class FloorsAdjustmentPanel extends BorderPane {
 			this.project.setPlansScale(length);
 			final ProjectsService service = SpringContextHelper.getBean(ProjectsService.class);
 			service.updateProject(this.project);
-			UiEventBus.send(ProjectUpdatedEvent.firechange(this.project));
+			UiEventBus.send(ProjectUpdatedEvent.fireUpdate(this.project));
 			UiEventBus.send(ProblemsUpdatedEvent.fireMapRebuild());
 
 			this.tracingScale = false;

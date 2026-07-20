@@ -34,7 +34,6 @@ public abstract class AbstractGraphicalNode extends StackPane {
 	protected static final int SCALE = SVC_PROJ.getOpenedProject().getPlansScale();
 
 	protected final Project project;
-	private final Floor floor;
 	protected AbstractNode node;
 	protected final LayerType layer;
 	protected final Color defaultColor;
@@ -42,10 +41,9 @@ public abstract class AbstractGraphicalNode extends StackPane {
 	private double dragEndY;
 	boolean dragging = false;
 
-	public AbstractGraphicalNode(final Project project, final Floor floor, final AbstractNode node,
-			final LayerType layer, final Color defaultColor, final Consumer<MouseEvent> onMergeRequested) {
-		this.project = project;
-		this.floor = floor;
+	public AbstractGraphicalNode(final AbstractNode node, final LayerType layer, final Color defaultColor,
+			final Consumer<MouseEvent> onMergeRequested) {
+		this.project = SVC_PROJ.getOpenedProject();
 		this.node = node;
 		this.layer = layer;
 		this.defaultColor = defaultColor;

@@ -1,54 +1,78 @@
 package org.targol.resoplan.ui.panels.floornetwork.decorators;
 
+import org.targol.resoplan.ui.panels.floornetwork.properties.MetaNodeColumnPanel;
 import org.targol.resoplan.ui.utils.ThemesHelper.Theme;
 import org.targol.resoplan.utils.PreferencesHelper;
 
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
-import javafx.scene.layout.BorderPane;
 import javafx.scene.paint.Color;
+import javafx.scene.text.Font;
 
 public class MetricVerticalRulerForColumnCanvas extends Canvas {
+
+	public static final double TOP_BOTTOM_MARGIN = 50.0d;
 
 	private Color backgroundColor = Color.DARKGRAY;
 	private Color strokeColor = Color.BLACK;
 
-	public void repaint(final BorderPane mainPane, final double hsp) {
-		updateColorsFromTheme();
-		setWidth(50);
-		final GraphicsContext gc = getGraphicsContext2D();
-		final double height = getHeight();
-		gc.setFill(this.backgroundColor);
-		gc.fillRect(0, 0, 50, height);
+	private final double hsp;
+	private final MetaNodeColumnPanel mainPane;
+	private boolean repainting = false;
 
-//		double mainStepCm = MetricGridCanvas.calculateDynamicStep(scale);
-//		double mainStepPx = mainStepCm * scale;
-//
-//		double contentHeight = mainPane.getBoundsInParent().getHeight();
-//		double firstTickCm = Math.floor(contentHeight / mainStepPx) * mainStepCm;
-//		gc.setStroke(Color.BLACK);
-//		gc.setFill(Color.DARKGRAY);
-//		gc.setFont(Font.font(9));
-//		gc.setLineWidth(2);
-//
-//		for (double cm = firstTickCm;; cm += mainStepCm) {
-//			double px = cm * scale - vOffset;
-//			if (px > height) {
-//				break;
-//			}
-//			if (px >= 0) {
-//				gc.strokeLine(0, px, 15, px);
-//				String label = String.format("%.1fm", cm / 100.0); //$NON-NLS-1$
-//				gc.fillText(label, 2, px - 6);
-//				double subPx = px - mainStepPx / 2;
-//				if (subPx > 0 && subPx < height) {
-//					gc.strokeLine(0, subPx, 8, subPx);
-//				}
-//			}
+	public MetricVerticalRulerForColumnCanvas(final MetaNodeColumnPanel mainPane, final double hsp) {
+		this.mainPane = mainPane;
+		this.hsp = hsp;
+		setWidth(50);
+		setHeight(mainPane.getHeight());
+		mainPane.heightProperty().addListener((obs, oldVal, newVal) -> {
+			if (newVal != null && newVal.doubleValue() > 0) {
+				setHeight(mainPane.getAvailableHeight());
+				repaint();
+			}
+		});
 	}
 
-	private double calculateStep() {
-		return 0;
+	public void repaint() {
+		if (this.repainting) {
+			return;
+		}
+		this.repainting = true;
+		updateColorsFromTheme();
+		final double height = getHeight();
+		setWidth(50);
+		setHeight(height);
+		double maxY = height - TOP_BOTTOM_MARGIN;
+		final GraphicsContext gc = getGraphicsContext2D();
+		gc.setFill(this.backgroundColor);
+		gc.fillRect(0, 0, 50, height);
+		// "Sol" et "plafond"
+		Color tempColor = new Color(this.strokeColor.getRed(), this.strokeColor.getGreen(), this.strokeColor.getBlue(),
+				0.5);
+		gc.setFill(tempColor);
+		gc.fillRect(0, 0, 50, TOP_BOTTOM_MARGIN);
+		gc.fillRect(0, maxY, 50, TOP_BOTTOM_MARGIN);
+
+		gc.setStroke(this.strokeColor);
+		gc.setFill(this.strokeColor);
+		gc.setFont(Font.font(9));
+		gc.setLineWidth(1);
+		gc.strokeLine(2, TOP_BOTTOM_MARGIN, 2, maxY);
+
+		double available = height - TOP_BOTTOM_MARGIN * 2;
+		double pxPerMeter = available / this.hsp;
+
+		double cm = 0;
+		for (double posY = maxY; posY > TOP_BOTTOM_MARGIN; posY -= pxPerMeter * 25) {
+			gc.strokeLine(1, posY, 15, posY);
+			String label = String.format("%.2fm", cm / 100.0); //$NON-NLS-1$
+			gc.fillText(label, 3, posY - 6);
+			cm += 25;
+		}
+		gc.strokeLine(1, TOP_BOTTOM_MARGIN, 15, TOP_BOTTOM_MARGIN);
+		String label = String.format("%.2fm", this.hsp / 100.0); //$NON-NLS-1$
+		gc.fillText(label, 3, TOP_BOTTOM_MARGIN - 6);
+		this.repainting = false;
 	}
 
 	private void updateColorsFromTheme() {

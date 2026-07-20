@@ -7,10 +7,10 @@ import java.util.ResourceBundle;
 
 import org.targol.resoplan.i18n.Messages;
 import org.targol.resoplan.model.AbstractNode;
-import org.targol.resoplan.model.Floor;
 import org.targol.resoplan.model.Hook;
 import org.targol.resoplan.model.LayerType;
 import org.targol.resoplan.model.Node;
+import org.targol.resoplan.model.catalog.enums.NodeCross;
 import org.targol.resoplan.services.NodesService;
 import org.targol.resoplan.ui.utils.events.NodeMoveEvent;
 import org.targol.resoplan.ui.utils.events.UiEventBus;
@@ -46,14 +46,12 @@ public class NodePropertiesPanel extends GridPane {
 	@FXML
 	private Button deleteButton;
 
-	private final Floor floor;
 	private Node node;
 	private static final NodesService SVC_NODES = SpringContextHelper.getBean(NodesService.class);
 	private final ResourceBundle bundle = ResourceBundle.getBundle("i18n.messages", Locale.getDefault()); //$NON-NLS-1$
 	private final NumberFormat numberFormat = NumberFormat.getInstance();
 
-	public NodePropertiesPanel(Floor floor, Node node) {
-		this.floor = floor;
+	public NodePropertiesPanel(Node node) {
 		this.node = SVC_NODES.getfullNodeWithHooks(node).get();
 		this.numberFormat.setMaximumFractionDigits(2);
 		final FXMLLoader loader = new FXMLLoader(getClass().getResource("/gui/panels/NodePropertiesPanel.fxml"), //$NON-NLS-1$
@@ -82,7 +80,7 @@ public class NodePropertiesPanel extends GridPane {
 		this.posXTextField.setText(this.numberFormat.format(this.node.getPosX()));
 		this.posYTextField.setText(this.numberFormat.format(this.node.getPosY()));
 		this.posZTextField.setText(this.numberFormat.format(this.node.getPosZ()));
-		this.floorTextField.setText(Messages.getString("ProjectPane.floorname", this.floor.getNumber())); //$NON-NLS-1$
+		this.posZTextField.setDisable(!NodeCross.NONE.equals(this.node.getNodeCross()));
 		this.layersTextField.setText(buildLayersLabel());
 		this.nodeCrossTextField.setText(this.node.getNodeCross().getLabel());
 		this.hooksTextField.setText(buildHooksLabel());

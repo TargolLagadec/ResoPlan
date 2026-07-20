@@ -79,6 +79,7 @@ public class MainWindowController {
 	}
 
 	private void manageEvents() {
+		UiEventBus.register(this.contentPane, ProjectUpdatedEvent.PROJECT_CREATE, e -> newProject());
 		UiEventBus.register(this.contentPane, ProjectUpdatedEvent.PROJECT_UPDATE, e -> manageProjectChangeEvent(e));
 		UiEventBus.register(this.contentPane, GenericActionEvent.SHOW_CATALOG, e -> displayCatalogPanel());
 		UiEventBus.register(this.contentPane, GenericActionEvent.SHOW_NETWORKS, e -> displayNetworksPanel());
@@ -171,7 +172,7 @@ public class MainWindowController {
 		final Stage stage = (Stage) this.contentPane.getScene().getWindow();
 		stage.setTitle(Messages.getString("MainWindow.title.withProj", project.getName())); //$NON-NLS-1$
 		if (!isEventTriggered) {
-			UiEventBus.send(ProjectUpdatedEvent.firechange(prjWithFloors));
+			UiEventBus.send(ProjectUpdatedEvent.fireUpdate(prjWithFloors));
 		}
 	}
 
@@ -244,7 +245,7 @@ public class MainWindowController {
 		displayWelcomePanel();
 		final Stage stage = (Stage) this.contentPane.getScene().getWindow();
 		stage.setTitle(Messages.getString("MainWindow.title")); //$NON-NLS-1$
-		UiEventBus.send(ProjectUpdatedEvent.firechange(null));
+		UiEventBus.send(ProjectUpdatedEvent.fireUpdate(null));
 	}
 
 	private void refreshRecentProjectsMenu() {

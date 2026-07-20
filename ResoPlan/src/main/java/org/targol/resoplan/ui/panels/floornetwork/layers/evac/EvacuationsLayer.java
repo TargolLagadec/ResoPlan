@@ -219,8 +219,8 @@ public class EvacuationsLayer extends Pane {
 
 	private void drawGraphicalNode(final AbstractNode node) {
 		if (node instanceof final Node realNode) {
-			final GraphicalNode gn = new GraphicalNode(this.project, this.floor, realNode, LayerType.WATER_EVAC,
-					this.drawingColor, (mouseEvent) -> onExistingNodeClick(mouseEvent));
+			final GraphicalNode gn = new GraphicalNode(realNode, LayerType.WATER_EVAC, this.drawingColor,
+					(mouseEvent) -> onExistingNodeClick(mouseEvent));
 			getChildren().add(gn);
 			requestLayout();
 		} else {
@@ -296,8 +296,8 @@ public class EvacuationsLayer extends Pane {
 	}
 
 	private void drawMetaNode(final MetaNode meta) {
-		final GraphicalMetaNode gn = new GraphicalMetaNode(this.project, this.floor, meta, LayerType.WATER_EVAC,
-				this.drawingColor, (mouseEvent) -> onExistingNodeClick(mouseEvent));
+		final GraphicalMetaNode gn = new GraphicalMetaNode(meta, LayerType.WATER_EVAC, this.drawingColor,
+				(mouseEvent) -> onExistingNodeClick(mouseEvent));
 		getChildren().add(gn);
 		requestLayout();
 	}

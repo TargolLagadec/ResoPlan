@@ -53,7 +53,7 @@ public class LayeredFloorTab extends Tab {
 	// content
 	private ToggleGroup headerToggleGroup;
 	private ScrollPane centerScrollPane;
-	private Pane mainNetworkPane;
+	private StackPane mainNetworkPane;
 	private MetricGridCanvas grid;
 	private MetricHorizontalRulerCanvas horizRuler;
 	private MetricVerticalRulerCanvas verticRuler;
