@@ -12,6 +12,8 @@ import org.targol.resoplan.model.Project;
 import org.targol.resoplan.ui.utils.events.ProblemsUpdatedEvent;
 import org.targol.resoplan.ui.utils.events.UiEventBus;
 
+import javafx.application.Platform;
+
 @Component
 public class ProblemsRegistry {
 
@@ -21,7 +23,7 @@ public class ProblemsRegistry {
 	public ProblemsRegistry(final ValidationService validationService) {
 		this.validationService = validationService;
 		UiEventBus.register(null, ProblemsUpdatedEvent.CHECK_PROBLEMS, event -> {
-			this.validateAndRefresh(event.getProject());
+			validateAndRefresh(event.getProject());
 		});
 	}
 
@@ -37,7 +39,7 @@ public class ProblemsRegistry {
 	public void updateProblems(final Collection<Problem> newProblems) {
 		this.currentProblems.clear();
 		this.currentProblems.addAll(newProblems);
-		UiEventBus.send(ProblemsUpdatedEvent.fireRedraw());
+		Platform.runLater(() -> UiEventBus.send(ProblemsUpdatedEvent.fireRedraw()));
 	}
 
 	public boolean hasErrors() {

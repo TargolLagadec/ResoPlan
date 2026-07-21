@@ -70,12 +70,12 @@ public class MainWindowController {
 
 	@FXML
 	private void initialize() {
+		UiEventBus.send(ProblemsUpdatedEvent.fireCheck(null));
 		refreshRecentProjectsMenu();
 		displayWelcomePanel();
 		manageEvents();
 		manageAccesses();
 		showDefaultToolbar();
-		UiEventBus.send(ProblemsUpdatedEvent.fireMapRebuild());
 	}
 
 	private void manageEvents() {
@@ -156,13 +156,13 @@ public class MainWindowController {
 		openProject(project, false, isEventTriggered);
 	}
 
-	private void openProject(final Project project, final boolean newProj, boolean isEventTriggered) {
-		final Project prjWithFloors = this.service.setOpenedProject(project);
-		UiEventBus.send(ProblemsUpdatedEvent.fireMapRebuild());
+	private void openProject(Project project, final boolean newProj, boolean isEventTriggered) {
+		project = this.service.setOpenedProject(project);
+		UiEventBus.send(ProblemsUpdatedEvent.fireCheck(project));
 		if (newProj) {
 			displayAdjustPanel();
 		} else {
-			final boolean isIncomplete = AppState.PROJECT_INCOMPLETE.equals(MiscUtils.getAppState(prjWithFloors));
+			final boolean isIncomplete = AppState.PROJECT_INCOMPLETE.equals(MiscUtils.getAppState(project));
 			if (isIncomplete) {
 				displayAdjustPanel();
 			} else {
@@ -172,7 +172,7 @@ public class MainWindowController {
 		final Stage stage = (Stage) this.contentPane.getScene().getWindow();
 		stage.setTitle(Messages.getString("MainWindow.title.withProj", project.getName())); //$NON-NLS-1$
 		if (!isEventTriggered) {
-			UiEventBus.send(ProjectUpdatedEvent.fireUpdate(prjWithFloors));
+			UiEventBus.send(ProjectUpdatedEvent.fireUpdate(project));
 		}
 	}
 

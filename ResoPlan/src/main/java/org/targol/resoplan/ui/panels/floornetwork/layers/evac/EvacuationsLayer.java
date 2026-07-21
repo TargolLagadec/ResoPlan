@@ -161,7 +161,7 @@ public class EvacuationsLayer extends Pane {
 		} else {
 			createLinkedNodes(pixelX, pixelY, container, draw);
 		}
-		UiEventBus.send(ProblemsUpdatedEvent.fireMapRebuild());
+		UiEventBus.send(ProblemsUpdatedEvent.fireCheck(this.project));
 	}
 
 	private void createLinkedNodes(final double pixelX, final double pixelY, final INodeContainer container,

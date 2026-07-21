@@ -7,16 +7,10 @@ import javafx.event.EventType;
 public class ProblemsUpdatedEvent extends GenericActionEvent {
 
 	private static final long serialVersionUID = -237107763542098637L;
-	public static final EventType<ProblemsUpdatedEvent> REBUILD_MAP = new EventType<>(GenericActionEvent.ANY,
-			"REBUILD_MAP"); //$NON-NLS-1$
 	public static final EventType<ProblemsUpdatedEvent> CHECK_PROBLEMS = new EventType<>(GenericActionEvent.ANY,
 			"CHECK_PROBLEMS"); //$NON-NLS-1$
 	public static final EventType<ProblemsUpdatedEvent> DISPLAY_PROBLEMS = new EventType<>(GenericActionEvent.ANY,
 			"DISPLAY_PROBLEMS"); //$NON-NLS-1$
-
-	public static ProblemsUpdatedEvent fireMapRebuild() {
-		return new ProblemsUpdatedEvent(REBUILD_MAP, null);
-	}
 
 	public static ProblemsUpdatedEvent fireCheck(final Project project) {
 		return new ProblemsUpdatedEvent(CHECK_PROBLEMS, project);
