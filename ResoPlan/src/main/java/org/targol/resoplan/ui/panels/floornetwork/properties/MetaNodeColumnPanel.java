@@ -60,7 +60,8 @@ public class MetaNodeColumnPanel extends BorderPane {
 		this.leftPane.getChildren().add(this.nodesPanel);
 
 		setLeft(this.leftPane);
-		setMaxWidth(300);
+		setMaxWidth(400);
+		setPrefWidth(200);
 		UiEventBus.register(this, NodePropertiesAskedEvent.SUB_NODE_PROPS, evt -> displayProperties(evt));
 	}
 

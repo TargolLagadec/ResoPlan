@@ -12,6 +12,7 @@ import org.targol.resoplan.model.LayerType;
 import org.targol.resoplan.model.Node;
 import org.targol.resoplan.model.catalog.enums.NodeCross;
 import org.targol.resoplan.services.NodesService;
+import org.targol.resoplan.services.ProjectsService;
 import org.targol.resoplan.ui.utils.events.NodeMoveEvent;
 import org.targol.resoplan.ui.utils.events.UiEventBus;
 import org.targol.resoplan.utils.SpringContextHelper;
@@ -19,6 +20,8 @@ import org.targol.resoplan.utils.SpringContextHelper;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.control.Button;
+import javafx.scene.control.Spinner;
+import javafx.scene.control.SpinnerValueFactory;
 import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
 import javafx.scene.layout.GridPane;
@@ -32,7 +35,7 @@ public class NodePropertiesPanel extends GridPane {
 	@FXML
 	private TextField posYTextField;
 	@FXML
-	private TextField posZTextField;
+	private Spinner<Double> posZSpinner;
 	@FXML
 	private TextField floorTextField;
 	@FXML
@@ -47,6 +50,7 @@ public class NodePropertiesPanel extends GridPane {
 	private Button deleteButton;
 
 	private Node node;
+	private static final ProjectsService SVC_PROJECTS = SpringContextHelper.getBean(ProjectsService.class);
 	private static final NodesService SVC_NODES = SpringContextHelper.getBean(NodesService.class);
 	private final ResourceBundle bundle = ResourceBundle.getBundle("i18n.messages", Locale.getDefault()); //$NON-NLS-1$
 	private final NumberFormat numberFormat = NumberFormat.getInstance();
@@ -79,8 +83,13 @@ public class NodePropertiesPanel extends GridPane {
 		this.modelTextField.setText(this.node.getModel().getName());
 		this.posXTextField.setText(this.numberFormat.format(this.node.getPosX()));
 		this.posYTextField.setText(this.numberFormat.format(this.node.getPosY()));
-		this.posZTextField.setText(this.numberFormat.format(this.node.getPosZ()));
-		this.posZTextField.setDisable(!NodeCross.NONE.equals(this.node.getNodeCross()));
+		this.posZSpinner.setEditable(true);
+		this.posZSpinner.setValueFactory(new SpinnerValueFactory.DoubleSpinnerValueFactory(0,
+				SVC_PROJECTS.getOpenedProject().getHsp(), this.node.getPosZ(), 5));
+		this.posZSpinner.setDisable(!NodeCross.NONE.equals(this.node.getNodeCross()));
+		// TODO faire ça sur save uniquement.
+		this.posZSpinner.getValueFactory().valueProperty()
+				.addListener((obs, old, newVal) -> UiEventBus.send(NodeMoveEvent.of(this.node)));
 		this.layersTextField.setText(buildLayersLabel());
 		this.nodeCrossTextField.setText(this.node.getNodeCross().getLabel());
 		this.hooksTextField.setText(buildHooksLabel());

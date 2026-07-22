@@ -18,7 +18,7 @@
 		<TextField fx:id="posYTextField" disable="true" editable="false" GridPane.columnIndex="1" GridPane.rowIndex="2" />
 
 		<Label text="%NodePropertiesPanel.posZ" wrapText="true" GridPane.columnIndex="0" GridPane.rowIndex="3"/> 
-		<TextField fx:id="posZTextField"  GridPane.columnIndex="1" GridPane.rowIndex="3" />
+		<Spinner fx:id="posZSpinner" GridPane.columnIndex="1" GridPane.rowIndex="3" />
 
 		<Label text="%NodePropertiesPanel.layer" wrapText="true" GridPane.columnIndex="0" GridPane.rowIndex="4"/>
 		<TextArea fx:id="layersTextField" disable="true" editable="false"  GridPane.columnIndex="1" GridPane.rowIndex="4" />
